@@ -1,0 +1,42 @@
+﻿<tr>
+    <td class="aide-memoire-cell">
+        @if (AjoutEnCours)
+        {
+            <textarea rows="3"
+                      @bind="NouvelleEtape"
+                      @bind:event="oninput" />
+        }
+        else
+        {
+            <em>Ajouter une nouvelle étape…</em>
+        }
+    </td>
+
+    <td class="actions-col">
+        @if (AjoutEnCours)
+        {
+            <button class="btn-icon" @onclick="OnAdd">💾</button>
+            <button class="btn-icon" @onclick="OnCancelAdd">✖</button>
+        }
+        else
+        {
+            <button class="btn-icon" @onclick="OnStartAdd">＋</button>
+        }
+    </td>
+</tr>
+
+@code {
+    [Parameter] public bool AjoutEnCours { get; set; }
+    [Parameter] public string NouvelleEtape { get; set; } = "";
+
+    [Parameter] public EventCallback OnStartAdd { get; set; }
+    [Parameter] public EventCallback OnCancelAdd { get; set; }
+    [Parameter] public EventCallback OnAdd { get; set; }
+    [Parameter] public EventCallback<string> OnNouvelleEtapeChanged { get; set; }
+
+    private string NouvelleEtapeProxy
+    {
+        get => NouvelleEtape;
+        set => OnNouvelleEtapeChanged.InvokeAsync(value);
+    }
+}

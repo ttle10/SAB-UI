@@ -1,0 +1,61 @@
+﻿@using SystemeAideBasculement.Models
+
+<div class="memo-grid">
+    <table class="aide-memoire-table">
+        <AideMemoireHeaderRow />
+
+        <tbody>
+
+            @* Render real rows when data exists *@
+            @foreach (var etape in Etapes)
+            {
+                <AideMemoireRow Etape="etape"
+                                EtapeEnEdition="EtapeEnEdition"
+                                OnEdit="() => OnEdit.InvokeAsync(etape)"
+                                OnSave="OnSave"
+                                OnCancel="OnCancelEdit"
+                                OnDelete="() => OnDelete.InvokeAsync(etape)" />
+            }
+
+            @* Empty-state row (only when NOT loading) *@
+            @if (!IsLoading && !Etapes.Any())
+            {
+                <tr>
+                    <td colspan="2"
+                        style="text-align:center;
+                           font-style:italic;
+                           color: var(--stm-gray-700);">
+                        Aucune étape à afficher
+                    </td>
+                </tr>
+            }
+
+            @* Add row always present *@
+            <AideMemoireAddRow AjoutEnCours="AjoutEnCours"
+                               NouvelleEtape="NouvelleEtape"
+                               OnStartAdd="OnStartAdd"
+                               OnCancelAdd="OnCancelAdd"
+                               OnAdd="OnAdd"
+                               OnNouvelleEtapeChanged="OnNouvelleEtapeChanged" />
+
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public List<AideMemoireModel> Etapes { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public AideMemoireModel? EtapeEnEdition { get; set; }
+    [Parameter] public bool AjoutEnCours { get; set; }
+    [Parameter] public string NouvelleEtape { get; set; } = "";
+
+    [Parameter] public EventCallback<AideMemoireModel> OnEdit { get; set; }
+    [Parameter] public EventCallback<AideMemoireModel?> OnSave { get; set; }
+    [Parameter] public EventCallback OnCancelEdit { get; set; }
+    [Parameter] public EventCallback<AideMemoireModel> OnDelete { get; set; }
+
+    [Parameter] public EventCallback OnStartAdd { get; set; }
+    [Parameter] public EventCallback OnCancelAdd { get; set; }
+    [Parameter] public EventCallback OnAdd { get; set; }
+    [Parameter] public EventCallback<string> OnNouvelleEtapeChanged { get; set; }
+}

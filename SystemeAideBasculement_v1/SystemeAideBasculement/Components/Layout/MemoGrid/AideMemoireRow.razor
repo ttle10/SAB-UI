@@ -1,0 +1,37 @@
+﻿@using SystemeAideBasculement.Models
+
+<tr>
+    <td class="aide-memoire-cell">
+        @if (Etape.Id == EtapeEnEdition?.Id)
+        {
+            <textarea @bind="EtapeEnEdition.Step" rows="3" />
+        }
+        else
+        {
+            @Etape.Step
+        }
+    </td>
+
+    <td class="actions-col">
+        @if (Etape.Id == EtapeEnEdition?.Id)
+        {
+            <button class="btn-icon" @onclick="() => OnSave.InvokeAsync(EtapeEnEdition)">💾</button>
+            <button class="btn-icon" @onclick="OnCancel">✖</button>
+        }
+        else
+        {
+            <button class="btn-icon" @onclick="OnEdit">✎</button>
+            <button class="btn-icon" @onclick="OnDelete">🗑</button>
+        }
+    </td>
+</tr>
+
+@code {
+    [Parameter] public AideMemoireModel Etape { get; set; } = default!;
+    [Parameter] public AideMemoireModel? EtapeEnEdition { get; set; }
+
+    [Parameter] public EventCallback OnEdit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<AideMemoireModel?> OnSave { get; set; }
+    [Parameter] public EventCallback OnDelete { get; set; }
+}

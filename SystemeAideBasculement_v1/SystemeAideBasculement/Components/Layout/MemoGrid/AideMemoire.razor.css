@@ -1,0 +1,75 @@
+﻿/* Table container */
+.memo-grid {
+    border: 1px solid var(--stm-gray-300, #d1d5d8);
+    border-radius: 4px;
+    overflow: hidden;
+    background: white;
+    min-height: 607px;
+    width: 100%;
+}
+
+/* Table */
+.aide-memoire-table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 11px;
+}
+
+    .aide-memoire-table th,
+    .aide-memoire-table td {
+        border: 1px solid var(--stm-gray-300, #d1d5d8);
+        padding: 6px 8px;
+        text-align: left;
+        color: var(--stm-gray-900, #1f2933);
+        overflow-wrap: break-word;
+    }
+
+    .aide-memoire-table th {
+        background-color: var(--stm-gray-250, #dde1e5);
+        font-weight: 700;
+    }
+
+    /* Zebra rows */
+    .aide-memoire-table tbody tr:nth-child(odd) td {
+        background-color: #ffffff;
+    }
+
+    .aide-memoire-table tbody tr:nth-child(even) td {
+        background-color: #fbfbfc;
+    }
+
+/* Cells */
+.aide-memoire-cell {
+    white-space: normal;
+}
+
+/* Header */
+.panel-header {
+    padding: 6px 8px;
+    background-color: var(--stm-gray-250, #dde1e5);
+    border-bottom: 1px solid var(--stm-gray-300, #d1d5d8);
+}
+
+.panel-title {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Actions */
+.actions-col {
+    width: 56px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-icon {
+    background: white;
+    border: 1px solid var(--stm-gray-300, #d1d5d8);
+    border-radius: 4px;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    cursor: pointer;
+}

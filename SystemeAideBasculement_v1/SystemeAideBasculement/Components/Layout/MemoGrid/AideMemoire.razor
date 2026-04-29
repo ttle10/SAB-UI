@@ -1,0 +1,96 @@
+﻿@inject IJSRuntime JS
+@inject SystemeAideBasculement.Context.AideMemoireDbContext Db
+@using SystemeAideBasculement.Models
+@using Microsoft.EntityFrameworkCore
+
+<AideMemoireHeader IsLoading="etapes == null" />
+
+<AideMemoireTable Etapes="etapes ?? new List<AideMemoireModel>()"
+                  IsLoading="etapes == null"
+                  EtapeEnEdition="etapeEnEdition"
+                  AjoutEnCours="ajoutEnCours"
+                  NouvelleEtape="nouvelleEtape"
+                  OnEdit="ModifierEtape"
+                  OnCancelEdit="AnnulerEdition"
+                  OnSave="SauvegarderEtape"
+                  OnDelete="ConfirmerSuppression"
+                  OnStartAdd="CommencerAjout"
+                  OnCancelAdd="AnnulerAjout"
+                  OnAdd="AjouterEtape"
+                  OnNouvelleEtapeChanged="v => nouvelleEtape = v" />
+
+@code {
+    private List<AideMemoireModel>? etapes;
+    private AideMemoireModel? etapeEnEdition;
+    private string nouvelleEtape = string.Empty;
+    private bool ajoutEnCours;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RechargerEtapes();
+    }
+
+    private async Task RechargerEtapes()
+    {
+        etapes = null; // explicit loading state
+
+        etapes = await Db.AideMemoires
+            .Where(e => !e.IsDeleted)
+            .OrderBy(e => e.Id)
+            .ToListAsync();
+
+        etapeEnEdition = null;
+    }
+
+    private void ModifierEtape(AideMemoireModel etape) =>
+        etapeEnEdition = new()
+        {
+            Id = etape.Id,
+            Step = etape.Step,
+            IsDeleted = etape.IsDeleted
+        };
+
+    private void AnnulerEdition() => etapeEnEdition = null;
+
+    private async Task SauvegarderEtape(AideMemoireModel? etape)
+    {
+        if (etape == null) return;
+        var original = await Db.AideMemoires.FindAsync(etape.Id);
+        if (original != null)
+        {
+            original.Step = etape.Step;
+            await Db.SaveChangesAsync();
+            await RechargerEtapes();
+        }
+    }
+
+    private async Task ConfirmerSuppression(AideMemoireModel etape)
+    {
+        if (await JS.InvokeAsync<bool>("confirm",
+            $"Voulez-vous vraiment supprimer l'étape '{etape.Step}' ?"))
+        {
+            var original = await Db.AideMemoires.FindAsync(etape.Id);
+            if (original != null)
+            {
+                original.IsDeleted = true;
+                await Db.SaveChangesAsync();
+                await RechargerEtapes();
+            }
+        }
+    }
+
+    private void CommencerAjout() => ajoutEnCours = true;
+    private void AnnulerAjout() => ajoutEnCours = false;
+
+    private async Task AjouterEtape()
+    {
+        if (!string.IsNullOrWhiteSpace(nouvelleEtape))
+        {
+            Db.AideMemoires.Add(new() { Step = nouvelleEtape });
+            await Db.SaveChangesAsync();
+            nouvelleEtape = string.Empty;
+            ajoutEnCours = false;
+            await RechargerEtapes();
+        }
+    }
+}
