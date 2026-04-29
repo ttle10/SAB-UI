@@ -1,0 +1,17 @@
+﻿@using SystemeAideBasculement.Components.Layout
+
+<div class="grid-title-row">
+    <div></div>
+    <div class="ccp-title">CCP</div>
+    <div class="ccr-title">CCR</div>
+</div>
+
+<div class="grid-header-row">
+    <div>@(ViewMode == DashboardViewMode.Profile ? "Profils" : "PEX")</div>
+    <div>Poste</div><div>CRA</div><div>REU</div><div>SGCZ</div><div>STI</div>
+    <div>Poste</div><div>CRA</div><div>REU</div><div>SGCZ</div><div>STI</div>
+</div>
+
+@code {
+    [Parameter] public DashboardViewMode ViewMode { get; set; }
+}

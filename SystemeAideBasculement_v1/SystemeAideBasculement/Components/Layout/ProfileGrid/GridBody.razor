@@ -1,0 +1,66 @@
+﻿@using SystemeAideBasculement.Components.Layout
+@using SystemeAideBasculement.Models
+@using SystemeAideBasculement.Services
+
+@implements IDisposable
+@inject NotificationService Notifications
+
+<div class="grid-body" role="grid">
+    @if (ViewMode == DashboardViewMode.Profile)
+    {
+        @foreach (var row in DummySabData.Profiles)
+        {
+            <GridRowProfile @key="row.Profile"
+                            Row="row" />
+        }
+    }
+    else
+    {
+        @foreach (var row in DummySabData.Pexes)
+        {
+            <GridRowPex @key="row.Pex"
+                        Row="row" />
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public DashboardViewMode ViewMode { get; set; }
+
+
+
+    protected override void OnInitialized()
+    {
+        Notifications.OnNotifications += HandleNotifications;
+    }
+
+    private void HandleNotifications(
+        List<ProfileConnectionNotificationModel> notifications)
+    {
+        foreach (var notification in notifications)
+        {
+            ApplyNotification(notification);
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Notifications.OnNotifications -= HandleNotifications;
+    }
+
+    private void ApplyNotification(ProfileConnectionNotificationModel n)
+    {
+        // var row = Profiles.FirstOrDefault(p => p.Profile == n.Profile);
+        // if (row == null) return;
+
+        // var endpoint = n.Site == "CCP" ? row.CCP : row.CCR;
+
+        // endpoint.Poste = n.Poste;
+        // endpoint.CRA = n.CRA;
+        // endpoint.REU = n.REU;
+        // endpoint.SGCZ = n.SGCZ;
+        // endpoint.STI = n.STI;
+    }
+}

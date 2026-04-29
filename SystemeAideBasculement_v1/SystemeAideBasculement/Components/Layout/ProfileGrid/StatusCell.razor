@@ -1,0 +1,12 @@
+﻿@using SystemeAideBasculement.Models
+
+<div class="cell" role="gridcell">
+    <span class="status-badge @(Connected? StatusBadge.Connected: StatusBadge.Disconnected)">
+        @Text
+    </span>
+</div>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public bool Connected { get; set; }
+}

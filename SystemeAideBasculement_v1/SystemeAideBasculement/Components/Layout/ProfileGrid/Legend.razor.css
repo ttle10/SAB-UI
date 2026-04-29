@@ -1,0 +1,29 @@
+﻿/* Legend */
+
+.legend {
+    margin-top: 12px;
+    padding-left: 2px;
+}
+
+.legend-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--stm-gray-700, #4a4f55);
+    margin-bottom: 6px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    margin: 3px 0;
+    color: var(--stm-gray-700, #4a4f55);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}

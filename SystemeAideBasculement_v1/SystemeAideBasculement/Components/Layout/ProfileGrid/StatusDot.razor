@@ -1,0 +1,16 @@
+﻿@using SystemeAideBasculement.Models
+
+<div class="cell" role="gridcell">
+    @if (Value == EndpointValue.NotMonitored)
+    {
+        <span class="dash">—</span>
+    }
+    else
+    {
+        <span class="dot @(Value)"></span>
+    }
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = EndpointValue.NotMonitored;
+}

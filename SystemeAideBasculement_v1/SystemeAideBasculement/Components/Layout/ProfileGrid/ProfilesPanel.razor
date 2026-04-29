@@ -1,0 +1,16 @@
+﻿@using SystemeAideBasculement.Components.Layout.ProfileGrid
+
+<section class="panel">
+    <div class="panel-heading">Profils connectés</div>
+
+    <div class="grid-shell @(ViewMode == DashboardViewMode.PEX ? "pex-view" : "")">
+        <GridHeader ViewMode="@ViewMode" />
+        <GridBody ViewMode="@ViewMode" />
+    </div>
+
+    <Legend />
+</section>
+
+@code {
+    [Parameter] public DashboardViewMode ViewMode { get; set; }
+}

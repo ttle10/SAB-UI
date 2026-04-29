@@ -1,0 +1,79 @@
+﻿/* Grid rows */
+
+::deep .grid-body .grid-row {
+    display: grid;
+    grid-template-columns: 180px 160px 48px 48px 48px 48px 160px 48px 48px 48px 48px;
+    border-top: 1px solid var(--stm-gray-200, #e6e8ea);
+}
+
+::deep .grid-body .grid-row:hover {
+    background: #eef2f6;
+}
+
+/* Zebra striping */
+::deep .grid-body .grid-row:nth-child(odd),
+.grid-row:nth-child(odd) {
+    background: #ffffff;
+}
+
+::deep .grid-body .grid-row:nth-child(even),
+.grid-row:nth-child(even) {
+    background: #fbfbfc;
+}
+
+/* Cells */
+::deep .cell {
+    min-height: 34px;
+    padding: 6px;
+    font-size: 12px;
+    border-right: 1px solid var(--stm-gray-200, #e6e8ea);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Remove right border on last cell */
+::deep .grid-body .cell:last-child {
+    border-right: none;
+}
+
+/* Profile name */
+::deep .profile-name {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Status backgrounds */
+::deep .connected {
+    background: var(--stm-success, #2e7d32);
+}
+
+::deep .disconnected {
+    background: var(--stm-danger, #c62828);
+}
+
+::deep .unknown {
+    background: var(--stm-info, #1565c0);
+}
+
+/* Status dots */
+::deep .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+::deep .dot.green {
+    background: var(--stm-success, #2e7d32);
+}
+
+::deep .dot.red {
+    background: var(--stm-danger, #c62828);
+}
+
+/* Dash placeholder */
+::deep .dash {
+    font-weight: 600;
+    color: var(--stm-gray-700, #4a4f55);
+}

@@ -1,0 +1,51 @@
+﻿/* Title and header rows */
+
+.grid-title-row,
+.grid-header-row {
+    display: grid;
+    grid-template-columns: 180px /* Profils / PEX */
+    160px 48px 48px 48px 48px /* CCP: Poste, CRA, REU, SGCZ, STI */
+    160px 48px 48px 48px 48px; /* CCR: Poste, CRA, REU, SGCZ, STI */
+}
+
+.grid-title-row,
+.grid-header-row {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.grid-title-row {
+    background: var(--stm-gray-250, #dde1e5);
+    font-weight: 700;
+    text-align: center;
+}
+
+.grid-title-row > div,
+.grid-header-row > div {
+    padding: 6px;
+    border-right: 1px solid var(--stm-gray-300, #d1d5d8);
+}
+
+.grid-title-row > div:last-child,
+.grid-header-row > div:last-child {
+    border-right: none;
+}
+
+.grid-header-row {
+    background: var(--stm-gray-200, #e6e8ea);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.grid-header-row > div {
+    white-space: nowrap;
+}
+
+.ccp-title {
+    grid-column: span 5;
+}
+
+.ccr-title {
+    grid-column: span 5;
+}

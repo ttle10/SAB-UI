@@ -1,0 +1,26 @@
+﻿@using SystemeAideBasculement.Models
+
+<div class="grid-row" role="row">
+    <div class="cell">
+        <span class="profile-name">@Row.Pex</span>
+    </div>
+
+    <StatusCell Text="@Row.CCP.ProfileNames" Connected="@IsConnected(Row.CCP.ProfileNames)" />
+    <StatusDot Value="@Row.CCP.CRA" />
+    <StatusDot Value="@Row.CCP.REU" />
+    <StatusDot Value="@Row.CCP.SGCZ" />
+    <StatusDot Value="@Row.CCP.STI" />
+
+    <StatusCell Text="@Row.CCR.ProfileNames" Connected="@IsConnected(Row.CCR.ProfileNames)" />
+    <StatusDot Value="@Row.CCR.CRA" />
+    <StatusDot Value="@Row.CCR.REU" />
+    <StatusDot Value="@Row.CCR.SGCZ" />
+    <StatusDot Value="@Row.CCR.STI" />
+</div>
+
+@code {
+    [Parameter] public SabPexRow Row { get; set; } = default!;
+
+    private static bool IsConnected(string? profiles)
+        => !string.IsNullOrWhiteSpace(profiles) && !profiles.Equals(EndpointValue.None, StringComparison.InvariantCultureIgnoreCase);
+}
