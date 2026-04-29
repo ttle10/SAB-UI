@@ -1,23 +1,25 @@
 ﻿/* Grid rows */
 
-::deep .grid-body .grid-row {
+::deep .grid-body,
+::deep .grid-row {
     display: grid;
     grid-template-columns: 180px 160px 48px 48px 48px 48px 160px 48px 48px 48px 48px;
     border-top: 1px solid var(--stm-gray-200, #e6e8ea);
 }
 
-::deep .grid-body .grid-row:hover {
+::deep .grid-body,
+::deep .grid-row:hover {
     background: #eef2f6;
 }
 
 /* Zebra striping */
-::deep .grid-body .grid-row:nth-child(odd),
-.grid-row:nth-child(odd) {
-    background: #ffffff;
+::deep .grid-body,
+::deep .grid-row:nth-child(odd) {
+        background: #ffffff;
 }
 
-::deep .grid-body .grid-row:nth-child(even),
-.grid-row:nth-child(even) {
+::deep .grid-body,
+::deep .grid-row:nth-child(even) {
     background: #fbfbfc;
 }
 
@@ -33,7 +35,8 @@
 }
 
 /* Remove right border on last cell */
-::deep .grid-body .cell:last-child {
+::deep .grid-body,
+::deep .cell:last-child {
     border-right: none;
 }
 

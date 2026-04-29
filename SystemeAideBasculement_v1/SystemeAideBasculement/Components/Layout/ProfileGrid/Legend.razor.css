@@ -12,18 +12,33 @@
     margin-bottom: 6px;
 }
 
+.legend-items {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
 .legend-item {
     display: flex;
     align-items: center;
     gap: 7px;
     font-size: 11px;
-    margin: 3px 0;
     color: var(--stm-gray-700, #4a4f55);
 }
+
 
 .legend-dot {
     width: 12px;
     height: 12px;
     border-radius: 50%;
     display: inline-block;
+}
+
+.legend-dot.connected {
+    background: #099212;
+}
+
+.legend-dot.disconnected {
+    background: #d83422;
 }

@@ -1,5 +1,6 @@
 ﻿/* STM-style footer panel for the PDF link */
 .footer-bar {
+    margin-top: 16px;
     background: #ffffff;
     border-radius: 6px;
     padding: 10px 12px;
