@@ -42,3 +42,8 @@
 .legend-dot.disconnected {
     background: #d83422;
 }
+
+.legend-dash {
+    font-weight: 600;
+    color: var(--stm-gray-700, #4a4f55);
+}

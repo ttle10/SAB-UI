@@ -1,7 +1,7 @@
 ﻿@using SystemeAideBasculement.Components.Layout.ProfileGrid
 
 <section class="panel">
-    <div class="panel-heading">Profils connectés</div>
+    <div class="panel-heading">@ConnectedViewName connectés</div>
 
     <div class="grid-shell @(ViewMode == DashboardViewMode.PEX ? "pex-view" : "")">
         <GridHeader ViewMode="@ViewMode" />
@@ -13,4 +13,11 @@
 
 @code {
     [Parameter] public DashboardViewMode ViewMode { get; set; }
+
+    private string ConnectedViewName { get; set; } = "Profils";
+
+    protected override void OnParametersSet()
+    {
+        ConnectedViewName = ViewMode == DashboardViewMode.Profile ? "Profils" : "PEX";
+    }
 }

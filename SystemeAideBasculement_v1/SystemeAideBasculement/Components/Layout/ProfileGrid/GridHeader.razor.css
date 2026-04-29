@@ -36,6 +36,7 @@
     background: var(--stm-gray-200, #e6e8ea);
     font-size: 12px;
     font-weight: 600;
+    text-align: center;
 }
 
 .grid-header-row > div {

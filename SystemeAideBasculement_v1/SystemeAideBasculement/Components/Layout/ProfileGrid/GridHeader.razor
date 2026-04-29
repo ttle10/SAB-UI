@@ -8,8 +8,8 @@
 
 <div class="grid-header-row">
     <div>@(ViewMode == DashboardViewMode.Profile ? "Profils" : "PEX")</div>
-    <div>Poste</div><div>CRA</div><div>REU</div><div>SGCZ</div><div>STI</div>
-    <div>Poste</div><div>CRA</div><div>REU</div><div>SGCZ</div><div>STI</div>
+    <div>@(ViewMode == DashboardViewMode.Profile ? "Poste" : "PICC")</div><div>CRA</div><div>REU</div><div>SGCZ</div><div>STI</div>
+    <div>@(ViewMode == DashboardViewMode.Profile ? "Poste" : "PICC")</div><div>CRA</div><div>REU</div><div>SGCZ</div><div>STI</div>
 </div>
 
 @code {

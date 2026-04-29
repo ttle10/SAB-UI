@@ -3,6 +3,7 @@
 @using SystemeAideBasculement.Models
 @using Microsoft.EntityFrameworkCore
 
+<div class="aide-memoire-layout">
 <AideMemoireHeader IsLoading="etapes == null" />
 
 <AideMemoireTable Etapes="etapes ?? new List<AideMemoireModel>()"
@@ -18,7 +19,7 @@
                   OnCancelAdd="AnnulerAjout"
                   OnAdd="AjouterEtape"
                   OnNouvelleEtapeChanged="v => nouvelleEtape = v" />
-
+</div>
 @code {
     private List<AideMemoireModel>? etapes;
     private AideMemoireModel? etapeEnEdition;

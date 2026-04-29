@@ -40,6 +40,13 @@
     border-right: none;
 }
 
+
+::deep .cell-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Profile name */
 ::deep .profile-name {
     font-weight: 600;

@@ -1,4 +1,10 @@
-﻿/* Table container */
+﻿.aide-memoire-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Table container */
 .memo-grid {
     border: 1px solid var(--stm-gray-300, #d1d5d8);
     border-radius: 4px;
@@ -45,17 +51,6 @@
     white-space: normal;
 }
 
-/* Header */
-.panel-header {
-    padding: 6px 8px;
-    background-color: var(--stm-gray-250, #dde1e5);
-    border-bottom: 1px solid var(--stm-gray-300, #d1d5d8);
-}
-
-.panel-title {
-    font-size: 11px;
-    font-weight: 700;
-}
 
 /* Actions */
 .actions-col {

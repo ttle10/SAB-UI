@@ -1,31 +1,64 @@
 ﻿namespace SystemeAideBasculement.Services
 {
+    using System;
     using System.Text.Json;
+    using SystemeAideBasculement.Controllers;
     using SystemeAideBasculement.Models;
 
     public class SabStateCache
     {
         private readonly IWebHostEnvironment _env;
+        private readonly ILogger<NotificationsController> _logger;
 
-        public List<SabProfileRow> Profiles { get; private set; } = [];
-        public List<SabPexRow> Pexs { get; private set; } = [];
-
-        public event Action? OnStateChanged;
-
-        public SabStateCache(IWebHostEnvironment env)
-        {
-            _env = env;
-        }
-
-        public async Task LoadInitialStateAsync()
-        {
-            var options = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions JsonOptions =
+            new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
 
-            Profiles = await LoadAsync<SabProfileRow>("config/sabProfiles.json", options);
-            Pexs = await LoadAsync<SabPexRow>("config/sabPexs.json", options);
+        public List<SabProfileRow> Profiles { get; private set; } = [];
+        public List<SabPexRow> Pexs { get; private set; } = [];
+
+        public bool IsReady { get; private set; } = false;
+
+        public event Action? OnStateChanged;
+
+        public SabStateCache(IWebHostEnvironment env,
+                             ILogger<NotificationsController> logger)
+        {
+            _env = env;
+            _logger = logger;
+        }
+
+        public async Task LoadInitialStateAsync()
+        {
+            IsReady = false;
+            try
+            {
+                Profiles = await LoadAsync<SabProfileRow>("config/sabProfiles.json", JsonOptions);
+                if (Profiles == null)
+                {
+                    _logger.LogError("Failed to deserialize sabProfiles initial configuration.");
+                }
+            }
+            catch (JsonException)
+            {
+                _logger.LogError("Failed to deserialize sabProfiles initial configuration.");
+            }
+
+            try
+            {
+                Pexs = await LoadAsync<SabPexRow>("config/sabPexs.json", JsonOptions);
+                if (Pexs == null)
+                {
+                    _logger.LogError("Failed to deserialize sabPexs initial configuration.");
+                }
+            }
+            catch (JsonException)
+            {
+                _logger.LogError("Failed to deserialize sabPexs initial configuration.");
+            }
+            IsReady = true;
         }
 
         /* === UPDATE METHODS CALLED BY NOTIFICATIONS === */
