@@ -44,6 +44,10 @@
 }
 
 .legend-dash {
-    font-weight: 600;
     color: var(--stm-gray-700, #4a4f55);
+    display: inline-block;
+    width: 10px;              /* adjust to match image */
+    height: 1px;              /* thickness of dash */
+    background-color: currentColor;
+    border-radius: 2px;       /* smooth ends (important) */
 }
