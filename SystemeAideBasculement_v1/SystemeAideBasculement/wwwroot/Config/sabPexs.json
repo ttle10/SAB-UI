@@ -1,0 +1,19 @@
+[
+  {
+    "pex": "PEX 1",
+    "ccp": {
+      "poste": "PCC L2 TMM",
+      "cra": "green",
+      "reu": "green",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  }
+]

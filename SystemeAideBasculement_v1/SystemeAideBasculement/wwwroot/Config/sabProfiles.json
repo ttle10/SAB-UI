@@ -1,0 +1,19 @@
+[
+  {
+    "profile": "PCC L2 TMM",
+    "ccp": {
+      "poste": "PICC-01,PICC-02",
+      "cra": "green",
+      "reu": "green",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  }
+]

@@ -1,0 +1,35 @@
+﻿/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--stm-blue-dark, #0077b6);
+    margin: 0;
+}
+
+
+/* Right-hand panel wrapper */
+
+.panel {
+    background: var(--hero-ink, #ffffff);
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+
+
+/* Toolbar */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}

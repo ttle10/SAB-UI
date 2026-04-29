@@ -1,0 +1,50 @@
+﻿:root {
+    --stm-blue: #0095d9;
+    --stm-blue-dark: #0077b6;
+    --stm-gray-100: #f5f6f7;
+    --stm-gray-200: #e6e8ea;
+    --stm-gray-250: #dde1e5; /* slightly darker than gray-200 */
+    --stm-gray-300: #d1d5d8;
+    --stm-gray-700: #4a4f55;
+    --stm-gray-900: #1f2933;
+    --stm-success: #2e7d32;
+    --stm-danger: #c62828;
+    --stm-info: #1565c0;
+    /* Couleurs héro */
+    --hero-blue-start: #0396d6;
+    --hero-blue-end: #06b0ff;
+    --hero-ink: #ffffff;
+    /* Liseré */
+    --hero-accent-yellow: #ffd400;
+    --hero-accent-green: #0F6E49;
+    /* Gabarits */
+    --hero-pad-x: 16px;
+    --hero-pad-top: 18px;
+    --hero-pad-bottom: 22px;
+    --hero-title-size: 22px;
+    --hero-title-weight: 800;
+    /* Toolbar */
+    --toolbar-bg: #fff;
+    --toolbar-bd: var(--stm-gray-300, #d1d5d8);
+    --toolbar-pad-y: 8px;
+    --toolbar-pad-x: 14px;
+    --toolbar-gap: 12px;
+    /* Effets */
+    --hero-shadow: 0 1px 0 var(--stm-gray-300, #d1d5d8);
+    --header-z: 100;
+}
+
+
+/* Global box model */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--stm-gray-100, #f5f6f7);
+    color: var(--stm-gray-900, #1f2933);
+}

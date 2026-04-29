@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36908.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemeAideBasculement", "SystemeAideBasculement\SystemeAideBasculement.csproj", "{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5AE616CD-13C5-426E-B039-D8C013EA730D}
+	EndGlobalSection
+EndGlobal

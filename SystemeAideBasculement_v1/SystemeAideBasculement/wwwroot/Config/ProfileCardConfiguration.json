@@ -1,0 +1,194 @@
+[
+  {
+    "Name": "PCC-L2 TMM",
+    "X": 0,
+    "Y": 0,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCC-L2 VRTU",
+    "X": 1,
+    "Y": 0,
+    "Site": "CCP"
+  },
+  {
+    "Name": "",
+    "X": 2,
+    "Y": 0,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCC-L1 TBG",
+    "X": 3,
+    "Y": 0,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCC-L2",
+    "X": 0,
+    "Y": 1,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCC-L4",
+    "X": 1,
+    "Y": 1,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCC-L5",
+    "X": 2,
+    "Y": 1,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCC-L1",
+    "X": 3,
+    "Y": 1,
+    "Site": "CCP"
+  },
+  {
+    "Name": "COSC",
+    "X": 0,
+    "Y": 2,
+    "Site": "CCP"
+  },
+  {
+    "Name": "CCM-L2L4",
+    "X": 1,
+    "Y": 2,
+    "Site": "CCP"
+  },
+  {
+    "Name": "CCM-L2L4",
+    "X": 2,
+    "Y": 2,
+    "Site": "CCP"
+  },
+  {
+    "Name": "",
+    "X": 3,
+    "Y": 2,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCM-A",
+    "X": 0,
+    "Y": 3,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCM-S",
+    "X": 1,
+    "Y": 3,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCM-E",
+    "X": 2,
+    "Y": 3,
+    "Site": "CCP"
+  },
+  {
+    "Name": "CC",
+    "X": 3,
+    "Y": 3,
+    "Site": "CCP"
+  },
+  {
+    "Name": "PCC-L2-TMM",
+    "X": 0,
+    "Y": 0,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCC-L2 VRTU",
+    "X": 1,
+    "Y": 0,
+    "Site": "CCR"
+  },
+  {
+    "Name": "",
+    "X": 2,
+    "Y": 0,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCC-L1 TBG",
+    "X": 3,
+    "Y": 0,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCC-L2",
+    "X": 0,
+    "Y": 1,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCC-L4",
+    "X": 1,
+    "Y": 1,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCC-L5",
+    "X": 2,
+    "Y": 1,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCC-L1",
+    "X": 3,
+    "Y": 1,
+    "Site": "CCR"
+  },
+  {
+    "Name": "COSC",
+    "X": 0,
+    "Y": 2,
+    "Site": "CCR"
+  },
+  {
+    "Name": "CCM-L2L4",
+    "X": 1,
+    "Y": 2,
+    "Site": "CCR"
+  },
+  {
+    "Name": "CCM-L2L4",
+    "X": 2,
+    "Y": 2,
+    "Site": "CCR"
+  },
+  {
+    "Name": "",
+    "X": 3,
+    "Y": 2,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCM-A",
+    "X": 0,
+    "Y": 3,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCM-S",
+    "X": 1,
+    "Y": 3,
+    "Site": "CCR"
+  },
+  {
+    "Name": "PCM-E",
+    "X": 2,
+    "Y": 3,
+    "Site": "CCR"
+  },
+  {
+    "Name": "CC",
+    "X": 3,
+    "Y": 3,
+    "Site": "CCR"
+  }
+]
