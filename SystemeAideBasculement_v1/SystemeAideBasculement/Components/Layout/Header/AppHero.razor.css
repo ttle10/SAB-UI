@@ -1,0 +1,99 @@
+﻿/* Hero gradient band */
+
+.app-hero {
+    position: relative;
+    color: var(--hero-ink, #ffffff);
+    background: linear-gradient( 90deg, var(--hero-blue-start, #0396d6), var(--hero-blue-end, #06b0ff) );
+    padding: var(--hero-pad-top, 18px) var(--hero-pad-x, 16px) var(--hero-pad-bottom, 22px);
+}
+
+.app-hero .dots {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.app-hero .dots > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.92;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18) inset;
+}
+
+.app-hero h1 {
+margin: 6px 0 0;
+font-size: var(--hero-title-size, 22px);
+line-height: 1.2;
+font-weight: var(--hero-title-weight, 800);
+color: var(--hero-ink, #ffffff);
+letter-spacing: 0.2px;
+}
+
+/* Diagonal STM stripe */
+
+.app-hero::after {
+content: "";
+position: absolute;
+left: 0;
+right: 0;
+bottom: 0;
+height: 12px;
+background: repeating-linear-gradient( -20deg, transparent 0 170px, var(--hero-accent-yellow, #ffd400) 170px 184px, transparent 184px 260px, var(--hero-accent-green, #0F6E49) 260px 274px, transparent 274px 360px ), linear-gradient(90deg, rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.06));
+opacity: 0.9;
+pointer-events: none;
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 900px) {
+    .app-hero {
+        padding: 14px 12px 18px;
+    }
+
+        .app-hero h1 {
+            font-size: 20px;
+        }
+}
+
+@media (max-width: 720px) {
+    .app-hero h1 {
+        font-size: 18px;
+    }
+}
+
+/* Accessibility / reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    .app-hero,
+    .app-hero::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+@media (forced-colors: active) {
+    .app-hero {
+        background: CanvasText;
+        color: Canvas;
+    }
+
+    .app-hero .dots > span {
+        background: Canvas;
+        outline: 1px solid CanvasText;
+    }
+}
+
+/* RTL support */
+
+:root:dir(rtl) .app-hero .dots {
+    justify-content: flex-end;
+}
+
+/* Print */
+@media print {
+    .app-hero::after {
+        display: none;
+    }
+}

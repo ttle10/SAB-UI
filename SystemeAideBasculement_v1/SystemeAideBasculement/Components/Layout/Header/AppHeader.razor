@@ -1,0 +1,11 @@
+﻿@using SystemeAideBasculement.Components.Layout
+
+<header class="app-header" role="banner">
+    <AppHero Title="Système d'aide au basculement" />
+    <AppToolbar ViewMode="ViewMode" OnViewModeChanged="OnViewModeChanged" />
+</header>
+
+@code {
+    [Parameter] public DashboardViewMode ViewMode { get; set; }
+    [Parameter] public EventCallback<DashboardViewMode> OnViewModeChanged { get; set; }
+}

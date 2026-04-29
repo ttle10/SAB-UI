@@ -1,0 +1,61 @@
+﻿@using SystemeAideBasculement.Components.Layout
+@implements IDisposable
+
+<div class="app-toolbar" role="navigation" aria-label="Actions principales">
+    <div class="toolbar-left">
+        <span class="toolbar-label">Options d'affichage :</span>
+        <div class="toggle-group">
+            <button class="toggle-btn @(ViewMode == DashboardViewMode.Profile ? "active" : "")"
+                    type="button"
+                    @onclick="() => ChangeView(DashboardViewMode.Profile)">
+                Option 1 = Vue par profil
+            </button>
+
+            <button class="toggle-btn @(ViewMode == DashboardViewMode.PEX ? "active" : "")"
+                    type="button"
+                    @onclick="() => ChangeView(DashboardViewMode.PEX)">
+                Option 2 = Vue par PEX
+            </button>
+        </div>
+    </div>
+
+    <div class="toolbar-right">
+        <div class="clock">@CurrentTime</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public DashboardViewMode ViewMode { get; set; } = DashboardViewMode.Profile;
+    [Parameter] public EventCallback<DashboardViewMode> OnViewModeChanged { get; set; }
+
+    private string CurrentTime { get; set; } = DateTime.Now.ToString("HH:mm:ss");
+    private System.Timers.Timer? _timer;
+
+    protected override void OnInitialized()
+    {
+        // Simple 1‑second timer to refresh the clock
+        _timer = new System.Timers.Timer(1000);
+        _timer.Elapsed += (_, _) =>
+        {
+            CurrentTime = DateTime.Now.ToString("HH:mm:ss");
+            InvokeAsync(StateHasChanged);
+        };
+        _timer.AutoReset = true;
+        _timer.Start();
+    }
+
+    private Task ChangeView(DashboardViewMode mode)
+    {
+        if (ViewMode == mode)
+            return Task.CompletedTask;
+
+        ViewMode = mode;
+        return OnViewModeChanged.InvokeAsync(mode);
+    }
+
+    public void Dispose()
+    {
+        _timer?.Stop();
+        _timer?.Dispose();
+    }
+}
