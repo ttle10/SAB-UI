@@ -1,0 +1,51 @@
+﻿@using SystemeAideBasculement.Components.Layout
+@using SystemeAideBasculement.Components.Layout.Header
+@using SystemeAideBasculement.Components.Layout.ProfileGrid
+@using SystemeAideBasculement.Components.Layout.MemoGrid
+@using SystemeAideBasculement.Services
+
+@inject NotificationService Notifications
+@inject NavigationManager Navigation
+@inject SabStateCache Cache
+
+@implements IAsyncDisposable
+
+<AppHeader ViewMode="@ViewMode" OnViewModeChanged="@SetViewMode" />
+
+<div class="content-row">
+    <ProfilesPanel ViewMode="@ViewMode" />
+    <MemoPanel />
+</div>
+
+<FooterBar />
+<OptionNote Text="@OptionNoteText" />
+
+
+@code {
+    private DashboardViewMode ViewMode = DashboardViewMode.Profile;
+
+    void SetViewMode(DashboardViewMode mode)
+        => ViewMode = mode;
+
+    string OptionNoteText => ViewMode switch
+    {
+        DashboardViewMode.Profile =>
+            "Option 1 active : la vue par profil remplace les cartes par une grille de type datagrid.",
+
+        DashboardViewMode.PEX =>
+            "Option 2 active : la vue par PEX regroupe les profils par environnement.",
+
+        _ => string.Empty
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Notifications.StartAsync(Navigation, Cache);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Notifications.DisposeAsync();
+    }
+}

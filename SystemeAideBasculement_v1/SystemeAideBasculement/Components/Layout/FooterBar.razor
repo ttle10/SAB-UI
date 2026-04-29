@@ -1,0 +1,21 @@
+﻿<div class="footer-bar">
+    <button class="open-btn" @onclick="OnOpenClicked">
+        🗂 Ouvrir
+    </button>
+
+    <div class="footer-text">
+        Consulter la procédure complète de basculement entre CCP et CCR
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnOpen { get; set; }
+
+    private async Task OnOpenClicked()
+    {
+        if (OnOpen.HasDelegate)
+        {
+            await OnOpen.InvokeAsync();
+        }
+    }
+}

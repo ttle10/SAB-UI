@@ -1,0 +1,33 @@
+﻿/* Two-column layout: grid + aide-mémoire */
+
+.content-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr; /* left wider, right narrower */
+    gap: 16px;
+    /*     align-items: flex-start;
+           margin-top: 8px;
+        */
+}
+
+
+@media (max-width: 1100px) {
+    .content-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Right-hand panel wrapper */
+::deep .panel {
+    background: var(--hero-ink, #ffffff);
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+::deep .footer-section {
+    margin-top: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

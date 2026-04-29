@@ -1,0 +1,22 @@
+﻿.option-note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--stm-gray-700, #4a4f55);
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    padding: 10px 12px;
+}
+/* Informational panel about Option 1 / Option 2 */
+.display-notes {
+    background: var(--stm-gray-100, #f5f6f7);
+    border-radius: 4px;
+    padding: 8px 10px;
+    border: 1px solid var(--stm-gray-300, #d1d5d8);
+    font-size: 12px;
+    color: var(--stm-gray-700, #4a4f55);
+}
+
+    .display-notes p {
+        margin: 4px 0;
+    }

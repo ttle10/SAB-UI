@@ -1,0 +1,33 @@
+﻿/* STM-style footer panel for the PDF link */
+.footer-bar {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 10px 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.open-btn {
+    border: none;
+    background: var(--stm-blue, #0095d9);
+    color: #ffffff;
+    padding: 7px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .open-btn:hover {
+        background: var(--stm-blue-dark, #0077b6);
+    }
+
+.footer-text {
+    font-size: 12px;
+    color: var(--stm-gray-700, #4a4f55);
+}
