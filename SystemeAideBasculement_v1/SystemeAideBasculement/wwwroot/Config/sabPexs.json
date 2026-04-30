@@ -1,19 +1,442 @@
 [
   {
-    "pex": "PEX 1",
+    "ccphostname": "WK-PICC-01",
+    "ccrhostname": "WK-PICC-R01",
+    "displayname": "PEX 1",
+    "index": 1,
     "ccp": {
-      "poste": "PCC L2 TMM",
-      "cra": "green",
-      "reu": "green",
-      "sgcz": "dash",
-      "sti": "dash"
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
     },
     "ccr": {
-      "poste": "Aucun",
-      "cra": "dash",
-      "reu": "dash",
-      "sgcz": "dash",
-      "sti": "dash"
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-02",
+    "ccrhostname": "WK-PICC-R02",
+    "displayname": "PEX 2",
+    "index": 2,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-03",
+    "ccrhostname": "WK-PICC-R03",
+    "displayname": "PEX 3",
+    "index": 3,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-04",
+    "ccrhostname": "WK-PICC-R04",
+    "displayname": "PEX 4",
+    "index": 4,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-05",
+    "ccrhostname": "WK-PICC-R05",
+    "displayname": "PEX 5",
+    "index": 5,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-06",
+    "ccrhostname": "WK-PICC-R06",
+    "displayname": "PEX 6",
+    "index": 6,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-07",
+    "ccrhostname": "WK-PICC-R07",
+    "displayname": "PEX 7",
+    "index": 7,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-08",
+    "ccrhostname": "WK-PICC-R08",
+    "displayname": "PEX 8",
+    "index": 8,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-09",
+    "ccrhostname": "WK-PICC-R09",
+    "displayname": "PEX 9",
+    "index": 9,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-10",
+    "ccrhostname": "WK-PICC-R10",
+    "displayname": "PEX 10",
+    "index": 10,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-11",
+    "ccrhostname": "WK-PICC-R11",
+    "displayname": "PEX 11",
+    "index": 11,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-12",
+    "ccrhostname": "WK-PICC-R12",
+    "displayname": "PEX 12",
+    "index": 12,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-13",
+    "ccrhostname": "WK-PICC-R13",
+    "displayname": "PEX 13",
+    "index": 13,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-14",
+    "ccrhostname": "WK-PICC-R14",
+    "displayname": "PEX 14",
+    "index": 14,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-15",
+    "ccrhostname": "WK-PICC-R15",
+    "displayname": "PEX 15",
+    "index": 15,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-16",
+    "ccrhostname": "WK-PICC-R16",
+    "displayname": "PEX 16",
+    "index": 16,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-17",
+    "ccrhostname": "WK-PICC-R17",
+    "displayname": "PEX 17",
+    "index": 17,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-18",
+    "ccrhostname": "WK-PICC-R18",
+    "displayname": "PEX 18",
+    "index": 18,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-19",
+    "ccrhostname": "WK-PICC-R19",
+    "displayname": "PEX 19",
+    "index": 19,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-20",
+    "ccrhostname": "WK-PICC-R20",
+    "displayname": "PEX 20",
+    "index": 20,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-21",
+    "ccrhostname": "WK-PICC-R21",
+    "displayname": "PEX 21",
+    "index": 21,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    }
+  },
+  {
+    "ccphostname": "WK-PICC-22",
+    "ccrhostname": "WK-PICC-R22",
+    "displayname": "PEX 22",
+    "index": 22,
+    "ccp": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
+    },
+    "ccr": {
+      "picc": "Aucun",
+      "cra": "NA",
+      "reu": "NA",
+      "sgcz": "NA",
+      "sti": "NA"
     }
   }
 ]

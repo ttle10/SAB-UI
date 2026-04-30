@@ -4,11 +4,12 @@
 
 @implements IDisposable
 @inject NotificationService Notifications
+@inject SabStateCache Cache
 
 <div class="grid-body" role="grid">
     @if (ViewMode == DashboardViewMode.Profile)
     {
-        @foreach (var row in DummySabData.Profiles)
+        @foreach (var row in Cache.Profiles)
         {
             <GridRowProfile @key="row.Profile"
                             Row="row" />
@@ -16,9 +17,9 @@
     }
     else
     {
-        @foreach (var row in DummySabData.Pexes)
+        @foreach (var row in Cache.Pexs)
         {
-            <GridRowPex @key="row.Pex"
+            <GridRowPex @key="row.DisplayName"
                         Row="row" />
         }
     }
