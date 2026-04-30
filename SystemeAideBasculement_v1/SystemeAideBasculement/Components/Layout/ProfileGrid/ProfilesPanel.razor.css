@@ -37,6 +37,11 @@
     color: #ffffff;
     line-height: 1.2;
     white-space: nowrap;
+    /* New */
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: anywhere;
+    max-width: 100%;
 }
 
 /* PEX view: rectangular badges */
