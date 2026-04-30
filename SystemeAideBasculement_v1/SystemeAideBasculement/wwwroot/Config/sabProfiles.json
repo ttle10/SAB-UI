@@ -1,10 +1,297 @@
 [
   {
-    "profile": "PCC L2 TMM",
+    "profile": "PCC-L2-T MM",
+    "displayname": "PCC-L2-T MM",
+    "index": 1,
     "ccp": {
-      "poste": "PICC-01,PICC-02",
-      "cra": "green",
-      "reu": "green",
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCC-L2-VRTU",
+    "displayname": "PCC-L2-VRTU",
+    "index": 2,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCC-L2",
+    "displayname": "PCC-L2",
+    "index": 3,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCC-L4",
+    "displayname": "PCC-L4",
+    "index": 4,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCC-L5",
+    "displayname": "PCC-L5",
+    "index": 5,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCC-L1",
+    "displayname": "PCC-L1",
+    "index": 6,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCC-L1-T BG",
+    "displayname": "PCC-L1-T BG",
+    "index": 7,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "CCM-L2L4",
+    "displayname": "CCM-L2L4",
+    "index": 8,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "CCM-L1L5",
+    "displayname": "CCM-L1L5",
+    "index": 9,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCM-A",
+    "displayname": "PCM-A",
+    "index": 10,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCM-S",
+    "displayname": "PCM-S",
+    "index": 11,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "PCM-E",
+    "displayname": "PCM-E",
+    "index": 12,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "CC",
+    "displayname": "CC",
+    "index": 13,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "COS",
+    "displayname": "COS-E",
+    "index": 14,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "COS",
+    "displayname": "COS-O",
+    "index": 15,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    },
+    "ccr": {
+      "poste": "Aucun",
+      "cra": "dash",
+      "reu": "dash",
+      "sgcz": "dash",
+      "sti": "dash"
+    }
+  },
+  {
+    "profile": "COS",
+    "displayname": "COS-P",
+    "index": 16,
+    "ccp": {
+      "poste": "aucun",
+      "cra": "dash",
+      "reu": "dash",
       "sgcz": "dash",
       "sti": "dash"
     },
