@@ -2,9 +2,10 @@
 {
     using System;
     using System.Text.Json;
+    using System.Collections.Immutable;
     using SystemeAideBasculement.Controllers;
     using SystemeAideBasculement.Models;
-    using static System.Runtime.InteropServices.JavaScript.JSType;
+    
 
     public class SabStateCache
     {
@@ -19,9 +20,12 @@
                 PropertyNameCaseInsensitive = true
             };
 
-        public List<SabProfileRow> Profiles { get; private set; } = [];
-        
-        public List<SabPexRow> Pexs { get; private set; } = [];
+
+        private ImmutableList<SabProfileRow> _profiles = ImmutableList<SabProfileRow>.Empty;
+        private ImmutableList<SabPexRow> _pexs = ImmutableList<SabPexRow>.Empty;
+
+        public IReadOnlyList<SabProfileRow> Profiles => _profiles;
+        public IReadOnlyList<SabPexRow> Pexs => _pexs;
 
         public bool IsReady { get; private set; } = false;
 
@@ -40,13 +44,18 @@
             IsReady = false;
             try
             {
-                var pr = await LoadAsync<SabProfileRow>("config/sabProfiles.json", JsonOptions);
-                if (pr == null)
+                var profiles = await LoadAsync<SabProfileRow>("config/sabProfiles.json", JsonOptions);
+                if (profiles == null)
                 {
                     _logger.LogError("Failed to deserialize sabProfiles initial configuration.");
                     return;
                 }
-                Profiles = pr.OrderBy(p => p.Index).ToList();
+
+                _profiles = profiles
+                        .OrderBy(p => p.Index)
+                        .Select(p => p.Clone())
+                        .ToImmutableList();
+
             }
             catch (JsonException)
             {
@@ -56,13 +65,16 @@
 
             try
             {
-                var px = await LoadAsync<SabPexRow>("config/sabPexs.json", JsonOptions);
-                if (Pexs == null)
+                var pexs = await LoadAsync<SabPexRow>("config/sabPexs.json", JsonOptions);
+                if (pexs == null)
                 {
                     _logger.LogError("Failed to deserialize sabPexs initial configuration.");
                     return;
                 }
-                Pexs = px.OrderBy(p => p.Index).ToList();
+                _pexs = pexs
+                        .OrderBy(p => p.Index)
+                        .Select(p => p.Clone())
+                        .ToImmutableList();
             }
             catch (JsonException)
             {
@@ -77,63 +89,77 @@
 
         public SabDataNotification Update(List<ProfileConnectionNotificationModel> notifications)
         {
-            var sabDataNotif = new SabDataNotification();
-            List<SabPexRow> pexs = new List<SabPexRow>();
 
+            if (notifications == null || notifications.Count == 0)
+                return new SabDataNotification();
+
+            var updatedProfiles = new List<SabProfileRow>();
+
+
+            // Apply profile updates
             foreach (var notif in notifications)
             {
-                if (notif == null) continue;
-
-                var profile = UpdateProfileCache(notif);
-                if (profile != null)
+                var updated = UpdateProfileCache(notif);
+                if (updated != null)
                 {
-                    sabDataNotif.Profiles.Add(profile);
+                    updatedProfiles.Add(updated);
                 }
             }
 
-            var pexTransforms = ToSabPexRows(notifications);
-            foreach (var pexTrans in pexTransforms)
+
+            // If no profile changed → nothing else can change
+            if (updatedProfiles.Count == 0)
+                return new SabDataNotification();
+
+            // Profiles snapshot has changed at this point
+            var newProfilesSnapshot = _profiles;
+
+
+            // Recompute PEX snapshot from profiles (derived state)
+            var oldPexs = _pexs;
+            var newPexs = ToSabPexRows(newProfilesSnapshot);
+
+
+            // 5️⃣ Build notification
+            return new SabDataNotification
             {
-                if (pexTrans == null) continue;
-
-                var pex = UpdatePexCache(pexTrans);
-                if (pex != null)
-                {
-                    sabDataNotif.Pexs.Add(pex);
-                }
-            }
-
-            if (!sabDataNotif.IsEmpty)
-                Notify();
-
-            return sabDataNotif;
+                Profiles = updatedProfiles,
+                Pexs = newPexs.ToList()
+            };
         }
 
         private SabProfileRow? UpdateProfileCache(ProfileConnectionNotificationModel notif)
         {
-            var profile = Profiles.FirstOrDefault(p => p.Profile.Equals(notif.ProfileName, StringComparison.OrdinalIgnoreCase));
-            if (profile == null) return null;
-
-            bool isModified = false;
             var csvPiccNames = ConvertToCSV(notif.HostNames);
+
+            var oldProfiles = _profiles;
+
+            var index = oldProfiles.FindIndex(p => string.Equals(p.Profile, notif.ProfileName, StringComparison.OrdinalIgnoreCase));
+            if (index < 0)
+                return null;
+
+            var oldProfile = oldProfiles[index];
+            var updatedProfile = oldProfile.Clone();
+
             if (_controlCenterFacilities.IsCCPFacility(notif.Site))
             {   
-                if (!profile.CCP.PiccNames.Equals(csvPiccNames, StringComparison.OrdinalIgnoreCase))
-                {
-                    profile.CCP.PiccNames = csvPiccNames;
-                    isModified = true;
-                }
+                if (string.Equals(updatedProfile.CCP.PiccNames, csvPiccNames, StringComparison.OrdinalIgnoreCase))
+                    return null;
+
+                    updatedProfile.CCP.PiccNames = csvPiccNames;
             }
             else if (_controlCenterFacilities.IsCCRFacility(notif.Site))
             {
-                if (!profile.CCR.PiccNames.Equals(csvPiccNames, StringComparison.OrdinalIgnoreCase))
-                {
-                    profile.CCR.PiccNames = csvPiccNames;
-                    isModified = true;
-                }
+                if (string.Equals(updatedProfile.CCR.PiccNames, csvPiccNames, StringComparison.OrdinalIgnoreCase))
+                    return null;
+
+                    updatedProfile.CCR.PiccNames = csvPiccNames;
             }
 
-            return isModified ? profile.Clone() : null;
+            // Replace atomically
+            _profiles = oldProfiles.SetItem(index, updatedProfile);
+
+            return updatedProfile;
         }
 
         private static string ConvertToCSV(List<string> hostNames)
@@ -142,62 +168,76 @@
             {
                 return EndpointValue.None;
             }
-            var orderedValues = hostNames.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
-            return string.Join(", ", orderedValues);
+            return string.Join(", ", hostNames);
         }
 
-        private SabPexRow? UpdatePexCache(SabPexTransform pexTransform)
+
+        private static ImmutableList<SabPexRow> ToSabPexRows(
+            ImmutableList<SabProfileRow> profiles)
         {
-            SabPexRow? pex = null;
-            bool isModified = false;
-            var csvProfileNames = ConvertToCSV(pexTransform.ProfileNames);
-
-            if (_controlCenterFacilities.IsCCPFacility(pexTransform.Site))
-            {
-                pex = Pexs.FirstOrDefault(p => p.CCPHostname.Equals(pexTransform.Hostname, StringComparison.OrdinalIgnoreCase));
-                if (pex == null) return null;
-
-                if (!pex.CCP.ProfileNames.Equals(csvProfileNames, StringComparison.OrdinalIgnoreCase))
+            return profiles
+                .SelectMany(profile =>
                 {
-                    pex.CCP.ProfileNames = csvProfileNames;
-                    isModified = true;
-                }
+                    var rows = new List<SabPexRow>();
 
-            }
-            else if (_controlCenterFacilities.IsCCRFacility(pexTransform.Site))
-            {
-                pex = Pexs.FirstOrDefault(p => p.CCRHostname.Equals(pexTransform.Hostname, StringComparison.OrdinalIgnoreCase));
-                if (pex == null) return null;
-                
-                if (!pex.CCR.ProfileNames.Equals(csvProfileNames, StringComparison.OrdinalIgnoreCase))
-                {
-                    pex.CCR.ProfileNames = csvProfileNames;
-                    isModified = true;
-                }   
-            }
+                    if (profile.CCP.PiccNames != EndpointValue.None)
+                    {
+                        foreach (var host in profile.CCP.PiccNames.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            rows.Add(new SabPexRow
+                            {
+                                CCPHostname = host.Trim(),
+                                CCP = new Endpoint
+                                {
+                                    ProfileNames = profile.Profile
+                                }
+                            });
+                        }
+                    }
 
-            return isModified ? pex?.Clone() : null;
-        }
+                    if (profile.CCR.PiccNames != EndpointValue.None)
+                    {
+                        foreach (var host in profile.CCR.PiccNames.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            rows.Add(new SabPexRow
+                            {
+                                CCRHostname = host.Trim(),
+                                CCR = new Endpoint
+                                {
+                                    ProfileNames = profile.Profile
+                                }
+                            });
+                        }
+                    }
 
-        private static List<SabPexTransform> ToSabPexRows(List<ProfileConnectionNotificationModel> notifications)
-        {
-            return notifications
-                .SelectMany(n => n.HostNames.Select(host => new
-                {
-                    Hostname = host,
-                    ProfileName = n.ProfileName,
-                    Site = n.Site
-                }))
-                .GroupBy(x => new { x.Hostname, x.Site })
-                .Select(g => new SabPexTransform
-                {
-                    Hostname = g.Key.Hostname,
-                    Site = g.Key.Site,
-                    ProfileNames = g.Select(x => x.ProfileName)
-                                   .Distinct(StringComparer.OrdinalIgnoreCase)
-                                   .ToList()
+                    return rows;
                 })
-                .ToList();
+                .GroupBy(r => new { r.CCPHostname, r.CCRHostname })
+                .Select((g, index) =>
+                {
+                    var row = new SabPexRow
+                    {
+                        Index = index + 1
+                    };
+
+                    foreach (var item in g)
+                    {
+                        if (!string.IsNullOrEmpty(item.CCPHostname))
+                        {
+                            row.CCPHostname = item.CCPHostname;
+                            row.CCP.ProfileNames = item.CCP.ProfileNames;
+                        }
+
+                        if (!string.IsNullOrEmpty(item.CCRHostname))
+                        {
+                            row.CCRHostname = item.CCRHostname;
+                            row.CCR.ProfileNames = item.CCR.ProfileNames;
+                        }
+                    }
+
+                    return row;
+                })
+                .ToImmutableList();
         }
 
         private async Task<List<T>> LoadAsync<T>(string path, JsonSerializerOptions options)
@@ -205,19 +245,6 @@
             var fullPath = Path.Combine(_env.WebRootPath, path);
             var json = await File.ReadAllTextAsync(fullPath);
             return JsonSerializer.Deserialize<List<T>>(json, options) ?? [];
-        }
-
-        private static string AppendValue(string valSource, string value)
-        {
-            if (string.IsNullOrEmpty(valSource))
-            {
-                valSource = valSource  +  EndpointValue.None;
-            }
-            else if (!string.IsNullOrEmpty(value))
-            {
-                valSource += $", {value}";
-            }
-            return valSource;
         }
 
         private void Notify() => OnStateChanged?.Invoke();

@@ -71,12 +71,12 @@ namespace SystemeAideBasculement.Models
 
         public bool IsCCPFacility(string facilityName)
         {
-            return facilityName.Equals(_ccpFacility.Name, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(facilityName, _ccpFacility.Name, StringComparison.OrdinalIgnoreCase);
         }
 
         public bool IsCCRFacility(string facilityName)
         {
-            return facilityName.Equals(_ccrFacility.Name, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(facilityName, _ccrFacility.Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

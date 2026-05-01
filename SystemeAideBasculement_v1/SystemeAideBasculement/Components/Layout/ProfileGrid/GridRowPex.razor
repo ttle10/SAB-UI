@@ -22,5 +22,6 @@
     [Parameter] public SabPexRow Row { get; set; } = default!;
 
     private static bool IsConnected(string? profiles)
-        => !string.IsNullOrWhiteSpace(profiles) && !profiles.Equals(EndpointValue.None, StringComparison.InvariantCultureIgnoreCase);
+        => !string.IsNullOrWhiteSpace(profiles) && 
+           !string.Equals(profiles, EndpointValue.None, StringComparison.OrdinalIgnoreCase);
 }

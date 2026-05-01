@@ -22,5 +22,6 @@
     [Parameter] public SabProfileRow Row { get; set; } = default!;
 
     private static bool IsConnected(string? piccNames)
-        => !string.IsNullOrWhiteSpace(piccNames) && !piccNames.Equals(EndpointValue.None, StringComparison.InvariantCultureIgnoreCase);
+        => !string.IsNullOrWhiteSpace(piccNames) &&
+           !string.Equals(piccNames, EndpointValue.None, StringComparison.OrdinalIgnoreCase);
 }
