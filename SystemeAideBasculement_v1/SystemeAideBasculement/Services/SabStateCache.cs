@@ -106,7 +106,6 @@
                 }
             }
 
-
             // If no profile changed → nothing else can change
             if (updatedProfiles.Count == 0)
                 return new SabDataNotification();
@@ -114,12 +113,11 @@
             // Profiles snapshot has changed at this point
             var newProfilesSnapshot = _profiles;
 
-
             // Recompute PEX snapshot from profiles (derived state)
-            var oldPexs = _pexs;
             var newPexs = ToSabPexRows(newProfilesSnapshot);
+            _pexs = newPexs;
 
-
+            Notify();
             // 5️⃣ Build notification
             return new SabDataNotification
             {
