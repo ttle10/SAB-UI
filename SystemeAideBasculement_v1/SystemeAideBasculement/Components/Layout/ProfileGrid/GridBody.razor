@@ -2,8 +2,6 @@
 @using SystemeAideBasculement.Models
 @using SystemeAideBasculement.Services
 
-@implements IDisposable
-@inject NotificationService Notifications
 @inject SabStateCache Cache
 
 <div class="grid-body" role="grid">
@@ -30,21 +28,12 @@
 
 
 
-    protected override void OnInitialized()
-    {
-        Notifications.OnNotifications += HandleNotifications;
-    }
-
     private void HandleNotifications(SabDataNotification notifications)
     {
         ApplyNotification(notifications);
         InvokeAsync(StateHasChanged);
     }
 
-    public void Dispose()
-    {
-        Notifications.OnNotifications -= HandleNotifications;
-    }
 
     private void ApplyNotification(SabDataNotification n)
     {
