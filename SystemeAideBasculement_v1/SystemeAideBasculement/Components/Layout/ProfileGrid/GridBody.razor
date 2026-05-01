@@ -35,14 +35,9 @@
         Notifications.OnNotifications += HandleNotifications;
     }
 
-    private void HandleNotifications(
-        List<ProfileConnectionNotificationModel> notifications)
+    private void HandleNotifications(SabDataNotification notifications)
     {
-        foreach (var notification in notifications)
-        {
-            ApplyNotification(notification);
-        }
-
+        ApplyNotification(notifications);
         InvokeAsync(StateHasChanged);
     }
 
@@ -51,7 +46,7 @@
         Notifications.OnNotifications -= HandleNotifications;
     }
 
-    private void ApplyNotification(ProfileConnectionNotificationModel n)
+    private void ApplyNotification(SabDataNotification n)
     {
         // var row = Profiles.FirstOrDefault(p => p.Profile == n.Profile);
         // if (row == null) return;

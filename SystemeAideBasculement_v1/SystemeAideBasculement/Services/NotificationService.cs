@@ -8,7 +8,7 @@
     {
         private HubConnection? _connection;
 
-        public event Action<List<ProfileConnectionNotificationModel>>? OnNotifications;
+        public event Action<SabDataNotification>? OnNotifications;
 
         public async Task StartAsync(NavigationManager nav, SabStateCache cache)
         {
@@ -24,10 +24,8 @@
                 "ProfileUpdated",
                 notifications =>
                 {
-                    foreach (var n in notifications)
-                        cache.Update(n);
-
-                    OnNotifications?.Invoke(notifications);
+                    var sabDataNotif = cache.Update(notifications);
+                    OnNotifications?.Invoke(sabDataNotif);
                 });
 
             await _connection.StartAsync();

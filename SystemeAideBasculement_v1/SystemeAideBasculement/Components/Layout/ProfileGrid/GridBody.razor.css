@@ -25,6 +25,7 @@
 
 /* Cells */
 ::deep .cell {
+    min-width: 0;
     min-height: 34px;
     padding: 6px;
     font-size: 12px;
@@ -45,6 +46,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 /* Profile name */
