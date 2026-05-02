@@ -1,19 +1,48 @@
-﻿using SystemeAideBasculement.Controllers;
+﻿using System.Text.Json.Serialization;
+using SystemeAideBasculement.Controllers;
 
 namespace SystemeAideBasculement.Models
 {
-    public class ControlCenterFacility
+    public enum FacilityCode
     {
+        CCP = 0,
+        CCR = 1,
+    }
+
+    public interface IControlCenterFacility
+    {
+        string Name { get; set; }
+        FacilityCode Code { get; set; }
+        bool IsFacility(string facilityName);
+    } 
+
+    public class ControlCenterFacility : IControlCenterFacility
+    {
+        [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
-        public int FacilityCode { get; set; } = 0;
+        [JsonPropertyName("facilityCode")]
+        public FacilityCode Code { get; set; } = FacilityCode.CCP;
+
+        public bool IsFacility(string facilityName)
+        {
+            return string.Equals(facilityName, Name, StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     public class CCPFacility: ControlCenterFacility
     {
+        public CCPFacility()
+        {
+            Code = FacilityCode.CCP;
+        }
     }
 
     public class CCRFacility: ControlCenterFacility
     {
+        public CCRFacility()
+        {
+            Code = FacilityCode.CCR;
+        }
     }
 
     public class ControlCenterFacilities
@@ -22,16 +51,19 @@ namespace SystemeAideBasculement.Models
         private CCRFacility _ccrFacility;
         private readonly ILogger<NotificationsController> _logger;
 
+        public CCPFacility CCPFacility { get; init; } = new CCPFacility();
+        public CCRFacility CCRFacility { get; init; } = new CCRFacility();
+
         public ControlCenterFacilities(ILogger<NotificationsController> logger)
         {
             _logger = logger;
             _ccpFacility = new CCPFacility
             {
-                FacilityCode = 0
+                Code = FacilityCode.CCP
             };
             _ccrFacility = new CCRFacility
             {
-                FacilityCode = 1
+                Code = FacilityCode.CCR
             };
         }
 
@@ -45,11 +77,11 @@ namespace SystemeAideBasculement.Models
                 {
                     foreach (var item in facilities)
                     {
-                        if (item.FacilityCode == _ccpFacility.FacilityCode)
+                        if (item.Code == _ccpFacility.Code)
                         { 
                             _ccpFacility.Name = item.Name;
                         }
-                        else if (item.FacilityCode == _ccrFacility.FacilityCode)
+                        else if (item.Code == _ccrFacility.Code)
                         {
                             _ccrFacility.Name = item.Name;
                         }
@@ -67,16 +99,6 @@ namespace SystemeAideBasculement.Models
                 _logger.LogError(ex, "Error loading control center facilities configuration.");
                 return false;
             }
-        }
-
-        public bool IsCCPFacility(string facilityName)
-        {
-            return string.Equals(facilityName, _ccpFacility.Name, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public bool IsCCRFacility(string facilityName)
-        {
-            return string.Equals(facilityName, _ccrFacility.Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

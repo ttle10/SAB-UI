@@ -5,10 +5,10 @@ namespace SystemeAideBasculement.Models
     public class SabProfileRow
     {
         [JsonPropertyName("index")]
-        public int Index { get; set; }
+        public int Index { get; init; }
 
         [JsonPropertyName("profile")]
-        public string Profile { get; set; } = "";
+        public string Profile { get; init; } = "";
 
         [JsonPropertyName("displayname")]
         public string DisplayName { get; set; } = "";

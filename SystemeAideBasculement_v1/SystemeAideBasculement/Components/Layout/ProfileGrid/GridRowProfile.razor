@@ -5,23 +5,22 @@
         <span class="profile-name">@Row.DisplayName</span>
     </div>
 
-    <StatusCell Text="@Row.CCP.PiccNames" Connected="@IsConnected(Row.CCP.PiccNames)" />
-    <StatusDot Value="@Row.CCP.CRA" />
-    <StatusDot Value="@Row.CCP.REU" />
-    <StatusDot Value="@Row.CCP.SGCZ" />
-    <StatusDot Value="@Row.CCP.STI" />
+    <StatusCell Text="@Row.CCP.PiccNames.Value" Connected="@IsConnected(Row.CCP.PiccNames.Status)" />
+    <StatusDot Value="@Row.CCP.CRA.Value" />
+    <StatusDot Value="@Row.CCP.REU.Value" />
+    <StatusDot Value="@Row.CCP.SGCZ.Value" />
+    <StatusDot Value="@Row.CCP.STI.Value" />
 
-    <StatusCell Text="@Row.CCR.PiccNames" Connected="@IsConnected(Row.CCR.PiccNames)" />
-    <StatusDot Value="@Row.CCR.CRA" />
-    <StatusDot Value="@Row.CCR.REU" />
-    <StatusDot Value="@Row.CCR.SGCZ" />
-    <StatusDot Value="@Row.CCR.STI" />
+    <StatusCell Text="@Row.CCR.PiccNames.Value" Connected="@IsConnected(Row.CCR.PiccNames.Status)" />
+    <StatusDot Value="@Row.CCR.CRA.Value" />
+    <StatusDot Value="@Row.CCR.REU.Value" />
+    <StatusDot Value="@Row.CCR.SGCZ.Value" />
+    <StatusDot Value="@Row.CCR.STI.Value" />
 </div>
 
 @code {
     [Parameter] public SabProfileRow Row { get; set; } = default!;
 
-    private static bool IsConnected(string? piccNames)
-        => !string.IsNullOrWhiteSpace(piccNames) &&
-           !string.Equals(piccNames, EndpointValue.None, StringComparison.OrdinalIgnoreCase);
+    private static bool IsConnected(EndpointStatus status)
+         => status == EndpointStatus.Connected;
 }

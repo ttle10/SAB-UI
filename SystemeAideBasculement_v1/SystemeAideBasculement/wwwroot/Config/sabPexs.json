@@ -1,442 +1,1278 @@
 [
   {
-    "ccphostname": "WK-PICC-01",
-    "ccrhostname": "WK-PICC-R01",
-    "displayname": "PEX 1",
-    "index": 1,
+    "ccpHostname": "PICC-01",
+    "displayName": "PEX 1",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R01",
+    "index": 1
   },
   {
-    "ccphostname": "WK-PICC-02",
-    "ccrhostname": "WK-PICC-R02",
-    "displayname": "PEX 2",
-    "index": 2,
+    "ccpHostname": "PICC-02",
+    "displayName": "PEX 2",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R02",
+    "index": 2
   },
   {
-    "ccphostname": "WK-PICC-03",
-    "ccrhostname": "WK-PICC-R03",
-    "displayname": "PEX 3",
-    "index": 3,
+    "ccpHostname": "PICC-03",
+    "displayName": "PEX 3",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R03",
+    "index": 3
   },
   {
-    "ccphostname": "WK-PICC-04",
-    "ccrhostname": "WK-PICC-R04",
-    "displayname": "PEX 4",
-    "index": 4,
+    "ccpHostname": "PICC-04",
+    "displayName": "PEX 4",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R04",
+    "index": 4
   },
   {
-    "ccphostname": "WK-PICC-05",
-    "ccrhostname": "WK-PICC-R05",
-    "displayname": "PEX 5",
-    "index": 5,
+    "ccpHostname": "PICC-05",
+    "displayName": "PEX 5",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R05",
+    "index": 5
   },
   {
-    "ccphostname": "WK-PICC-06",
-    "ccrhostname": "WK-PICC-R06",
-    "displayname": "PEX 6",
-    "index": 6,
+    "ccpHostname": "PICC-06",
+    "displayName": "PEX 6",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R06",
+    "index": 6
   },
   {
-    "ccphostname": "WK-PICC-07",
-    "ccrhostname": "WK-PICC-R07",
-    "displayname": "PEX 7",
-    "index": 7,
+    "ccpHostname": "PICC-07",
+    "displayName": "PEX 7",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R07",
+    "index": 7
   },
   {
-    "ccphostname": "WK-PICC-08",
-    "ccrhostname": "WK-PICC-R08",
-    "displayname": "PEX 8",
-    "index": 8,
+    "ccpHostname": "PICC-08",
+    "displayName": "PEX 8",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R08",
+    "index": 8
   },
   {
-    "ccphostname": "WK-PICC-09",
-    "ccrhostname": "WK-PICC-R09",
-    "displayname": "PEX 9",
-    "index": 9,
+    "ccpHostname": "PICC-09",
+    "displayName": "PEX 9",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R09",
+    "index": 9
   },
   {
-    "ccphostname": "WK-PICC-10",
-    "ccrhostname": "WK-PICC-R10",
-    "displayname": "PEX 10",
-    "index": 10,
+    "ccpHostname": "PICC-10",
+    "displayName": "PEX 10",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R10",
+    "index": 10
   },
   {
-    "ccphostname": "WK-PICC-11",
-    "ccrhostname": "WK-PICC-R11",
-    "displayname": "PEX 11",
-    "index": 11,
+    "ccpHostname": "PICC-11",
+    "displayName": "PEX 11",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R11",
+    "index": 11
   },
   {
-    "ccphostname": "WK-PICC-12",
-    "ccrhostname": "WK-PICC-R12",
-    "displayname": "PEX 12",
-    "index": 12,
+    "ccpHostname": "PICC-12",
+    "displayName": "PEX 12",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R12",
+    "index": 12
   },
   {
-    "ccphostname": "WK-PICC-13",
-    "ccrhostname": "WK-PICC-R13",
-    "displayname": "PEX 13",
-    "index": 13,
+    "ccpHostname": "PICC-13",
+    "displayName": "PEX 13",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R13",
+    "index": 13
   },
   {
-    "ccphostname": "WK-PICC-14",
-    "ccrhostname": "WK-PICC-R14",
-    "displayname": "PEX 14",
-    "index": 14,
+    "ccpHostname": "PICC-14",
+    "displayName": "PEX 14",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R14",
+    "index": 14
   },
   {
-    "ccphostname": "WK-PICC-15",
-    "ccrhostname": "WK-PICC-R15",
-    "displayname": "PEX 15",
-    "index": 15,
+    "ccpHostname": "PICC-15",
+    "displayName": "PEX 15",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R15",
+    "index": 15
   },
   {
-    "ccphostname": "WK-PICC-16",
-    "ccrhostname": "WK-PICC-R16",
-    "displayname": "PEX 16",
-    "index": 16,
+    "ccpHostname": "PICC-16",
+    "displayName": "PEX 16",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R16",
+    "index": 16
   },
   {
-    "ccphostname": "WK-PICC-17",
-    "ccrhostname": "WK-PICC-R17",
-    "displayname": "PEX 17",
-    "index": 17,
+    "ccpHostname": "PICC-17",
+    "displayName": "PEX 17",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R17",
+    "index": 17
   },
   {
-    "ccphostname": "WK-PICC-18",
-    "ccrhostname": "WK-PICC-R18",
-    "displayname": "PEX 18",
-    "index": 18,
+    "ccpHostname": "PICC-18",
+    "displayName": "PEX 18",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R18",
+    "index": 18
   },
   {
-    "ccphostname": "WK-PICC-19",
-    "ccrhostname": "WK-PICC-R19",
-    "displayname": "PEX 19",
-    "index": 19,
+    "ccpHostname": "PICC-19",
+    "displayName": "PEX 19",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R19",
+    "index": 19
   },
   {
-    "ccphostname": "WK-PICC-20",
-    "ccrhostname": "WK-PICC-R20",
-    "displayname": "PEX 20",
-    "index": 20,
+    "ccpHostname": "PICC-20",
+    "displayName": "PEX 20",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R20",
+    "index": 20
   },
   {
-    "ccphostname": "WK-PICC-21",
-    "ccrhostname": "WK-PICC-R21",
-    "displayname": "PEX 21",
-    "index": 21,
+    "ccpHostname": "PICC-21",
+    "displayName": "PEX 21",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R21",
+    "index": 21
   },
   {
-    "ccphostname": "WK-PICC-22",
-    "ccrhostname": "WK-PICC-R22",
-    "displayname": "PEX 22",
-    "index": 22,
+    "ccpHostname": "PICC-22",
+    "displayName": "PEX 22",
     "ccp": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
     },
     "ccr": {
-      "picc": "Aucun",
-      "cra": "NA",
-      "reu": "NA",
-      "sgcz": "NA",
-      "sti": "NA"
-    }
+      "profileNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sti": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "reu": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "piccNames": {
+        "value": "Aucun",
+        "status": "Disconnected"
+      },
+      "sgcz": {
+        "value": "NA",
+        "status": "NotMonitored"
+      },
+      "cra": {
+        "value": "NA",
+        "status": "NotMonitored"
+      }
+    },
+    "ccrHostname": "PICC-R22",
+    "index": 22
   }
 ]

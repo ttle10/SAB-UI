@@ -5,8 +5,16 @@
     using System.Collections.Immutable;
     using SystemeAideBasculement.Controllers;
     using SystemeAideBasculement.Models;
-    
 
+    // Invariants:
+    // - Profiles are the source of truth
+    // PEX invariants:
+    // - CCPHostname, CCRHostname, DisplayName, Index are reference data
+    // - They are never modified after LoadInitialStateAsync
+    // - CCPHostname is the lookup key for CCP updates
+    // - CCRHostname is the lookup key for CCR updates
+    // - PEX rows are incrementally enriched from profile updates
+    // - Immutable replace-on-write only
     public class SabStateCache
     {
         private readonly IWebHostEnvironment _env;
@@ -94,6 +102,7 @@
                 return new SabDataNotification();
 
             var updatedProfiles = new List<SabProfileRow>();
+            var updatedPexs = new List<SabPexRow>();
 
 
             // Apply profile updates
@@ -103,6 +112,9 @@
                 if (updated != null)
                 {
                     updatedProfiles.Add(updated);
+                    var updatePexs = UpdatePexCache(updated, notif.Site);
+                    if (updatePexs != null)
+                        updatedPexs.AddRange(updatePexs);
                 }
             }
 
@@ -110,19 +122,12 @@
             if (updatedProfiles.Count == 0)
                 return new SabDataNotification();
 
-            // Profiles snapshot has changed at this point
-            var newProfilesSnapshot = _profiles;
-
-            // Recompute PEX snapshot from profiles (derived state)
-            var newPexs = ToSabPexRows(newProfilesSnapshot);
-            _pexs = newPexs;
-
             Notify();
-            // 5️⃣ Build notification
+            //  Build notification
             return new SabDataNotification
             {
                 Profiles = updatedProfiles,
-                Pexs = newPexs.ToList()
+                Pexs = updatedPexs
             };
         }
 
@@ -139,19 +144,27 @@
             var oldProfile = oldProfiles[index];
             var updatedProfile = oldProfile.Clone();
 
-            if (_controlCenterFacilities.IsCCPFacility(notif.Site))
+            if (_controlCenterFacilities.CCPFacility.IsFacility(notif.Site))
             {   
-                if (string.Equals(updatedProfile.CCP.PiccNames, csvPiccNames, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(updatedProfile.CCP.PiccNames.Value, csvPiccNames, StringComparison.OrdinalIgnoreCase))
+                    return null;
+                var notifStatus = GetStatus(notif);
+                if (updatedProfile.CCP.PiccNames.Status == notifStatus)
                     return null;
 
-                    updatedProfile.CCP.PiccNames = csvPiccNames;
+                updatedProfile.CCP.PiccNames.Value = csvPiccNames;
+                updatedProfile.CCP.PiccNames.Status = notifStatus;
             }
-            else if (_controlCenterFacilities.IsCCRFacility(notif.Site))
+            else if (_controlCenterFacilities.CCRFacility.IsFacility(notif.Site))
             {
-                if (string.Equals(updatedProfile.CCR.PiccNames, csvPiccNames, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(updatedProfile.CCR.PiccNames.Value, csvPiccNames, StringComparison.OrdinalIgnoreCase))
+                    return null;
+                var notifStatus = GetStatus(notif);
+                if (updatedProfile.CCR.PiccNames.Status == notifStatus)
                     return null;
 
-                    updatedProfile.CCR.PiccNames = csvPiccNames;
+                updatedProfile.CCR.PiccNames.Value = csvPiccNames;
+                updatedProfile.CCR.PiccNames.Status = notifStatus;  
             }
 
             // Replace atomically
@@ -169,73 +182,69 @@
             return string.Join(", ", hostNames);
         }
 
-
-        private static ImmutableList<SabPexRow> ToSabPexRows(
-            ImmutableList<SabProfileRow> profiles)
+        private List<SabPexRow> UpdatePexCache(SabProfileRow updatedProfile, string site)
         {
-            return profiles
-                .SelectMany(profile =>
-                {
-                    var rows = new List<SabPexRow>();
+            var updatedRows = new List<SabPexRow>();
 
-                    if (profile.CCP.PiccNames != EndpointValue.None)
-                    {
-                        foreach (var host in profile.CCP.PiccNames.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            rows.Add(new SabPexRow
-                            {
-                                CCPHostname = host.Trim(),
-                                CCP = new Endpoint
-                                {
-                                    ProfileNames = profile.Profile
-                                }
-                            });
-                        }
-                    }
+            // Select the correct PiccNames field based on site
+            var piccField = _controlCenterFacilities.CCPFacility.IsFacility(site)
+                ? updatedProfile.CCP.PiccNames
+                : updatedProfile.CCR.PiccNames;
 
-                    if (profile.CCR.PiccNames != EndpointValue.None)
-                    {
-                        foreach (var host in profile.CCR.PiccNames.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            rows.Add(new SabPexRow
-                            {
-                                CCRHostname = host.Trim(),
-                                CCR = new Endpoint
-                                {
-                                    ProfileNames = profile.Profile
-                                }
-                            });
-                        }
-                    }
+            // Determine connected hostnames
+            var hostnames = piccField.Value
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-                    return rows;
-                })
-                .GroupBy(r => new { r.CCPHostname, r.CCRHostname })
-                .Select((g, index) =>
-                {
-                    var row = new SabPexRow
-                    {
-                        Index = index + 1
-                    };
+            foreach (var hostname in hostnames)
+            {
+                //KEY LOOKUP RULE (STRICT)
+                int index = _pexs.FindIndex(p =>
+                    _controlCenterFacilities.CCPFacility.IsFacility(site)
+                        ? string.Equals(p.CCPHostname, hostname, StringComparison.OrdinalIgnoreCase)
+                        : string.Equals(p.CCRHostname, hostname, StringComparison.OrdinalIgnoreCase));
 
-                    foreach (var item in g)
-                    {
-                        if (!string.IsNullOrEmpty(item.CCPHostname))
-                        {
-                            row.CCPHostname = item.CCPHostname;
-                            row.CCP.ProfileNames = item.CCP.ProfileNames;
-                        }
+                if (index < 0)
+                    continue; // no matching PEX row → ignore safely
 
-                        if (!string.IsNullOrEmpty(item.CCRHostname))
-                        {
-                            row.CCRHostname = item.CCRHostname;
-                            row.CCR.ProfileNames = item.CCR.ProfileNames;
-                        }
-                    }
+                var oldRow = _pexs[index];
+                var newRow = oldRow.Clone(); // immutable safety
 
-                    return row;
-                })
-                .ToImmutableList();
+                // Update ONLY the endpoint corresponding to the site
+                var endpoint = _controlCenterFacilities.CCPFacility.IsFacility(site)
+                    ? newRow.CCP
+                    : newRow.CCR;
+
+                // Merge profile name (avoid duplicates)
+                endpoint.ProfileNames.Value =
+                    endpoint.ProfileNames.Value == EndpointValue.None
+                        ? updatedProfile.Profile
+                        : string.Join(", ",
+                            endpoint.ProfileNames.Value
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                .Concat(new[] { updatedProfile.Profile })
+                                .Distinct(StringComparer.OrdinalIgnoreCase));
+
+                endpoint.ProfileNames.Status = EndpointStatus.Connected;
+
+                // Replace atomically
+                _pexs = _pexs.SetItem(index, newRow);
+                updatedRows.Add(newRow);
+            }
+
+            return updatedRows;
+        }
+
+        private static EndpointStatus GetStatus(ProfileConnectionNotificationModel notication)
+        {
+            switch (notication.Status)
+            {
+                case ProfileConnectionStatus.Connected:
+                    return EndpointStatus.Connected;
+                case ProfileConnectionStatus.Disconnected:
+                    return EndpointStatus.Disconnected;
+                default:
+                    return EndpointStatus.Unknown;
+            }
         }
 
         private async Task<List<T>> LoadAsync<T>(string path, JsonSerializerOptions options)

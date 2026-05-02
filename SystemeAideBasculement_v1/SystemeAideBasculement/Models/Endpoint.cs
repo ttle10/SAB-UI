@@ -3,40 +3,36 @@ using System.Text.Json.Serialization;
 
 namespace SystemeAideBasculement.Models
 {
-    static public class EndpointValue
-    {
-        public const string NotMonitored = "NA";
-
-        public const string None  = "Aucun";
-    }
-
     public class Endpoint
     {
         [JsonPropertyName("poste")]
-        public string PiccNames { get; set; } = EndpointValue.None;
+        public EndpointField PiccNames { get; set; } = new();
 
-        public string ProfileNames { get; set; } = EndpointValue.None;
+        // Used ONLY in SabPexRow (derived state)
+        // Must never be written in SabProfileRow context
+        [JsonPropertyName("picc")]
+        public EndpointField ProfileNames { get; set; } = new();
 
         [JsonPropertyName("cra")]
-        public string CRA { get; set; } = EndpointValue.NotMonitored;
+        public EndpointField CRA { get; set; } = new();
 
         [JsonPropertyName("reu")]
-        public string REU { get; set; } = EndpointValue.NotMonitored;
+        public EndpointField REU { get; set; } = new();
 
         [JsonPropertyName("sgcz")]
-        public string SGCZ { get; set; } = EndpointValue.NotMonitored;
+        public EndpointField  SGCZ { get; set; } = new();
 
         [JsonPropertyName("sti")]
-        public string STI { get; set; } = EndpointValue.NotMonitored;
+        public EndpointField STI { get; set; } = new();
 
         public Endpoint Clone() => new()
         {
-            PiccNames = PiccNames,
-            ProfileNames = ProfileNames,
-            CRA = CRA,
-            REU = REU,
-            SGCZ = SGCZ,
-            STI = STI
+            PiccNames = PiccNames.Clone(),
+            ProfileNames = ProfileNames.Clone(),
+            CRA = CRA.Clone(),
+            REU = REU.Clone(),
+            SGCZ = SGCZ.Clone(),
+            STI = STI.Clone()
         };
     }
 }

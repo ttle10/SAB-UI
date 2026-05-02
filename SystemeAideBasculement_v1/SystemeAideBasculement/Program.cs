@@ -6,6 +6,7 @@ using SystemeAideBasculement.Components;
 using SystemeAideBasculement.Context;
 using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Services;
+using System.Text.Json.Serialization;
 
 var logger = LogManager
     .Setup()
@@ -26,7 +27,15 @@ try
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();
 
-    builder.Services.AddControllers();
+
+    builder.Services
+        .AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(
+                new JsonStringEnumConverter()
+            );
+        });
 
     builder.Services.AddSignalR();
 
