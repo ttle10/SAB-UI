@@ -1,10 +1,14 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace SystemeAideBasculement.Models
 {
     public enum ProfileConnectionStatus
     {
+        [EnumMember(Value = "Connected")]
         Connected = 0,
+
+        [EnumMember(Value = "Disconnected")]
         Disconnected = 1
         // NOTE: Server may send 2 (Unknown)
         // We intentionally do NOT expose it as a valid state

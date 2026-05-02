@@ -1,12 +1,23 @@
-﻿namespace SystemeAideBasculement.Models
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+
+namespace SystemeAideBasculement.Models
 {
     public enum EndpointStatus
     {
+        [EnumMember(Value = "Connected")]
         Connected,
+
+        [EnumMember(Value = "Disconnected")]
         Disconnected,
+
+        [EnumMember(Value = "Notmonitored")]
         NotMonitored,
+
+        [EnumMember(Value = "Unknown")]
         Unknown
     }
+
 
     static public class EndpointValue
     {
@@ -17,7 +28,10 @@
 
     public sealed class EndpointField
     {
+        [JsonPropertyName("value")]
         public string Value { get; set; } = EndpointValue.NotMonitored;
+
+        [JsonPropertyName("status")]
         public EndpointStatus Status { get; set; } = EndpointStatus.NotMonitored;
 
         public EndpointField Clone() => new()

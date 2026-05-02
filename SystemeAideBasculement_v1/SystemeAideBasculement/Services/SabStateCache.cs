@@ -1,8 +1,9 @@
 ﻿namespace SystemeAideBasculement.Services
 {
     using System;
-    using System.Text.Json;
     using System.Collections.Immutable;
+    using System.Text.Json;
+    using System.Text.Json.Serialization;
     using SystemeAideBasculement.Controllers;
     using SystemeAideBasculement.Models;
 
@@ -25,7 +26,11 @@
         private static readonly JsonSerializerOptions JsonOptions =
             new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter()
+                }
             };
 
 
@@ -65,9 +70,9 @@
                         .ToImmutableList();
 
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
-                _logger.LogError("Failed to deserialize sabProfiles initial configuration.");
+                _logger.LogError($"[LoadInitialStateAsync] Failed to deserialize sabProfiles initial configuration: {ex}");
                 return;
             }
 
@@ -84,9 +89,9 @@
                         .Select(p => p.Clone())
                         .ToImmutableList();
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
-                _logger.LogError("Failed to deserialize sabPexs initial configuration.");
+                _logger.LogError($"[LoadInitialStateAsync] Failed to deserialize sabPexs initial configuration: {ex}");
                 return;
             }
 

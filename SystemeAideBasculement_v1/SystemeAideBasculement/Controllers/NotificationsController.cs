@@ -1,7 +1,9 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Services;
@@ -17,7 +19,11 @@ namespace SystemeAideBasculement.Controllers
         private static readonly JsonSerializerOptions JsonOptions =
             new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter()
+                }
             };
 
         private readonly IHubContext<NotificationHub> _hubContext;
@@ -61,9 +67,9 @@ namespace SystemeAideBasculement.Controllers
 
                 _logger.LogDebug("Deserialized {Count} notification(s).", notifications?.Count ?? 0);
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
-                _logger.LogError("Failed to deserialize notification payload.");
+                _logger.LogError($"[Receive Notification] Failed to deserialize notification payload: {ex}");
                 return BadRequest("Invalid notification format.");
             }
 
