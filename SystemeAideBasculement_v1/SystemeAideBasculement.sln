@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36908.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemeAideBasculement", "SystemeAideBasculement\SystemeAideBasculement.csproj", "{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemeAideBasculement.Tests", "SystemeAideBasculement.Tests\SystemeAideBasculement.Tests.csproj", "{1C44AF51-789C-4E5D-BD21-12F43347840B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A16AAB9-2C4C-452A-A369-8A21B94ADDDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C44AF51-789C-4E5D-BD21-12F43347840B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C44AF51-789C-4E5D-BD21-12F43347840B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C44AF51-789C-4E5D-BD21-12F43347840B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C44AF51-789C-4E5D-BD21-12F43347840B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
