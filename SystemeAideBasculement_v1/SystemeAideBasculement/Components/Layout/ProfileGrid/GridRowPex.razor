@@ -6,21 +6,24 @@
     </div>
 
     <StatusCell Text="@Row.CCP.ProfileNames.Value" Connected="@IsConnected(Row.CCP.ProfileNames.Status)" />
-    <StatusDot Value="@Row.CCP.CRA.Value" />
-    <StatusDot Value="@Row.CCP.REU.Value" />
-    <StatusDot Value="@Row.CCP.SGCZ.Value" />
-    <StatusDot Value="@Row.CCP.STI.Value" />
+    <StatusDot Text="@Row.CCP.CRA.Value" NotMonitored="@IsNotMonitored(Row.CCP.CRA.Status)" />
+    <StatusDot Text="@Row.CCP.REU.Value" NotMonitored="@IsNotMonitored(Row.CCP.REU.Status)" />
+    <StatusDot Text="@Row.CCP.SGCZ.Value" NotMonitored="@IsNotMonitored(Row.CCP.SGCZ.Status)" />
+    <StatusDot Text="@Row.CCP.STI.Value" NotMonitored="@IsNotMonitored(Row.CCP.STI.Status)" />
 
     <StatusCell Text="@Row.CCR.ProfileNames.Value" Connected="@IsConnected(Row.CCR.ProfileNames.Status)" />
-    <StatusDot Value="@Row.CCR.CRA.Value" />
-    <StatusDot Value="@Row.CCR.REU.Value" />
-    <StatusDot Value="@Row.CCR.SGCZ.Value" />
-    <StatusDot Value="@Row.CCR.STI.Value" />
+    <StatusDot Text="@Row.CCR.CRA.Value" NotMonitored="@IsNotMonitored(Row.CCR.CRA.Status)" />
+    <StatusDot Text="@Row.CCR.REU.Value" NotMonitored="@IsNotMonitored(Row.CCR.REU.Status)" />
+    <StatusDot Text="@Row.CCR.SGCZ.Value" NotMonitored="@IsNotMonitored(Row.CCR.SGCZ.Status)" />
+    <StatusDot Text="@Row.CCR.STI.Value" NotMonitored="@IsNotMonitored(Row.CCR.STI.Status)" />
 </div>
 
 @code {
     [Parameter] public SabPexRow Row { get; set; } = default!;
 
     private static bool IsConnected(EndpointStatus status)
-        => status == EndpointStatus.Connected;
+         => status == EndpointStatus.Connected;
+
+    private static bool IsNotMonitored(EndpointStatus status)
+         => status == EndpointStatus.NotMonitored;
 }

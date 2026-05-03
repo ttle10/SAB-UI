@@ -1,16 +1,17 @@
 ﻿@using SystemeAideBasculement.Models
 
 <div class="cell cell-center" role="gridcell">
-    @if (Value == EndpointValue.NotMonitored)
+    @if (NotMonitored)
     {
         <span class="dash">—</span>
     }
     else
     {
-        <span class="dot @(Value)"></span>
+        <span class="dot @(string.IsNullOrWhiteSpace(Text) ? EndpointValue.None : Text)"></span>
     }
 </div>
 
 @code {
-    [Parameter] public string Value { get; set; } = EndpointValue.NotMonitored;
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public bool NotMonitored { get; set; }
 }

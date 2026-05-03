@@ -25,6 +25,20 @@ namespace SystemeAideBasculement.Models
         [JsonPropertyName("sti")]
         public EndpointField STI { get; set; } = new();
 
+
+        public Endpoint()
+        {
+            // Relationship fields → empty + Disconnected
+            PiccNames.Status = EndpointStatus.Disconnected;
+            ProfileNames.Status = EndpointStatus.Disconnected;
+
+            // Monitoring fields → NA + NotMonitored
+            CRA.Status = EndpointStatus.NotMonitored;
+            REU.Status = EndpointStatus.NotMonitored;
+            SGCZ.Status = EndpointStatus.NotMonitored;
+            STI.Status = EndpointStatus.NotMonitored;
+        }
+
         public Endpoint Clone() => new()
         {
             PiccNames = PiccNames.Clone(),

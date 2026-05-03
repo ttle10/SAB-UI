@@ -14,7 +14,7 @@ namespace SystemeAideBasculement.Models
         string Name { get; set; }
         FacilityCode Code { get; set; }
         bool IsFacility(string facilityName);
-    } 
+    }
 
     public class ControlCenterFacility : IControlCenterFacility
     {
@@ -51,8 +51,9 @@ namespace SystemeAideBasculement.Models
         private CCRFacility _ccrFacility;
         private readonly ILogger<NotificationsController> _logger;
 
-        public CCPFacility CCPFacility { get; init; } = new CCPFacility();
-        public CCRFacility CCRFacility { get; init; } = new CCRFacility();
+        public IControlCenterFacility CCPFacility { get => _ccpFacility; }
+
+        public IControlCenterFacility CCRFacility { get => _ccrFacility; }
 
         public ControlCenterFacilities(ILogger<NotificationsController> logger)
         {
@@ -65,6 +66,16 @@ namespace SystemeAideBasculement.Models
             {
                 Code = FacilityCode.CCR
             };
+        }
+
+        internal void SetMoqCCPFacility(string name)
+        {
+            _ccpFacility.Name = name;
+        }
+
+        internal void SetMoqCCRFacility(string name)
+        {
+            _ccrFacility.Name = name;
         }
 
         public bool LoadData()

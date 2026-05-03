@@ -2,7 +2,7 @@
 
 <div class="cell cell-center" role="gridcell">
     <span class="status-badge @(Connected? StatusBadge.Connected: StatusBadge.Disconnected)">
-        @Text
+        @(string.IsNullOrWhiteSpace(Text) ? EndpointValue.None : Text)
     </span>
 </div>
 

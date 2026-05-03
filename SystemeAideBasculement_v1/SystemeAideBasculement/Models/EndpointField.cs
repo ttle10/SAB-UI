@@ -21,18 +21,16 @@ namespace SystemeAideBasculement.Models
 
     static public class EndpointValue
     {
-        public const string NotMonitored = "NA";
-
         public const string None = "Aucun";
     }
 
     public sealed class EndpointField
     {
         [JsonPropertyName("value")]
-        public string Value { get; set; } = EndpointValue.NotMonitored;
+        public string Value { get; set; } = string.Empty;
 
         [JsonPropertyName("status")]
-        public EndpointStatus Status { get; set; } = EndpointStatus.NotMonitored;
+        public EndpointStatus Status { get; set; } = EndpointStatus.Disconnected;
 
         public EndpointField Clone() => new()
         {
