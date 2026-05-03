@@ -4,11 +4,6 @@
 @using SystemeAideBasculement.Components.Layout.MemoGrid
 @using SystemeAideBasculement.Services
 
-@inject NotificationService Notifications
-@inject NavigationManager Navigation
-@inject SabStateCache Cache
-
-@implements IAsyncDisposable
 
 <AppHeader ViewMode="@ViewMode" OnViewModeChanged="@SetViewMode" />
 
@@ -37,15 +32,4 @@
 
         _ => string.Empty
     };
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        await Notifications.StartAsync(Navigation, Cache);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await Notifications.DisposeAsync();
-    }
 }

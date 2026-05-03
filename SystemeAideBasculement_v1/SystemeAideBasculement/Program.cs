@@ -1,12 +1,13 @@
-using NLog;
-using NLog.Web;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
+using System.Text.Json.Serialization;
 using SystemeAideBasculement.Components;
 using SystemeAideBasculement.Context;
+using SystemeAideBasculement.Controllers;
 using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Services;
-using System.Text.Json.Serialization;
 
 var logger = LogManager
     .Setup()
@@ -36,6 +37,9 @@ try
                 new JsonStringEnumConverter()
             );
         });
+
+    builder.Services.Configure<SabNotificationOptions>(
+        builder.Configuration.GetSection("SabNotifications"));
 
     builder.Services.AddSignalR();
 

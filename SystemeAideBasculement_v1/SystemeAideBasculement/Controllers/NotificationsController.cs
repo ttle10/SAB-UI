@@ -42,51 +42,84 @@ namespace SystemeAideBasculement.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ReceiveProfileConnectionNotification(
+        public IActionResult ReceiveProfileConnectionNotification(
             [FromBody] JsonElement body)
         {
+
+            var senderId =
+                Request.Headers.TryGetValue("X-Sender-Id", out var values)
+                    ? values.First()
+                    : "UNKNOWN";
+
+            _logger.LogDebug(
+                "Received profile notification from sender {SenderId}", senderId);
+
             if (body.ValueKind != JsonValueKind.Array &&
                 body.ValueKind != JsonValueKind.Object)
             {
                 _logger.LogWarning("Invalid JSON payload received.");
                 return BadRequest("Invalid JSON payload.");
-            }   
+            }
+
+            if (!_cache.IsReady)
+            {
+                _logger.LogWarning("Cache not ready. Rejecting notification.");
+                return StatusCode(
+                    StatusCodes.Status503ServiceUnavailable,
+                    "Cache not ready.");
+            }
 
             List<ProfileConnectionNotificationModel> notifications;
 
             try
             {
-                notifications = body.ValueKind == JsonValueKind.Array
-                           ? JsonSerializer.Deserialize<List<ProfileConnectionNotificationModel>>(body, JsonOptions)
-                               ?? new List<ProfileConnectionNotificationModel>()
-                           : new List<ProfileConnectionNotificationModel>
-                           {
-                JsonSerializer.Deserialize<ProfileConnectionNotificationModel>(body, JsonOptions)
-                ?? throw new JsonException("Invalid notification object.")
-                           };
+                if (body.ValueKind == JsonValueKind.Array)
+                {
+                    notifications =
+                        JsonSerializer.Deserialize<List<ProfileConnectionNotificationModel>>(
+                            body,
+                            JsonOptions)
+                        ?? new List<ProfileConnectionNotificationModel>();
+                }
+                else
+                {
+                    var single =
+                        JsonSerializer.Deserialize<ProfileConnectionNotificationModel>(
+                            body,
+                            JsonOptions)
+                        ?? throw new JsonException("Invalid notification object.");
 
-                _logger.LogDebug("Deserialized {Count} notification(s).", notifications?.Count ?? 0);
+                    notifications = new List<ProfileConnectionNotificationModel>
+                                    {
+                                        single
+                                    };
+                }
+
+                _logger.LogDebug("Deserialized {Count} notification(s).", notifications.Count);
             }
             catch (JsonException ex)
             {
-                _logger.LogError($"[Receive Notification] Failed to deserialize notification payload: {ex}");
+                _logger.LogError( ex,
+                                  "[ReceiveProfileConnectionNotification] Failed to deserialize payload");
+
                 return BadRequest("Invalid notification format.");
             }
-
             if (notifications == null || notifications.Count == 0)
             {
                 _logger.LogWarning("Notification list is empty.");
                 return BadRequest("Notification list is empty.");
             }
             
-            var sabDataNotification = _cache.Update(notifications);
+            _cache.EnqueueProfileNotification(notifications, senderId ?? "Unknown");
 
-            await _hubContext.Clients.All
-                .SendAsync("ProfileUpdated", sabDataNotification);
-
-            _logger.LogInformation("Broadcasted {Count} notification(s).", notifications.Count);
-
-            return Ok();
+            // 7. Accept immediately (processing happens later)
+            return Accepted();
         }
     }
+
+    internal record IncomingNotification(
+        ProfileConnectionNotificationModel Notification,
+        string SenderId,
+        DateTime ReceivedAt
+    );
 }

@@ -2,7 +2,12 @@
 @using SystemeAideBasculement.Models
 @using SystemeAideBasculement.Services
 
+@inject NavigationManager Navigation
 @inject SabStateCache Cache
+@inject NotificationService Notifications
+
+@implements IAsyncDisposable
+
 
 <div class="grid-body" role="grid">
     @if (ViewMode == DashboardViewMode.Profile)
@@ -26,26 +31,23 @@
 @code {
     [Parameter] public DashboardViewMode ViewMode { get; set; }
 
-
-
-    private void HandleNotifications(SabDataNotification notifications)
+    protected override async Task OnInitializedAsync()
     {
-        ApplyNotification(notifications);
-        InvokeAsync(StateHasChanged);
+        Notifications.OnStateUpdated += HandleStateUpdated;
+
+        await Notifications.StartAsync(Navigation);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Notifications.OnStateUpdated -= HandleStateUpdated;
+        await Notifications.DisposeAsync();
     }
 
 
-    private void ApplyNotification(SabDataNotification n)
+    private void HandleStateUpdated(SabDataNotification update)
     {
-        // var row = Profiles.FirstOrDefault(p => p.Profile == n.Profile);
-        // if (row == null) return;
-
-        // var endpoint = n.Site == "CCP" ? row.CCP : row.CCR;
-
-        // endpoint.Poste = n.Poste;
-        // endpoint.CRA = n.CRA;
-        // endpoint.REU = n.REU;
-        // endpoint.SGCZ = n.SGCZ;
-        // endpoint.STI = n.STI;
+        // Cache already update. Notify Blazor to re-render
+        InvokeAsync(StateHasChanged);
     }
 }

@@ -1,5 +1,7 @@
 ﻿namespace SystemeAideBasculement.Services
 {
+    using Microsoft.Extensions.Options;
+    using Microsoft.VisualBasic;
     using System;
     using System.Collections.Immutable;
     using System.Text.Json;
@@ -40,6 +42,15 @@
         public IReadOnlyList<SabProfileRow> Profiles => _profiles;
         public IReadOnlyList<SabPexRow> Pexs => _pexs;
 
+        // Pending notifications received while an update is in progress
+        private readonly SabNotificationOptions _options;
+        private readonly CancellationToken _shutdownToken;
+
+        private readonly object _lock = new();
+
+        private Timer? _debounceTimer;
+        private readonly List<IncomingNotification> _pendingNotifications = new();
+
 
         // Test‑only hooks (internal)
         internal ImmutableList<SabProfileRow> ProfilesInternal
@@ -65,11 +76,19 @@
         public event Action? OnStateChanged;
 
         public SabStateCache(IWebHostEnvironment env,
-                             ILogger<NotificationsController> logger)
+                             ILogger<NotificationsController> logger,
+                             IOptions<SabNotificationOptions> options,
+                             IHostApplicationLifetime lifetime
+                            )
         {
             _env = env;
             _logger = logger;
+            _options = options.Value;
+
             _controlCenterFacilities = new ControlCenterFacilities(logger);
+
+            // Used for graceful shutdown
+            _shutdownToken = lifetime.ApplicationStopping;
         }
 
         public async Task LoadInitialStateAsync()
@@ -118,7 +137,63 @@
             IsReady = _controlCenterFacilities.LoadData();
         }
 
-        /* === UPDATE METHODS CALLED BY NOTIFICATIONS === */
+        /* === METHOD CALLED BY NOTIFICATIONS === */
+        public void EnqueueProfileNotification(
+                                            List<ProfileConnectionNotificationModel> notifications,
+                                            string senderId)
+        {
+            lock (_lock)
+            {
+
+                //Ignore new notifications during shutdown
+                if (_shutdownToken.IsCancellationRequested)
+                {
+                    _logger.LogDebug(
+                        "Ignoring {Count} notification(s) from {Sender} during shutdown",
+                        notifications.Count,
+                        senderId);
+                    return;
+                }
+
+                if (notifications == null || notifications.Count == 0)
+                    return;
+
+
+                _logger.LogDebug(
+                    "Enqueued {Count} notification(s) from sender {Sender}. Pending={Pending}",
+                    notifications.Count,
+                    senderId,
+                    _pendingNotifications.Count);
+
+                // Enqueue all notifications
+                foreach (var notification in notifications)
+                {
+                    _pendingNotifications.Add(
+                        new IncomingNotification(notification, senderId, DateTime.UtcNow));
+                }
+
+                // Safety: process immediately if batch is too large
+                if (_pendingNotifications.Count >= _options.MaxBatchSize)
+                {
+                    _logger.LogWarning(
+                        "Max batch size reached ({Count}). Forcing cache update.",
+                        _pendingNotifications.Count);
+
+                    TriggerProcessing();
+                    return;
+                }
+
+                // Start debounce timer only once
+                if (_debounceTimer == null)
+                {
+                    _debounceTimer = new Timer(
+                        ProcessPendingNotifications,
+                        null,
+                        _options.DebounceInterval,
+                        Timeout.InfiniteTimeSpan);
+                }
+            }
+        }
 
         public SabDataNotification Update(List<ProfileConnectionNotificationModel> notifications)
         {
@@ -301,6 +376,87 @@
             var fullPath = Path.Combine(_env.WebRootPath, path);
             var json = await File.ReadAllTextAsync(fullPath);
             return JsonSerializer.Deserialize<List<T>>(json, options) ?? [];
+        }
+
+        private void TriggerProcessing()
+        {
+            // Prevent running during shutdown
+            if (_shutdownToken.IsCancellationRequested)
+            {
+                _logger.LogDebug("TriggerProcessing skipped during shutdown");
+                return;
+            }
+
+            // Cancel any pending debounce timer
+            _debounceTimer?.Dispose();
+            _debounceTimer = null;
+
+            // Process immediately on the current ThreadPool thread
+            // (same logic as timer callback)
+            ProcessPendingNotifications(state: null);
+        }
+
+        private void ProcessPendingNotifications(object? state)
+        {
+            List<IncomingNotification> batch;
+
+            // Do not process during shutdown
+            if (_shutdownToken.IsCancellationRequested)
+            {
+                _logger.LogDebug("ProcessPendingNotifications skipped because application is stopping.");
+                return;
+            }
+
+            lock (_lock)
+            {
+                if (_pendingNotifications.Count == 0)
+                {
+                    // Nothing to process, ensure timer is cleaned up
+                    _debounceTimer?.Dispose();
+                    _debounceTimer = null;
+                    return;
+                }
+
+                //  Copy pending notifications and clear buffer atomically
+                batch = new List<IncomingNotification>(_pendingNotifications);
+                _pendingNotifications.Clear();
+
+                // Dispose timer – new debounce cycle may start after this
+                _debounceTimer?.Dispose();
+                _debounceTimer = null;
+            }
+
+            try
+            {
+                var distinctSenders = batch
+                    .Select(n => n.SenderId)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                _logger.LogInformation(
+                    "Processing {Count} notification(s) from sender(s): {Senders}",
+                    batch.Count,
+                    string.Join(", ", distinctSenders));
+
+                // Perform a single cache update using existing logic
+                var result = Update(batch.Select(b => b.Notification).ToList());
+
+                // Raise state change only if something actually changed
+                if ((result.Profiles?.Count ?? 0) > 0 ||
+                    (result.Pexs?.Count ?? 0) > 0)
+                {
+                    Notify();
+                }
+                else
+                {
+                    _logger.LogDebug("Batch processed but no state changes detected.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Never let background processing crash the app
+                _logger.LogError(ex, "Unhandled error while processing notification batch.");
+            }
         }
 
         private void Notify() => OnStateChanged?.Invoke();
