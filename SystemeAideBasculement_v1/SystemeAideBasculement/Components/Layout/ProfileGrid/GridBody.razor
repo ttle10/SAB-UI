@@ -59,7 +59,7 @@
     }
 
     // reflects the update; this is a render trigger only
-    private void HandleStateUpdated(SabDataNotification update)
+    private void HandleStateUpdated()
     {
         // Cache already update. Notify Blazor to re-render
         InvokeAsync(StateHasChanged);
