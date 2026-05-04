@@ -5,16 +5,17 @@
 @using SystemeAideBasculement.Services
 
 
-<AppHeader ViewMode="@ViewMode" OnViewModeChanged="@SetViewMode" />
+<div class="dashboard-shell">
+    <AppHeader ViewMode="@ViewMode" OnViewModeChanged="@SetViewMode" />
 
-<div class="content-row">
-    <ProfilesPanel ViewMode="@ViewMode" />
-    <MemoPanel />
+    <div class="content-row">
+        <ProfilesPanel ViewMode="@ViewMode" />
+        <MemoPanel />
+    </div>
+
+    <FooterBar />
+    <OptionNote Text="@OptionNoteText" />
 </div>
-
-<FooterBar />
-<OptionNote Text="@OptionNoteText" />
-
 
 @code {
     private DashboardViewMode ViewMode = DashboardViewMode.Profile;
