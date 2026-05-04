@@ -1,12 +1,15 @@
 ﻿namespace SystemeAideBasculement.Services
 {
+    using Microsoft.AspNetCore.SignalR;
     using Microsoft.Extensions.Options;
     using System;
     using System.Collections.Immutable;
     using System.IO;
     using System.Text.Json;
     using SystemeAideBasculement.Controllers;
+    using SystemeAideBasculement.Hubs;
     using SystemeAideBasculement.Models;
+    using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
     // Invariants:
     // - Profiles are the source of truth
@@ -19,6 +22,7 @@
     // - Immutable replace-on-write only
     public class SabStateCache
     {
+        private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<NotificationsController> _logger;
 
@@ -30,8 +34,6 @@
         public IReadOnlyList<SabProfileRow> Profiles => _profiles;
         public IReadOnlyList<SabPexRow> Pexs => _pexs;
 
-//        public long Version { get; private set; }
-
         // Pending notifications received while an update is in progress
         private readonly SabNotificationOptions _options;
         private readonly CancellationToken _shutdownToken;
@@ -40,6 +42,7 @@
 
         private Timer? _debounceTimer;
         private readonly List<IncomingNotification> _pendingNotifications = new();
+        private bool _isProcessing = false;
 
 
         // Test‑only hooks (internal)
@@ -66,12 +69,14 @@
         public event Action? OnStateChanged;
 
         public SabStateCache(IWebHostEnvironment env,
+                             IHubContext<NotificationHub> hubContext,
                              ILogger<NotificationsController> logger,
                              IOptions<SabNotificationOptions> options,
                              IHostApplicationLifetime lifetime
                             )
         {
             _env = env;
+            _hubContext = hubContext;
             _logger = logger;
             _options = options.Value;
 
@@ -178,7 +183,7 @@
                 if (_debounceTimer == null)
                 {
                     _debounceTimer = new Timer(
-                        ProcessPendingNotifications,
+                        _ => _ = ProcessPendingNotificationsAsync(),
                         null,
                         _options.DebounceInterval,
                         Timeout.InfiniteTimeSpan);
@@ -215,8 +220,6 @@
                 updatedPexs.Count > 0)
             {
                 //Version++; // single authoritative increment
-
-                Notify();
                 //  Build notification
                 retDataNotif.Profiles = updatedProfiles;
                 retDataNotif.Pexs = updatedPexs;
@@ -389,61 +392,70 @@
 
             // Process immediately on the current ThreadPool thread
             // (same logic as timer callback)
-            ProcessPendingNotifications(state: null);
+            _ = ProcessPendingNotificationsAsync();
         }
 
-        internal void ProcessPendingNotifications(object? state)
+        private async Task ProcessPendingNotificationsAsync()
         {
             List<IncomingNotification> batch;
 
-            // Do not process during shutdown
-            if (_shutdownToken.IsCancellationRequested)
-            {
-                _logger.LogDebug("ProcessPendingNotifications skipped because application is stopping.");
-                return;
-            }
-
             lock (_lock)
             {
+                if (_isProcessing)
+                    return;
+
                 if (_pendingNotifications.Count == 0)
                 {
-                    // Nothing to process, ensure timer is cleaned up
                     _debounceTimer?.Dispose();
                     _debounceTimer = null;
                     return;
                 }
 
-                //  Copy pending notifications and clear buffer atomically
-                batch = new List<IncomingNotification>(_pendingNotifications);
+                _isProcessing = true;
+
+                batch = _pendingNotifications.ToList();
                 _pendingNotifications.Clear();
 
-                // Dispose timer – new debounce cycle may start after this
                 _debounceTimer?.Dispose();
                 _debounceTimer = null;
             }
 
             try
             {
-                var distinctSenders = batch
-                    .Select(n => n.SenderId)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                var notifications = batch
+                    .Select(x => x.Notification)
                     .ToList();
 
-                _logger.LogInformation(
-                    "Processing {Count} notification(s) from sender(s): {Senders}",
-                    batch.Count,
-                    string.Join(", ", distinctSenders));
+                var update = Update(notifications);
 
-                // Perform a single cache update using existing logic
-                var result = Update(batch.Select(b => b.Notification).ToList());
+                if (!update.IsEmpty)
+                {
+                    await _hubContext.Clients.All.SendAsync(
+                        "ProfileUpdated",
+                        update,
+                        _shutdownToken);
+                }
             }
             catch (Exception ex)
             {
-                // Never let background processing crash the app
-                _logger.LogError(ex, "Unhandled error while processing notification batch.");
+                _logger.LogError(ex, "Failed to process pending notifications.");
+            }
+            finally
+            {
+                lock (_lock)
+                {
+                    _isProcessing = false;
+
+                    if (_pendingNotifications.Count > 0 && _debounceTimer == null)
+                    {
+                        _debounceTimer = new Timer(
+                            _ => _ = ProcessPendingNotificationsAsync(),
+                            null,
+                            _options.DebounceInterval,
+                            Timeout.InfiniteTimeSpan);
+                    }
+                }
             }
         }
-
-        private void Notify() => OnStateChanged?.Invoke();
     }
 }

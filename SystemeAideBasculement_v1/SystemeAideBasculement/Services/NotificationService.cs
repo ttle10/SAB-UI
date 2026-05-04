@@ -7,15 +7,8 @@
     public class NotificationService : IAsyncDisposable
     {
         private HubConnection? _connection;
-        private readonly SabStateCache _cache;
 
         public event Action? OnStateUpdated;
-
-        public NotificationService(SabStateCache cache)
-        {
-            _cache = cache;
-            _cache.OnStateChanged += HandleCacheStateChanged;
-        }
 
         public async Task StartAsync(NavigationManager nav)
         {
@@ -39,17 +32,11 @@
 
         public async ValueTask DisposeAsync()
         {
-            _cache.OnStateChanged -= HandleCacheStateChanged;
 
             if (_connection != null)
             {
                 await _connection.DisposeAsync();
             }
-        }
-
-        private void HandleCacheStateChanged()
-        {
-            OnStateUpdated?.Invoke();
         }
     }
 }
