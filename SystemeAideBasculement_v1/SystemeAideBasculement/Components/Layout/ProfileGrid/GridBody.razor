@@ -1,6 +1,7 @@
 ﻿@using SystemeAideBasculement.Components.Layout
 @using SystemeAideBasculement.Models
 @using SystemeAideBasculement.Services
+@using System.Diagnostics
 
 @inject NavigationManager Navigation
 @inject SabStateCache Cache
@@ -12,27 +13,40 @@
 <div class="grid-body" role="grid">
     @if (ViewMode == DashboardViewMode.Profile)
     {
-        @foreach (var row in Cache.Profiles)
+        @if (Cache.Profiles != null)
         {
-            <GridRowProfile @key="row.Profile"
-                            Row="row" />
+            @foreach (var row in Cache.Profiles)
+            {
+                <GridRowProfile @key="row.Profile" Row="row" />
+            }
         }
     }
     else
     {
-        @foreach (var row in Cache.Pexs)
+        @if (Cache.Pexs != null)
         {
-            <GridRowPex @key="row.DisplayName"
-                        Row="row" />
+            @foreach (var row in Cache.Pexs)
+            {
+                <GridRowPex @key="row.DisplayName"
+                            Row="row" />
+            }
         }
     }
 </div>
 
 @code {
+
+    // private IReadOnlyList<SabProfileRow>? _profiles;
+    // private IReadOnlyList<SabPexRow>? _pexs;
+    // private long _lastVersion = -1;
+
     [Parameter] public DashboardViewMode ViewMode { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        // _profiles = Cache.Profiles;
+        // _pexs = Cache.Pexs;
+
         Notifications.OnStateUpdated += HandleStateUpdated;
 
         await Notifications.StartAsync(Navigation);
@@ -44,7 +58,7 @@
         await Notifications.DisposeAsync();
     }
 
-
+    // reflects the update; this is a render trigger only
     private void HandleStateUpdated(SabDataNotification update)
     {
         // Cache already update. Notify Blazor to re-render

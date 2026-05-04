@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.IO;
+using System.Text.Json.Serialization;
 using SystemeAideBasculement.Controllers;
 
 namespace SystemeAideBasculement.Models
@@ -47,6 +48,10 @@ namespace SystemeAideBasculement.Models
 
     public class ControlCenterFacilities
     {
+        private readonly IWebHostEnvironment _env;
+
+        private const string ConfFile = "ControlCenterFacility.json";
+        private string ConfFilePath;
         private CCPFacility _ccpFacility;
         private CCRFacility _ccrFacility;
         private readonly ILogger<NotificationsController> _logger;
@@ -55,8 +60,12 @@ namespace SystemeAideBasculement.Models
 
         public IControlCenterFacility CCRFacility { get => _ccrFacility; }
 
-        public ControlCenterFacilities(ILogger<NotificationsController> logger)
+        public bool IsReady { get; private set; } = false;
+
+        public ControlCenterFacilities(IWebHostEnvironment env, 
+                                       ILogger<NotificationsController> logger)
         {
+            _env = env;
             _logger = logger;
             _ccpFacility = new CCPFacility
             {
@@ -66,6 +75,8 @@ namespace SystemeAideBasculement.Models
             {
                 Code = FacilityCode.CCR
             };
+
+            ConfFilePath = Path.Combine(_env.WebRootPath,$"config/{ConfFile}");
         }
 
         internal void SetMoqCCPFacility(string name)
@@ -78,12 +89,12 @@ namespace SystemeAideBasculement.Models
             _ccrFacility.Name = name;
         }
 
-        public bool LoadData()
+        public async Task<bool> LoadData()
         {
             try
             {
-                var json = File.ReadAllText("config/controlCenterFacilities.json");
-                var facilities = System.Text.Json.JsonSerializer.Deserialize<List<ControlCenterFacility>>(json);
+                var json = File.ReadAllText(ConfFilePath);
+                var facilities = await JsonHelper.LoadListAsync<ControlCenterFacility>(ConfFilePath);
                 if (facilities != null)
                 {
                     foreach (var item in facilities)
@@ -97,7 +108,8 @@ namespace SystemeAideBasculement.Models
                             _ccrFacility.Name = item.Name;
                         }
                     }
-                    return !string.IsNullOrEmpty(_ccpFacility.Name) && !string.IsNullOrEmpty(_ccrFacility.Name);
+                    IsReady = !string.IsNullOrEmpty(_ccpFacility.Name) && !string.IsNullOrEmpty(_ccrFacility.Name);
+                    return IsReady;
                 }
                 else
                 {

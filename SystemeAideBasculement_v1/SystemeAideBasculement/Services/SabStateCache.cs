@@ -1,11 +1,10 @@
 ﻿namespace SystemeAideBasculement.Services
 {
     using Microsoft.Extensions.Options;
-    using Microsoft.VisualBasic;
     using System;
     using System.Collections.Immutable;
+    using System.IO;
     using System.Text.Json;
-    using System.Text.Json.Serialization;
     using SystemeAideBasculement.Controllers;
     using SystemeAideBasculement.Models;
 
@@ -25,22 +24,13 @@
 
         private ControlCenterFacilities _controlCenterFacilities;
 
-        private static readonly JsonSerializerOptions JsonOptions =
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                Converters =
-                {
-                    new JsonStringEnumConverter()
-                }
-            };
-
-
         private ImmutableList<SabProfileRow> _profiles = ImmutableList<SabProfileRow>.Empty;
         private ImmutableList<SabPexRow> _pexs = ImmutableList<SabPexRow>.Empty;
 
         public IReadOnlyList<SabProfileRow> Profiles => _profiles;
         public IReadOnlyList<SabPexRow> Pexs => _pexs;
+
+//        public long Version { get; private set; }
 
         // Pending notifications received while an update is in progress
         private readonly SabNotificationOptions _options;
@@ -85,7 +75,7 @@
             _logger = logger;
             _options = options.Value;
 
-            _controlCenterFacilities = new ControlCenterFacilities(logger);
+            _controlCenterFacilities = new ControlCenterFacilities(_env, logger);
 
             // Used for graceful shutdown
             _shutdownToken = lifetime.ApplicationStopping;
@@ -94,9 +84,10 @@
         public async Task LoadInitialStateAsync()
         {
             IsReady = false;
+            var fullPath = Path.Combine(_env.WebRootPath, "config/sabProfiles.json");
             try
             {
-                var profiles = await LoadAsync<SabProfileRow>("config/sabProfiles.json", JsonOptions);
+                var profiles = await JsonHelper.LoadListAsync<SabProfileRow>(Path.Combine(_env.WebRootPath, "config/sabProfiles.json"));
                 if (profiles == null)
                 {
                     _logger.LogError("Failed to deserialize sabProfiles initial configuration.");
@@ -117,7 +108,7 @@
 
             try
             {
-                var pexs = await LoadAsync<SabPexRow>("config/sabPexs.json", JsonOptions);
+                var pexs = await JsonHelper.LoadListAsync<SabPexRow>(Path.Combine(_env.WebRootPath, "config/sabPexs.json"));
                 if (pexs == null)
                 {
                     _logger.LogError("Failed to deserialize sabPexs initial configuration.");
@@ -134,7 +125,7 @@
                 return;
             }
 
-            IsReady = _controlCenterFacilities.LoadData();
+            IsReady = await _controlCenterFacilities.LoadData();
         }
 
         /* === METHOD CALLED BY NOTIFICATIONS === */
@@ -199,11 +190,10 @@
         {
 
             if (notifications == null || notifications.Count == 0)
-                return new SabDataNotification();
+                return SabDataNotification.Empty;
 
             var updatedProfiles = new List<SabProfileRow>();
             var updatedPexs = new List<SabPexRow>();
-
 
             // Apply profile updates
             foreach (var notif in notifications)
@@ -224,6 +214,8 @@
             if (updatedProfiles.Count > 0 ||
                 updatedPexs.Count > 0)
             {
+                //Version++; // single authoritative increment
+
                 Notify();
                 //  Build notification
                 retDataNotif.Profiles = updatedProfiles;
@@ -258,7 +250,10 @@
             else if (_controlCenterFacilities.CCRFacility.IsFacility(notif.Site))
                 endpoint = updatedProfile.CCR;
             else
-                return null; // or log warning
+            {
+                _logger.LogWarning("Unknown site '{Site}' in UpdateProfileCache", notif.Site);
+                return null;
+            }
 
             var csvPiccNames = ConvertToCSV(notif.HostNames);
             var notifStatus = GetStatus(notif);
@@ -377,12 +372,7 @@
             }
         }
 
-        private async Task<List<T>> LoadAsync<T>(string path, JsonSerializerOptions options)
-        {
-            var fullPath = Path.Combine(_env.WebRootPath, path);
-            var json = await File.ReadAllTextAsync(fullPath);
-            return JsonSerializer.Deserialize<List<T>>(json, options) ?? [];
-        }
+
 
         internal void TriggerProcessing()
         {
