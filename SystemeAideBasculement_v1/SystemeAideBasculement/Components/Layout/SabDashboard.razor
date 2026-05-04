@@ -4,6 +4,8 @@
 @using SystemeAideBasculement.Components.Layout.MemoGrid
 @using SystemeAideBasculement.Services
 
+@inject NavigationManager Navigation
+@inject NotificationService Notifications
 
 <div class="dashboard-shell">
     <AppHeader ViewMode="@ViewMode" OnViewModeChanged="@SetViewMode" />
@@ -35,4 +37,9 @@
 
         _ => string.Empty
     };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Notifications.StartAsync(Navigation);
+    }
 }

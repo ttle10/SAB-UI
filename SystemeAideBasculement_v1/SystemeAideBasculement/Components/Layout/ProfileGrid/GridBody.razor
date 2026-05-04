@@ -36,20 +36,11 @@
 
 @code {
 
-    // private IReadOnlyList<SabProfileRow>? _profiles;
-    // private IReadOnlyList<SabPexRow>? _pexs;
-    // private long _lastVersion = -1;
-
     [Parameter] public DashboardViewMode ViewMode { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        // _profiles = Cache.Profiles;
-        // _pexs = Cache.Pexs;
-
         Notifications.OnStateUpdated += HandleStateUpdated;
-
-        await Notifications.StartAsync(Navigation);
     }
 
     public async ValueTask DisposeAsync()
