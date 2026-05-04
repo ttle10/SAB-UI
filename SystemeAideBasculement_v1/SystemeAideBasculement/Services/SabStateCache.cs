@@ -218,17 +218,23 @@
                 }
             }
 
-            // If no profile changed → nothing else can change
-            if (updatedProfiles.Count == 0)
-                return new SabDataNotification();
+            var retDataNotif = new SabDataNotification();
 
-            Notify();
-            //  Build notification
-            return new SabDataNotification
+            // Raise state change only if something actually changed
+            if (updatedProfiles.Count > 0 ||
+                updatedPexs.Count > 0)
             {
-                Profiles = updatedProfiles,
-                Pexs = updatedPexs
-            };
+                Notify();
+                //  Build notification
+                retDataNotif.Profiles = updatedProfiles;
+                retDataNotif.Pexs = updatedPexs;
+            }
+            else
+            {
+                _logger.LogDebug("Update cache processed but no state changes detected.");
+            }
+
+            return retDataNotif;
         }
 
         internal SabProfileRow? UpdateProfileCache(ProfileConnectionNotificationModel notif)
@@ -378,7 +384,7 @@
             return JsonSerializer.Deserialize<List<T>>(json, options) ?? [];
         }
 
-        private void TriggerProcessing()
+        internal void TriggerProcessing()
         {
             // Prevent running during shutdown
             if (_shutdownToken.IsCancellationRequested)
@@ -396,7 +402,7 @@
             ProcessPendingNotifications(state: null);
         }
 
-        private void ProcessPendingNotifications(object? state)
+        internal void ProcessPendingNotifications(object? state)
         {
             List<IncomingNotification> batch;
 
@@ -440,17 +446,6 @@
 
                 // Perform a single cache update using existing logic
                 var result = Update(batch.Select(b => b.Notification).ToList());
-
-                // Raise state change only if something actually changed
-                if ((result.Profiles?.Count ?? 0) > 0 ||
-                    (result.Pexs?.Count ?? 0) > 0)
-                {
-                    Notify();
-                }
-                else
-                {
-                    _logger.LogDebug("Batch processed but no state changes detected.");
-                }
             }
             catch (Exception ex)
             {

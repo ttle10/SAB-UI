@@ -1,14 +1,23 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using System.Collections.Immutable;
+using System.Diagnostics.Metrics;
 using System.Xml.Linq;
+using SystemeAideBasculement.Controllers;
 using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Services;
 
 
 namespace SystemeAideBasculement.Tests.Helpers
 {
+    internal sealed class ChangeCounter
+    {
+        public int Value;
+    }
+
     internal enum FacilitySite
     {
         CCP,
@@ -17,7 +26,7 @@ namespace SystemeAideBasculement.Tests.Helpers
 
     internal static class TestDataFactory
     {
-        public static SabStateCache CreateCache()
+        public static SabStateCache CreateCache(ChangeCounter counter)
         {
             var env = new Mock<IWebHostEnvironment>();
             env.SetupGet(e => e.WebRootPath).Returns(".");
@@ -27,8 +36,18 @@ namespace SystemeAideBasculement.Tests.Helpers
             var controlCenterFacilitiesMoq = new ControlCenterFacilities(logger.Object);
             controlCenterFacilitiesMoq.SetMoqCCPFacility("CCP");
             controlCenterFacilitiesMoq.SetMoqCCRFacility("CCR");
-    
-            var cache = new SabStateCache(env.Object, logger.Object);
+
+            var lifetime = new Mock<IHostApplicationLifetime>();
+            var cts = new CancellationTokenSource();
+            lifetime.Setup(l => l.ApplicationStopping).Returns(cts.Token);
+
+            var cache = new SabStateCache(env.Object, 
+                                         logger.Object,
+                                         CreateOptions(),
+                                         lifetime.Object
+                                         );
+
+            cache.OnStateChanged += () => counter.Value++;
 
             cache.ProfilesInternal = new List<SabProfileRow>
                                     {
@@ -71,6 +90,17 @@ namespace SystemeAideBasculement.Tests.Helpers
 
             cache.ControlCenterFacilities = controlCenterFacilitiesMoq;
             return cache;
+        }
+
+        private static IOptions<SabNotificationOptions> CreateOptions(
+                                                        int maxBatch = 10,
+                                                        int debounceMs = 1000)
+        {
+            return Options.Create(new SabNotificationOptions
+            {
+                DebounceInterval = TimeSpan.FromMilliseconds(debounceMs),
+                MaxBatchSize = maxBatch
+            });
         }
     }
 

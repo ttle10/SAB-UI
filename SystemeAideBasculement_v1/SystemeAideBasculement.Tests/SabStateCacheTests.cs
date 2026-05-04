@@ -1,5 +1,6 @@
 ﻿
 using System.Data;
+using System.Diagnostics.Metrics;
 using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Tests.Helpers;
 using Xunit;
@@ -13,7 +14,15 @@ namespace SystemeAideBasculement.Tests
         [Fact]
         public void UpdateProfileCache_CCP_Connected()
         {
-            var cache = TestDataFactory.CreateCache();
+            int stateChangedCount = 0;
+
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            cache.OnStateChanged += () =>
+            {
+                stateChangedCount++;
+            };
 
             var notif = new ProfileConnectionNotificationModel
             {
@@ -32,7 +41,15 @@ namespace SystemeAideBasculement.Tests
         [Fact]
         public void UpdateProfileCache_CCR_Connected()
         {
-            var cache = TestDataFactory.CreateCache();
+            int stateChangedCount = 0;
+
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            cache.OnStateChanged += () =>
+            {
+                stateChangedCount++;
+            };
 
             var notif = new ProfileConnectionNotificationModel
             {
@@ -51,7 +68,15 @@ namespace SystemeAideBasculement.Tests
         [Fact]
         public void UpdatePexCache_CCP_AddsProfile()
         {
-            var cache = TestDataFactory.CreateCache();
+            int stateChangedCount = 0;
+
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            cache.OnStateChanged += () =>
+            {
+                stateChangedCount++;
+            };
 
             var profile = cache.ProfilesInternal[0];
             profile.CCP.PiccNames.Status = EndpointStatus.Connected;
@@ -65,7 +90,15 @@ namespace SystemeAideBasculement.Tests
         [Fact]
         public void UpdatePexCache_CCR_AddsProfile()
         {
-            var cache = TestDataFactory.CreateCache();
+            int stateChangedCount = 0;
+
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            cache.OnStateChanged += () =>
+            {
+                stateChangedCount++;
+            };
 
             var profile = cache.ProfilesInternal[0];
             profile.CCR.PiccNames.Status = EndpointStatus.Connected;
@@ -79,7 +112,15 @@ namespace SystemeAideBasculement.Tests
         [Fact]
         public void Update_EndToEnd_WorksForCCR()
         {
-            var cache = TestDataFactory.CreateCache();
+            int stateChangedCount = 0;
+
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            cache.OnStateChanged += () =>
+            {
+                stateChangedCount++;
+            };
 
             var notif = new ProfileConnectionNotificationModel
             {
@@ -96,6 +137,86 @@ namespace SystemeAideBasculement.Tests
 
             Assert.Equal("PEX 1", result.Pexs[0].DisplayName);
             Assert.Equal("PCC-L1", result.Pexs[0].CCR.ProfileNames.Value);
+        }
+
+
+        [Fact]
+        public void EnqueueProfileNotification_DoesNotUpdateImmediately()
+        {
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            bool stateChanged = false;
+            cache.OnStateChanged += () => stateChanged = true;
+
+            var notif = new ProfileConnectionNotificationModel
+            {
+                ProfileName = "PCC-L1",
+                Site = "CCP",
+                Status = ProfileConnectionStatus.Connected,
+                HostNames = new List<string> { "PICC-01" }
+            };
+
+            cache.EnqueueProfileNotification(
+                new List<ProfileConnectionNotificationModel> { notif },
+                "SERVER-A");
+
+            Assert.False(stateChanged);
+        }
+
+        [Fact]
+        public void TriggerProcessing_ForcesBatchProcessing()
+        {
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            bool stateChanged = false;
+            cache.OnStateChanged += () => stateChanged = true;
+
+            cache.EnqueueProfileNotification(
+                new List<ProfileConnectionNotificationModel>
+                {
+            new ProfileConnectionNotificationModel
+            {
+                ProfileName = "PCC-L1",
+                Site = "CCP",
+                Status = ProfileConnectionStatus.Connected,
+                HostNames = new List<string> { "PICC-01" }
+            }
+                },
+                "SERVER-A");
+
+            cache.TriggerProcessing();
+
+            Assert.True(stateChanged);
+        }
+
+        [Fact]
+        public void ProcessPendingNotifications_IsIdempotent()
+        {
+            var counter = new ChangeCounter();
+            var cache = TestDataFactory.CreateCache(counter);
+
+            int stateChangeCount = 0;
+            cache.OnStateChanged += () => stateChangeCount++;
+
+            cache.EnqueueProfileNotification(
+                new List<ProfileConnectionNotificationModel>
+                {
+            new ProfileConnectionNotificationModel
+            {
+                ProfileName = "PCC-L1",
+                Site = "CCP",
+                Status = ProfileConnectionStatus.Connected,
+                HostNames = new List<string> { "PICC-01" }
+            }
+                },
+                "SERVER-A");
+
+            cache.ProcessPendingNotifications(null);
+            cache.ProcessPendingNotifications(null);
+
+            Assert.Equal(1, stateChangeCount);
         }
     }
 
