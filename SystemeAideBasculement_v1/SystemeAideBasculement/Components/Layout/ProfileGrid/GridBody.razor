@@ -43,10 +43,10 @@
         Notifications.OnStateUpdated += HandleStateUpdated;
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         Notifications.OnStateUpdated -= HandleStateUpdated;
-        await Notifications.DisposeAsync();
+        return ValueTask.CompletedTask;
     }
 
     // reflects the update; this is a render trigger only
