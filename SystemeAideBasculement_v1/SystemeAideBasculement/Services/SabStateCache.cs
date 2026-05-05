@@ -10,6 +10,7 @@
     using SystemeAideBasculement.Hubs;
     using SystemeAideBasculement.Models;
     using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+    using static SystemeAideBasculement.Models.SabProfileRow;
 
     // Invariants:
     // - Profiles are the source of truth
@@ -42,7 +43,7 @@
 
         private Timer? _debounceTimer;
         private readonly List<IncomingNotification> _pendingNotifications = new();
-        private bool _isProcessing = false;
+        private bool _isNotifying = false;
 
 
         // Test‑only hooks (internal)
@@ -65,8 +66,6 @@
         }
 
         public bool IsReady { get; private set; } = false;
-
-        public event Action? OnStateChanged;
 
         public SabStateCache(IWebHostEnvironment env,
                              IHubContext<NotificationHub> hubContext,
@@ -183,7 +182,7 @@
                 if (_debounceTimer == null)
                 {
                     _debounceTimer = new Timer(
-                        _ => _ = ProcessPendingNotificationsAsync(),
+                        ProcessPendingNotifications,
                         null,
                         _options.DebounceInterval,
                         Timeout.InfiniteTimeSpan);
@@ -203,11 +202,11 @@
             // Apply profile updates
             foreach (var notif in notifications)
             {
-                var updated = UpdateProfileCache(notif);
-                if (updated != null)
+                var profielUpdatedData = UpdateProfileCache(notif);
+                if (profielUpdatedData != null)
                 {
-                    updatedProfiles.Add(updated);
-                    var updatePexs = UpdatePexCache(updated, notif.Site);
+                    updatedProfiles.Add(profielUpdatedData.NewProfile);
+                    var updatePexs = UpdatePexCache(profielUpdatedData, notif.Site);
                     if (updatePexs != null)
                         updatedPexs.AddRange(updatePexs);
                 }
@@ -232,7 +231,7 @@
             return retDataNotif;
         }
 
-        internal SabProfileRow? UpdateProfileCache(ProfileConnectionNotificationModel notif)
+        internal SabProfileUpdatedData? UpdateProfileCache(ProfileConnectionNotificationModel notif)
         {
             var oldProfiles = _profiles;
 
@@ -276,8 +275,13 @@
             if (!isDirty)
                 return null;
 
+            var profielUpdatedData = new SabProfileUpdatedData
+            {
+                OldProfile = oldProfile,
+                NewProfile = updatedProfile
+            };
             _profiles = oldProfiles.SetItem(index, updatedProfile);
-            return updatedProfile;
+            return profielUpdatedData;
         }
 
         private static string ConvertToCSV(List<string> hostNames)
@@ -291,7 +295,78 @@
             return string.Join(", ", sorted);
         }
 
-        internal List<SabPexRow> UpdatePexCache(SabProfileRow updatedProfile, string site)
+        //internal List<SabPexRow> UpdatePexCache(SabProfileRow updatedProfile, string site)
+        //{
+        //    var updatedRows = new List<SabPexRow>();
+
+        //    bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(site);
+        //    bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(site);
+
+        //    if (!isCcp && !isCcr)
+        //    {
+        //        _logger.LogWarning("Unknown site '{Site}' in UpdatePexCache", site);
+        //        return updatedRows;
+        //    }
+
+        //    var piccField = isCcp
+        //        ? updatedProfile.CCP.PiccNames
+        //        : updatedProfile.CCR.PiccNames;
+
+        //    var hostnames = piccField.Value
+        //        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        //    foreach (var hostname in hostnames)
+        //    {
+        //        int index = _pexs.FindIndex(p =>
+        //            isCcp
+        //                ? string.Equals(p.CCPHostname, hostname, StringComparison.OrdinalIgnoreCase)
+        //                : string.Equals(p.CCRHostname, hostname, StringComparison.OrdinalIgnoreCase));
+
+        //        if (index < 0)
+        //            continue;
+
+        //        var oldRow = _pexs[index];
+        //        var newRow = oldRow.Clone();
+
+        //        var endpoint = isCcp ? newRow.CCP : newRow.CCR;
+
+        //        if (piccField.Status == EndpointStatus.Connected)
+        //        {
+        //            var existingProfiles = endpoint.ProfileNames.Value;
+
+        //            endpoint.ProfileNames.Value =
+        //                string.IsNullOrWhiteSpace(existingProfiles)
+        //                    ? updatedProfile.Profile
+        //                    : string.Join(", ",
+        //                        existingProfiles
+        //                            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        //                            .Concat(new[] { updatedProfile.Profile })
+        //                            .Distinct(StringComparer.OrdinalIgnoreCase));
+
+        //            endpoint.ProfileNames.Status = EndpointStatus.Connected;
+        //        }
+        //        else
+        //        {
+        //            var remaining = endpoint.ProfileNames.Value
+        //                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        //                .Where(p => !string.Equals(p, updatedProfile.Profile, StringComparison.OrdinalIgnoreCase))
+        //                .ToList();
+
+        //            endpoint.ProfileNames.Value =
+        //                remaining.Count == 0 ? EndpointValue.None : string.Join(", ", remaining);
+
+        //            endpoint.ProfileNames.Status =
+        //                remaining.Count == 0 ? EndpointStatus.Disconnected : EndpointStatus.Connected;
+        //        }
+
+        //        _pexs = _pexs.SetItem(index, newRow);
+        //        updatedRows.Add(newRow);
+        //    }
+
+        //    return updatedRows;
+        //}
+
+        internal List<SabPexRow> UpdatePexCache(SabProfileUpdatedData profilUpdatedData, string site)
         {
             var updatedRows = new List<SabPexRow>();
 
@@ -304,11 +379,23 @@
                 return updatedRows;
             }
 
-            var piccField = isCcp
-                ? updatedProfile.CCP.PiccNames
-                : updatedProfile.CCR.PiccNames;
+            var piccFieldOld = isCcp
+                ? profilUpdatedData.OldProfile.CCP.PiccNames
+                : profilUpdatedData.OldProfile.CCR.PiccNames;
 
-            var hostnames = piccField.Value
+            var piccFieldNew = isCcp
+                ? profilUpdatedData.NewProfile.CCP.PiccNames
+                : profilUpdatedData.NewProfile.CCR.PiccNames;
+
+            var hostnameStr = piccFieldOld.Value;
+            if (string.IsNullOrEmpty(hostnameStr))
+            {
+                if (!string.IsNullOrEmpty(piccFieldNew.Value))
+                {
+                    hostnameStr = piccFieldNew.Value;
+                }
+            }
+            var hostnames = hostnameStr
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             foreach (var hostname in hostnames)
@@ -326,17 +413,17 @@
 
                 var endpoint = isCcp ? newRow.CCP : newRow.CCR;
 
-                if (piccField.Status == EndpointStatus.Connected)
+                if (piccFieldNew.Status == EndpointStatus.Connected)
                 {
                     var existingProfiles = endpoint.ProfileNames.Value;
 
                     endpoint.ProfileNames.Value =
                         string.IsNullOrWhiteSpace(existingProfiles)
-                            ? updatedProfile.Profile
+                            ? profilUpdatedData.NewProfile.Profile
                             : string.Join(", ",
                                 existingProfiles
                                     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                                    .Concat(new[] { updatedProfile.Profile })
+                                    .Concat(new[] { profilUpdatedData.NewProfile.Profile })
                                     .Distinct(StringComparer.OrdinalIgnoreCase));
 
                     endpoint.ProfileNames.Status = EndpointStatus.Connected;
@@ -345,7 +432,7 @@
                 {
                     var remaining = endpoint.ProfileNames.Value
                         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Where(p => !string.Equals(p, updatedProfile.Profile, StringComparison.OrdinalIgnoreCase))
+                        .Where(p => !string.Equals(p, profilUpdatedData.NewProfile.Profile, StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
                     endpoint.ProfileNames.Value =
@@ -392,69 +479,85 @@
 
             // Process immediately on the current ThreadPool thread
             // (same logic as timer callback)
-            _ = ProcessPendingNotificationsAsync();
+            ProcessPendingNotifications(state: null);
         }
 
-        private async Task ProcessPendingNotificationsAsync()
+        internal void ProcessPendingNotifications(object? state)
         {
             List<IncomingNotification> batch;
 
+            // Do not process during shutdown
+            if (_shutdownToken.IsCancellationRequested)
+            {
+                _logger.LogDebug("ProcessPendingNotifications skipped because application is stopping.");
+                return;
+            }
+
             lock (_lock)
             {
-                if (_isProcessing)
-                    return;
-
                 if (_pendingNotifications.Count == 0)
                 {
+                    // Nothing to process, ensure timer is cleaned up
                     _debounceTimer?.Dispose();
                     _debounceTimer = null;
                     return;
                 }
 
-                _isProcessing = true;
-
-                batch = _pendingNotifications.ToList();
+                //  Copy pending notifications and clear buffer atomically
+                batch = new List<IncomingNotification>(_pendingNotifications);
                 _pendingNotifications.Clear();
 
+                // Dispose timer – new debounce cycle may start after this
                 _debounceTimer?.Dispose();
                 _debounceTimer = null;
             }
 
             try
             {
-                var notifications = batch
-                    .Select(x => x.Notification)
+                var distinctSenders = batch
+                    .Select(n => n.SenderId)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
 
-                var update = Update(notifications);
+                _logger.LogInformation(
+                    "Processing {Count} notification(s) from sender(s): {Senders}",
+                    batch.Count,
+                    string.Join(", ", distinctSenders));
 
-                if (!update.IsEmpty)
-                {
-                    await _hubContext.Clients.All.SendAsync(
-                        "ProfileUpdated",
-                        update,
-                        _shutdownToken);
+                // Perform a single cache update using existing logic
+                var result = Update(batch.Select(b => b.Notification).ToList());
+                if (!result.IsEmpty)
+                { 
+                    _ = Notify(result);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to process pending notifications.");
+                // Never let background processing crash the app
+                _logger.LogError(ex, "Unhandled error while processing notification batch.");
+            }
+        }
+
+        private async Task Notify(SabDataNotification notification)
+        {
+            if (_isNotifying)
+                return;
+
+            try
+            {
+                _isNotifying = true;
+                await _hubContext.Clients.All.SendAsync(
+                    "ProfileUpdated",
+                    notification,
+                    _shutdownToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send notification to clients.");
             }
             finally
             {
-                lock (_lock)
-                {
-                    _isProcessing = false;
-
-                    if (_pendingNotifications.Count > 0 && _debounceTimer == null)
-                    {
-                        _debounceTimer = new Timer(
-                            _ => _ = ProcessPendingNotificationsAsync(),
-                            null,
-                            _options.DebounceInterval,
-                            Timeout.InfiniteTimeSpan);
-                    }
-                }
+                _isNotifying = false;
             }
         }
     }

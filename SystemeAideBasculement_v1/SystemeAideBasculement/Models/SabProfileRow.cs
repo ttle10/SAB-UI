@@ -27,5 +27,11 @@ namespace SystemeAideBasculement.Models
             CCP = CCP.Clone(),
             CCR = CCR.Clone()
         };
+
+        public class SabProfileUpdatedData
+        { 
+            public SabProfileRow OldProfile { get; set; } = new();
+            public SabProfileRow NewProfile { get; set; } = new();
+        }
     }
 }
