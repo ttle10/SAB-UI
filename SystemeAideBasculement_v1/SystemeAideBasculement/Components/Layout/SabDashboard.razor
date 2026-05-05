@@ -9,12 +9,14 @@
 
 <div class="dashboard-shell">
     <AppHeader ViewMode="@ViewMode" OnViewModeChanged="@SetViewMode" />
-
     <div class="content-row">
-        <ProfilesPanel ViewMode="@ViewMode" />
-        <MemoPanel />
+        <div class="profiles-column">
+            <ProfilesPanel ViewMode="@ViewMode" />
+        </div>
+        <div class="memo-column">
+            <MemoPanel />
+        </div>
     </div>
-
     <div class="dashboard-bottom">
         <FooterBar />
         <OptionNote Text="@OptionNoteText" />
