@@ -39,5 +39,9 @@ namespace SystemeAideBasculement.Models
         {
             return Status == ProfileConnectionStatus.Connected;
         }
+
+        public string GetKey()
+            => $"{ProfileName}:{Site}:{Status}";
+
     }
 }

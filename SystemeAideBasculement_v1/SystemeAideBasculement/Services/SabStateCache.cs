@@ -3,14 +3,14 @@
     using Microsoft.AspNetCore.SignalR;
     using Microsoft.Extensions.Options;
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Immutable;
     using System.IO;
     using System.Text.Json;
     using SystemeAideBasculement.Controllers;
     using SystemeAideBasculement.Hubs;
     using SystemeAideBasculement.Models;
-    using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-    using static SystemeAideBasculement.Models.SabProfileRow;
+//    using static SystemeAideBasculement.Models.SabProfileRow;
 
     // Invariants:
     // - Profiles are the source of truth
@@ -39,11 +39,17 @@
         private readonly SabNotificationOptions _options;
         private readonly CancellationToken _shutdownToken;
 
-        private readonly object _lock = new();
+        // Keeps ONLY the latest update per logical key
+        private readonly ConcurrentDictionary<string, IncomingNotification>
+            _pendingProfileNotifications = new();
 
-        private Timer? _debounceTimer;
-        private readonly List<IncomingNotification> _pendingNotifications = new();
-        private bool _isNotifying = false;
+        // Ensures a single update process at a time
+        private readonly SemaphoreSlim _processGate = new(1, 1);
+
+        // Cooldown between update runs
+        private readonly TimeSpan UpdateCooldown = TimeSpan.FromSeconds(5);
+
+        private int _notifying = 0;
 
 
         // Test‑only hooks (internal)
@@ -78,6 +84,7 @@
             _hubContext = hubContext;
             _logger = logger;
             _options = options.Value;
+            UpdateCooldown = _options.DebounceInterval;
 
             _controlCenterFacilities = new ControlCenterFacilities(_env, logger);
 
@@ -88,7 +95,7 @@
         public async Task LoadInitialStateAsync()
         {
             IsReady = false;
-            var fullPath = Path.Combine(_env.WebRootPath, "config/sabProfiles.json");
+
             try
             {
                 var profiles = await JsonHelper.LoadListAsync<SabProfileRow>(Path.Combine(_env.WebRootPath, "config/sabProfiles.json"));
@@ -133,61 +140,25 @@
         }
 
         /* === METHOD CALLED BY NOTIFICATIONS === */
+
         public void EnqueueProfileNotification(
                                             List<ProfileConnectionNotificationModel> notifications,
                                             string senderId)
         {
-            lock (_lock)
+
+            var now = DateTime.UtcNow;
+
+            foreach (var n in notifications)
             {
+                var incoming = new IncomingNotification(n, senderId, now);
 
-                //Ignore new notifications during shutdown
-                if (_shutdownToken.IsCancellationRequested)
-                {
-                    _logger.LogDebug(
-                        "Ignoring {Count} notification(s) from {Sender} during shutdown",
-                        notifications.Count,
-                        senderId);
-                    return;
-                }
-
-                if (notifications == null || notifications.Count == 0)
-                    return;
-
-
-                _logger.LogDebug(
-                    "Enqueued {Count} notification(s) from sender {Sender}. Pending={Pending}",
-                    notifications.Count,
-                    senderId,
-                    _pendingNotifications.Count);
-
-                // Enqueue all notifications
-                foreach (var notification in notifications)
-                {
-                    _pendingNotifications.Add(
-                        new IncomingNotification(notification, senderId, DateTime.UtcNow));
-                }
-
-                // Safety: process immediately if batch is too large
-                if (_pendingNotifications.Count >= _options.MaxBatchSize)
-                {
-                    _logger.LogWarning(
-                        "Max batch size reached ({Count}). Forcing cache update.",
-                        _pendingNotifications.Count);
-
-                    TriggerProcessing();
-                    return;
-                }
-
-                // Start debounce timer only once
-                if (_debounceTimer == null)
-                {
-                    _debounceTimer = new Timer(
-                        ProcessPendingNotifications,
-                        null,
-                        _options.DebounceInterval,
-                        Timeout.InfiniteTimeSpan);
-                }
+                // Latest wins → outdated update is dropped here
+                _pendingProfileNotifications[n.GetKey()] = incoming;
             }
+
+            // Try to start processing (safe – semaphore protected)
+            _ = TryProcessProfileNotificationsAsync();
+
         }
 
         public SabDataNotification Update(List<ProfileConnectionNotificationModel> notifications)
@@ -202,11 +173,11 @@
             // Apply profile updates
             foreach (var notif in notifications)
             {
-                var profielUpdatedData = UpdateProfileCache(notif);
-                if (profielUpdatedData != null)
+                var proflieUpdatedData = UpdateProfileCache(notif);
+                if (proflieUpdatedData != null)
                 {
-                    updatedProfiles.Add(profielUpdatedData.NewProfile);
-                    var updatePexs = UpdatePexCache(profielUpdatedData, notif.Site);
+                    updatedProfiles.Add(proflieUpdatedData.NewProfile);
+                    var updatePexs = UpdatePexCache(proflieUpdatedData, notif.Site);
                     if (updatePexs != null)
                         updatedPexs.AddRange(updatePexs);
                 }
@@ -275,13 +246,13 @@
             if (!isDirty)
                 return null;
 
-            var profielUpdatedData = new SabProfileUpdatedData
+            var proflieUpdatedData = new SabProfileUpdatedData
             {
                 OldProfile = oldProfile,
                 NewProfile = updatedProfile
             };
             _profiles = oldProfiles.SetItem(index, updatedProfile);
-            return profielUpdatedData;
+            return proflieUpdatedData;
         }
 
         private static string ConvertToCSV(List<string> hostNames)
@@ -294,77 +265,6 @@
             var sorted = hostNames.OrderBy(h => h, StringComparer.OrdinalIgnoreCase);
             return string.Join(", ", sorted);
         }
-
-        //internal List<SabPexRow> UpdatePexCache(SabProfileRow updatedProfile, string site)
-        //{
-        //    var updatedRows = new List<SabPexRow>();
-
-        //    bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(site);
-        //    bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(site);
-
-        //    if (!isCcp && !isCcr)
-        //    {
-        //        _logger.LogWarning("Unknown site '{Site}' in UpdatePexCache", site);
-        //        return updatedRows;
-        //    }
-
-        //    var piccField = isCcp
-        //        ? updatedProfile.CCP.PiccNames
-        //        : updatedProfile.CCR.PiccNames;
-
-        //    var hostnames = piccField.Value
-        //        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        //    foreach (var hostname in hostnames)
-        //    {
-        //        int index = _pexs.FindIndex(p =>
-        //            isCcp
-        //                ? string.Equals(p.CCPHostname, hostname, StringComparison.OrdinalIgnoreCase)
-        //                : string.Equals(p.CCRHostname, hostname, StringComparison.OrdinalIgnoreCase));
-
-        //        if (index < 0)
-        //            continue;
-
-        //        var oldRow = _pexs[index];
-        //        var newRow = oldRow.Clone();
-
-        //        var endpoint = isCcp ? newRow.CCP : newRow.CCR;
-
-        //        if (piccField.Status == EndpointStatus.Connected)
-        //        {
-        //            var existingProfiles = endpoint.ProfileNames.Value;
-
-        //            endpoint.ProfileNames.Value =
-        //                string.IsNullOrWhiteSpace(existingProfiles)
-        //                    ? updatedProfile.Profile
-        //                    : string.Join(", ",
-        //                        existingProfiles
-        //                            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        //                            .Concat(new[] { updatedProfile.Profile })
-        //                            .Distinct(StringComparer.OrdinalIgnoreCase));
-
-        //            endpoint.ProfileNames.Status = EndpointStatus.Connected;
-        //        }
-        //        else
-        //        {
-        //            var remaining = endpoint.ProfileNames.Value
-        //                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        //                .Where(p => !string.Equals(p, updatedProfile.Profile, StringComparison.OrdinalIgnoreCase))
-        //                .ToList();
-
-        //            endpoint.ProfileNames.Value =
-        //                remaining.Count == 0 ? EndpointValue.None : string.Join(", ", remaining);
-
-        //            endpoint.ProfileNames.Status =
-        //                remaining.Count == 0 ? EndpointStatus.Disconnected : EndpointStatus.Connected;
-        //        }
-
-        //        _pexs = _pexs.SetItem(index, newRow);
-        //        updatedRows.Add(newRow);
-        //    }
-
-        //    return updatedRows;
-        //}
 
         internal List<SabPexRow> UpdatePexCache(SabProfileUpdatedData profilUpdatedData, string site)
         {
@@ -462,90 +362,60 @@
             }
         }
 
-
-
-        internal void TriggerProcessing()
+        private async Task TryProcessProfileNotificationsAsync()
         {
-            // Prevent running during shutdown
-            if (_shutdownToken.IsCancellationRequested)
-            {
-                _logger.LogDebug("TriggerProcessing skipped during shutdown");
+            // Ensure only ONE processing loop
+            if (!await _processGate.WaitAsync(0))
                 return;
-            }
-
-            // Cancel any pending debounce timer
-            _debounceTimer?.Dispose();
-            _debounceTimer = null;
-
-            // Process immediately on the current ThreadPool thread
-            // (same logic as timer callback)
-            ProcessPendingNotifications(state: null);
-        }
-
-        internal void ProcessPendingNotifications(object? state)
-        {
-            List<IncomingNotification> batch;
-
-            // Do not process during shutdown
-            if (_shutdownToken.IsCancellationRequested)
-            {
-                _logger.LogDebug("ProcessPendingNotifications skipped because application is stopping.");
-                return;
-            }
-
-            lock (_lock)
-            {
-                if (_pendingNotifications.Count == 0)
-                {
-                    // Nothing to process, ensure timer is cleaned up
-                    _debounceTimer?.Dispose();
-                    _debounceTimer = null;
-                    return;
-                }
-
-                //  Copy pending notifications and clear buffer atomically
-                batch = new List<IncomingNotification>(_pendingNotifications);
-                _pendingNotifications.Clear();
-
-                // Dispose timer – new debounce cycle may start after this
-                _debounceTimer?.Dispose();
-                _debounceTimer = null;
-            }
 
             try
             {
+                if (_pendingProfileNotifications.IsEmpty)
+                    return;
+
+                var batch = _pendingProfileNotifications.Values.ToList();
+                _pendingProfileNotifications.Clear();
+
                 var distinctSenders = batch
-                    .Select(n => n.SenderId)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList();
+                    .Select(b => b.SenderId)
+                    .Distinct(StringComparer.OrdinalIgnoreCase);
 
                 _logger.LogInformation(
-                    "Processing {Count} notification(s) from sender(s): {Senders}",
+                    "Processing {Count} profile notification(s) from sender(s): {Senders}",
                     batch.Count,
                     string.Join(", ", distinctSenders));
 
-                // Perform a single cache update using existing logic
                 var result = Update(batch.Select(b => b.Notification).ToList());
+
                 if (!result.IsEmpty)
-                { 
-                    _ = Notify(result);
-                }
+                    await Notify(result);
+
+                // Cooldown before next run
+                await Task.Delay(UpdateCooldown);
             }
             catch (Exception ex)
             {
-                // Never let background processing crash the app
-                _logger.LogError(ex, "Unhandled error while processing notification batch.");
+                _logger.LogError(ex,
+                    "Unhandled error while processing profile notifications.");
+            }
+            finally
+            {
+                _processGate.Release();
+
+                // New updates arrived during processing/cooldown → run again
+                if (!_pendingProfileNotifications.IsEmpty)
+                    _ = TryProcessProfileNotificationsAsync();
             }
         }
 
         private async Task Notify(SabDataNotification notification)
         {
-            if (_isNotifying)
+            // Ensure single execution (atomic)
+            if (Interlocked.Exchange(ref _notifying, 1) == 1)
                 return;
 
             try
             {
-                _isNotifying = true;
                 await _hubContext.Clients.All.SendAsync(
                     "ProfileUpdated",
                     notification,
@@ -557,7 +427,7 @@
             }
             finally
             {
-                _isNotifying = false;
+                Interlocked.Exchange(ref _notifying, 0);
             }
         }
     }
