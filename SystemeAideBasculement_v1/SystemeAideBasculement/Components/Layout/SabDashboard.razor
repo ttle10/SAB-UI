@@ -40,6 +40,7 @@
         _ => string.Empty
     };
 
+	// Start the notification service to listen to state updates    
     protected override async Task OnInitializedAsync()
     {
         await Notifications.StartAsync(Navigation);
