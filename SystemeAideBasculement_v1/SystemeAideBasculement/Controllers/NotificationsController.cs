@@ -74,6 +74,8 @@ namespace SystemeAideBasculement.Controllers
                 bool isValid = JsonHelper.Validate(rawJson, schema, out var jsonValidationError);
                 if (!isValid)
                 {
+                    _logger.LogError("[ReceiveProfileConnectionNotification] Failed to deserialize payload: {Error}", jsonValidationError);
+
                     return new ContentResult
                     {
                         Content = jsonValidationError,
