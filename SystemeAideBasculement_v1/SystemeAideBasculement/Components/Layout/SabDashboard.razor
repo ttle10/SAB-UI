@@ -31,7 +31,9 @@
     private DashboardViewMode ViewMode = DashboardViewMode.Profile;
 
     private string AppVersion =>
-        Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0.0";
+           //      Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0.0";
+           Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0.0.0";
+
 
     void SetViewMode(DashboardViewMode mode)
         => ViewMode = mode;
