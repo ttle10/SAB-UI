@@ -44,21 +44,21 @@ namespace SystemeAideBasculement.Controllers
                     ? values.First()
                     : "UNKNOWN";
 
-            _logger.LogDebug(
-                "Received profile notification from sender {SenderId}", senderId);
+            _logger.LogTrace(
+                "[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Received profile notification from sender {SenderId}", senderId);
 
             LogNoficationBody(body);
 
             if (body.ValueKind != JsonValueKind.Array &&
                 body.ValueKind != JsonValueKind.Object)
             {
-                _logger.LogWarning("Invalid JSON payload received.");
+                _logger.LogWarning("[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Invalid JSON payload received.");
                 return BadRequest("Invalid JSON payload.");
             }
 
             if (!_cache.IsReady)
             {
-                _logger.LogWarning("Cache not ready. Rejecting notification.");
+                _logger.LogWarning("[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Cache not ready. Rejecting notification.");
                 return StatusCode(
                     StatusCodes.Status503ServiceUnavailable,
                     "Cache not ready.");
@@ -74,7 +74,7 @@ namespace SystemeAideBasculement.Controllers
                 bool isValid = JsonHelper.Validate(rawJson, schema, out var jsonValidationError);
                 if (!isValid)
                 {
-                    _logger.LogError("[ReceiveProfileConnectionNotification] Failed to deserialize payload: {Error}", jsonValidationError);
+                    _logger.LogError("[SabUI:NotificationsController:ReceiveProfileConnectionNotification] Failed to deserialize payload: {Error}", jsonValidationError);
 
                     return new ContentResult
                     {
@@ -97,18 +97,18 @@ namespace SystemeAideBasculement.Controllers
                                     };
                 }
 
-                _logger.LogDebug("Deserialized {Count} notification(s).", notifications.Count);
+                _logger.LogTrace("[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Deserialized {Count} notification(s).", notifications.Count);
             }
             catch (JsonException ex)
             {
                 _logger.LogError( ex,
-                                  "[ReceiveProfileConnectionNotification] Failed to deserialize payload");
+                                  "[SabUI:NotificationsController:ReceiveProfileConnectionNotification] Failed to deserialize payload");
 
                 return BadRequest("Invalid notification format.");
             }
             if (notifications == null || notifications.Count == 0)
             {
-                _logger.LogWarning("Notification list is empty.");
+                _logger.LogWarning("[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Notification list is empty.");
                 return BadRequest("Notification list is empty.");
             }
             
@@ -128,11 +128,11 @@ namespace SystemeAideBasculement.Controllers
                     {
                         WriteIndented = true
                     });
-                _logger.LogInformation("Received notification payload:\n{Payload}", prettyJson);
+                _logger.LogInformation("[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Received notification payload:\n{Payload}", prettyJson);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to log notification payload.");
+                _logger.LogError(ex, "[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Failed to log notification payload.");
             }
         }
     }

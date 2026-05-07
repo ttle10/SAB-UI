@@ -113,13 +113,13 @@ namespace SystemeAideBasculement.Models
                 }
                 else
                 {
-                    _logger.LogError("Failed to deserialize control center facilities configuration.");
+                    _logger.LogError("[SabUI:ControlCenterFacilities:LoadData]: Failed to deserialize control center facilities configuration.");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading control center facilities configuration.");
+                _logger.LogError(ex, "[SabUI:ControlCenterFacilities:LoadData]: Error loading control center facilities configuration.");
                 return false;
             }
         }

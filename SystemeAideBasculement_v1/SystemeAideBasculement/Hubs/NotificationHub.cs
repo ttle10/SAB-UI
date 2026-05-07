@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using SystemeAideBasculement.Models;
+using SystemeAideBasculement.Services;
 
 namespace SystemeAideBasculement.Hubs
 {
@@ -15,7 +16,7 @@ namespace SystemeAideBasculement.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
+            _logger.LogInformation("[SabUI:NotificationHub:OnConnectedAsync]: Client connected: {ConnectionId}", Context.ConnectionId);
             await base.OnConnectedAsync();
         }
 
@@ -23,11 +24,11 @@ namespace SystemeAideBasculement.Hubs
         {
             if (exception != null)
             {
-                _logger.LogWarning(exception, "Client disconnected with error: {ConnectionId}", Context.ConnectionId);
+                _logger.LogWarning(exception, "[SabUI:NotificationHub:OnDisconnectedAsync]: Client disconnected with error: {ConnectionId}", Context.ConnectionId);
             }
             else
             {
-                _logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
+                _logger.LogInformation("[SabUI:NotificationHub:OnDisconnectedAsync]: Client disconnected: {ConnectionId}", Context.ConnectionId);
             }
 
             await base.OnDisconnectedAsync(exception);
@@ -38,7 +39,7 @@ namespace SystemeAideBasculement.Hubs
                    List<ProfileConnectionNotificationModel> notifications)
         {
             _logger.LogInformation(
-                "Broadcasting {Count} profile updates",
+                "[SabUI:NotificationHub:Broadcasting {Count} profile updates",
                 notifications.Count);
 
             await Clients.All.SendAsync(
