@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
+
 namespace SystemeAideBasculement.Models
 {
     public enum ProfileConnectionStatus
@@ -16,7 +17,7 @@ namespace SystemeAideBasculement.Models
 
     public class ProfileConnectionNotificationModel
     {
-        [JsonPropertyName("Name")]
+        [JsonPropertyName("ProfileName")]
         public string ProfileName { get; set; } = string.Empty;
 
         [JsonPropertyName("HostNames")]
@@ -25,7 +26,7 @@ namespace SystemeAideBasculement.Models
         [JsonPropertyName("Status")]
         public ProfileConnectionStatus Status { get; set; } = ProfileConnectionStatus.Disconnected;
 
-        [JsonPropertyName("SiteName")]
+        [JsonPropertyName("Site")]
         public string Site { get; set; } = string.Empty;
 
         // Optional fields (available for future use / logging)
@@ -42,6 +43,5 @@ namespace SystemeAideBasculement.Models
 
         public string GetKey()
             => $"{ProfileName}:{Site}:{Status}";
-
     }
 }

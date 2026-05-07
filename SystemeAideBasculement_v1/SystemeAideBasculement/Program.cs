@@ -7,6 +7,7 @@ using SystemeAideBasculement.Components;
 using SystemeAideBasculement.Context;
 using SystemeAideBasculement.Controllers;
 using SystemeAideBasculement.Hubs;
+using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Services;
 
 var logger = LogManager
@@ -46,6 +47,12 @@ try
     builder.Services.AddSingleton<NotificationService>();
 
     builder.Services.AddSingleton<SabStateCache>();
+
+    builder.Services.AddSingleton<JsonSchemaProvider>(sp =>
+    {
+        var env = sp.GetRequiredService<IWebHostEnvironment>();
+        return new JsonSchemaProvider(env.WebRootPath);
+    });
 
     //builder.Services.AddSingleton(new HttpClient
     //{
