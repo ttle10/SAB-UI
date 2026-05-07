@@ -34,8 +34,8 @@ namespace SystemeAideBasculement.Models
 
         public EndpointField Clone() => new()
         {
-            Value = Value,
-            Status = Status
+            Value = this.Value,
+            Status = this.Status
         };
     }
 }

@@ -21,11 +21,11 @@ namespace SystemeAideBasculement.Models
 
         public SabProfileRow Clone() => new()
         {
-            Index = Index,
-            Profile = Profile,
-            DisplayName = DisplayName,
-            CCP = CCP.Clone(),
-            CCR = CCR.Clone()
+            Index = this.Index,
+            Profile = this.Profile,
+            DisplayName = this.DisplayName,
+            CCP = this.CCP.Clone(),
+            CCR = this.CCR.Clone()
         };
     }
 

@@ -101,7 +101,7 @@
                 var profiles = await JsonHelper.LoadListAsync<SabProfileRow>(Path.Combine(_env.WebRootPath, "config/sabProfiles.json"));
                 if (profiles == null)
                 {
-                    _logger.LogError("Failed to deserialize sabProfiles initial configuration.");
+                    _logger.LogError("[SabUI:SabStateCache:LoadInitialStateAsync]: Failed to deserialize sabProfiles initial configuration.");
                     return;
                 }
 
@@ -113,7 +113,7 @@
             }
             catch (JsonException ex)
             {
-                _logger.LogError($"[LoadInitialStateAsync] Failed to deserialize sabProfiles initial configuration: {ex}");
+                _logger.LogError($"[SabUI:SabStateCache:LoadInitialStateAsync]: Failed to deserialize sabProfiles initial configuration: {ex}");
                 return;
             }
 
@@ -122,7 +122,7 @@
                 var pexs = await JsonHelper.LoadListAsync<SabPexRow>(Path.Combine(_env.WebRootPath, "config/sabPexs.json"));
                 if (pexs == null)
                 {
-                    _logger.LogError("Failed to deserialize sabPexs initial configuration.");
+                    _logger.LogError("[SabUI:SabStateCache:LoadInitialStateAsync]: Failed to deserialize sabPexs initial configuration.");
                     return;
                 }
                 _pexs = pexs
@@ -132,7 +132,7 @@
             }
             catch (JsonException ex)
             {
-                _logger.LogError($"[LoadInitialStateAsync] Failed to deserialize sabPexs initial configuration: {ex}");
+                _logger.LogError($"[SabUI:SabStateCache:LoadInitialStateAsync]: Failed to deserialize sabPexs initial configuration: {ex}");
                 return;
             }
 
@@ -173,11 +173,11 @@
             // Apply profile updates
             foreach (var notif in notifications)
             {
-                var proflieUpdatedData = UpdateProfileCache(notif);
-                if (proflieUpdatedData != null)
+                var proflieUpdate = UpdateProfileCache(notif);
+                if (proflieUpdate != null)
                 {
-                    updatedProfiles.Add(proflieUpdatedData.NewProfile);
-                    var updatePexs = UpdatePexCache(proflieUpdatedData, notif.Site);
+                    updatedProfiles.Add(proflieUpdate);
+                    var updatePexs = UpdatePexCache(notif);
                     if (updatePexs != null)
                         updatedPexs.AddRange(updatePexs);
                 }
@@ -185,24 +185,23 @@
 
             var retDataNotif = new SabDataNotification();
 
-            // Raise state change only if something actually changed
             if (updatedProfiles.Count > 0 ||
                 updatedPexs.Count > 0)
             {
-                //Version++; // single authoritative increment
                 //  Build notification
                 retDataNotif.Profiles = updatedProfiles;
                 retDataNotif.Pexs = updatedPexs;
+                _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed with state changes: Profiles [{Profiles}], Pexs [{Pexs}].", updatedProfiles.Count, updatedPexs.Count);
             }
             else
             {
-                _logger.LogDebug("Update cache processed but no state changes detected.");
+                _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed but no state changes detected.");
             }
 
             return retDataNotif;
         }
 
-        internal SabProfileUpdatedData? UpdateProfileCache(ProfileConnectionNotificationModel notif)
+        internal SabProfileRow? UpdateProfileCache(ProfileConnectionNotificationModel notif)
         {
             var oldProfiles = _profiles;
 
@@ -210,7 +209,10 @@
                 string.Equals(p.Profile, notif.ProfileName, StringComparison.OrdinalIgnoreCase));
 
             if (index < 0)
+            {
+                _logger.LogWarning($"[SabUI:SabStateCache:UpdateProfileCache]: Not supported Profile '{notif.ProfileName}'");
                 return null;
+            }
 
             var oldProfile = oldProfiles[index];
             var updatedProfile = oldProfile.Clone();
@@ -224,7 +226,7 @@
                 endpoint = updatedProfile.CCR;
             else
             {
-                _logger.LogWarning("Unknown site '{Site}' in UpdateProfileCache", notif.Site);
+                _logger.LogWarning("[SabUI:SabStateCache:UpdateProfileCache]: Unknown site '{Site}' in UpdateProfileCache", notif.Site);
                 return null;
             }
 
@@ -246,120 +248,130 @@
             if (!isDirty)
                 return null;
 
-            var proflieUpdatedData = new SabProfileUpdatedData
-            {
-                OldProfile = oldProfile,
-                NewProfile = updatedProfile
-            };
             _profiles = oldProfiles.SetItem(index, updatedProfile);
-            return proflieUpdatedData;
+            return updatedProfile;
         }
 
         private static string ConvertToCSV(List<string> hostNames)
         {
             if (hostNames == null || hostNames.Count == 0)
             {
-                return EndpointValue.None;
+                return string.Empty;
             }
 
             var sorted = hostNames.OrderBy(h => h, StringComparer.OrdinalIgnoreCase);
             return string.Join(", ", sorted);
         }
 
-        internal List<SabPexRow> UpdatePexCache(SabProfileUpdatedData profilUpdatedData, string site)
+        internal List<SabPexRow> UpdatePexCache(ProfileConnectionNotificationModel notificationUpdate)
         {
             var updatedRows = new List<SabPexRow>();
 
-            bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(site);
-            bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(site);
+            bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(notificationUpdate.Site);
+            bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(notificationUpdate.Site);
 
             if (!isCcp && !isCcr)
             {
-                _logger.LogWarning("Unknown site '{Site}' in UpdatePexCache", site);
+                _logger.LogWarning("Unknown site '{Site}' in UpdatePexCache", notificationUpdate.Site);
                 return updatedRows;
             }
 
-            var piccFieldOld = isCcp
-                ? profilUpdatedData.OldProfile.CCP.PiccNames
-                : profilUpdatedData.OldProfile.CCR.PiccNames;
-
-            var piccFieldNew = isCcp
-                ? profilUpdatedData.NewProfile.CCP.PiccNames
-                : profilUpdatedData.NewProfile.CCR.PiccNames;
-
-            var hostnameStr = piccFieldOld.Value;
-            if (string.IsNullOrEmpty(hostnameStr))
+            if (notificationUpdate.IsConnected())
             {
-                if (!string.IsNullOrEmpty(piccFieldNew.Value))
+                foreach (var host in notificationUpdate.HostNames
+                             .Where(h => !string.IsNullOrWhiteSpace(h))
+                             .Distinct(StringComparer.OrdinalIgnoreCase))
                 {
-                    hostnameStr = piccFieldNew.Value;
+                    int index = _pexs.FindIndex(p =>
+                        isCcp
+                            ? string.Equals(p.CCPHostname, host, StringComparison.OrdinalIgnoreCase)
+                            : string.Equals(p.CCRHostname, host, StringComparison.OrdinalIgnoreCase));
+
+                    if (index < 0)
+                        continue;
+
+                    var oldRow = _pexs[index];
+                    var newRow = oldRow.Clone();
+                    var endpoint = isCcp ? newRow.CCP : newRow.CCR;
+
+                    var profileNames = SplitCsv(endpoint.ProfileNames.Value);
+
+                    if (!profileNames.Contains(notificationUpdate.ProfileName, StringComparer.OrdinalIgnoreCase))
+                    {
+                        profileNames.Add(notificationUpdate.ProfileName);
+                    }
+
+                    endpoint.ProfileNames.Value = JoinCsv(profileNames);
+                    endpoint.ProfileNames.Status = EndpointStatus.Connected;
+
+                    _pexs = _pexs.SetItem(index, newRow);
+                    updatedRows.Add(newRow);
                 }
             }
-            var hostnames = hostnameStr
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-            foreach (var hostname in hostnames)
+            else if (notificationUpdate.IsDisconnected())
             {
-                int index = _pexs.FindIndex(p =>
-                    isCcp
-                        ? string.Equals(p.CCPHostname, hostname, StringComparison.OrdinalIgnoreCase)
-                        : string.Equals(p.CCRHostname, hostname, StringComparison.OrdinalIgnoreCase));
-
-                if (index < 0)
-                    continue;
-
-                var oldRow = _pexs[index];
-                var newRow = oldRow.Clone();
-
-                var endpoint = isCcp ? newRow.CCP : newRow.CCR;
-
-                if (piccFieldNew.Status == EndpointStatus.Connected)
+                for (int i = 0; i < _pexs.Count; i++)
                 {
-                    var existingProfiles = endpoint.ProfileNames.Value;
+                    var oldRow = _pexs[i];
+                    var endpoint = isCcp ? oldRow.CCP : oldRow.CCR;
 
-                    endpoint.ProfileNames.Value =
-                        string.IsNullOrWhiteSpace(existingProfiles)
-                            ? profilUpdatedData.NewProfile.Profile
-                            : string.Join(", ",
-                                existingProfiles
-                                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                                    .Concat(new[] { profilUpdatedData.NewProfile.Profile })
-                                    .Distinct(StringComparer.OrdinalIgnoreCase));
+                    var existingProfiles = SplitCsv(endpoint.ProfileNames.Value);
 
-                    endpoint.ProfileNames.Status = EndpointStatus.Connected;
-                }
-                else
-                {
-                    var remaining = endpoint.ProfileNames.Value
-                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Where(p => !string.Equals(p, profilUpdatedData.NewProfile.Profile, StringComparison.OrdinalIgnoreCase))
+                    if (!existingProfiles.Contains(notificationUpdate.ProfileName, StringComparer.OrdinalIgnoreCase))
+                        continue;
+
+                    var newRow = oldRow.Clone();
+                    var newEndpoint = isCcp ? newRow.CCP : newRow.CCR;
+
+                    var remaining = SplitCsv(newEndpoint.ProfileNames.Value)
+                        .Where(p => !string.Equals(p, notificationUpdate.ProfileName, StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
-                    endpoint.ProfileNames.Value =
-                        remaining.Count == 0 ? EndpointValue.None : string.Join(", ", remaining);
-
-                    endpoint.ProfileNames.Status =
+                    newEndpoint.ProfileNames.Value = JoinCsv(remaining);
+                    newEndpoint.ProfileNames.Status =
                         remaining.Count == 0 ? EndpointStatus.Disconnected : EndpointStatus.Connected;
-                }
 
-                _pexs = _pexs.SetItem(index, newRow);
-                updatedRows.Add(newRow);
+                    _pexs = _pexs.SetItem(i, newRow);
+                    updatedRows.Add(newRow);
+                }
             }
 
             return updatedRows;
         }
 
+        private static List<string> SplitCsv(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value) ||
+                string.Equals(value, EndpointValue.None, StringComparison.OrdinalIgnoreCase))
+            {
+                return new List<string>();
+            }
+
+            return value
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static string JoinCsv(IEnumerable<string> values)
+        {
+            return string.Join(", ",
+                values
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+        }
+
         private static EndpointStatus GetStatus(ProfileConnectionNotificationModel notication)
         {
-            switch (notication.Status)
-            {
-                case ProfileConnectionStatus.Connected:
-                    return EndpointStatus.Connected;
-                case ProfileConnectionStatus.Disconnected:
-                    return EndpointStatus.Disconnected;
-                default:
-                    return EndpointStatus.Unknown;
-            }
+            if (notication.IsConnected())
+                return EndpointStatus.Connected;
+            if (notication.IsDisconnected())
+                return EndpointStatus.Disconnected; 
+
+            return EndpointStatus.Unknown;
         }
 
         private async Task TryProcessProfileNotificationsAsync()
@@ -381,7 +393,7 @@
                     .Distinct(StringComparer.OrdinalIgnoreCase);
 
                 _logger.LogInformation(
-                    "Processing {Count} profile notification(s) from sender(s): {Senders}",
+                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Processing {Count} profile notification(s) from sender(s): {Senders}",
                     batch.Count,
                     string.Join(", ", distinctSenders));
 
@@ -396,7 +408,7 @@
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Unhandled error while processing profile notifications.");
+                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Unhandled error while processing profile notifications.");
             }
             finally
             {
@@ -416,6 +428,7 @@
 
             try
             {
+                _logger.LogTrace("[SabUI:SabStateCache:Notify]: Notify Client to refresh.");
                 await _hubContext.Clients.All.SendAsync(
                     "ProfileUpdated",
                     notification,
@@ -423,7 +436,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send notification to clients.");
+                _logger.LogError(ex, "[SabUI:SabStateCache:Notify]: Failed to send status change to clients.");
             }
             finally
             {

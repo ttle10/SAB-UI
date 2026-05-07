@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 
@@ -24,7 +25,7 @@ namespace SystemeAideBasculement.Models
         public List<string> HostNames { get; set; } = new();
 
         [JsonPropertyName("Status")]
-        public ProfileConnectionStatus Status { get; set; } = ProfileConnectionStatus.Disconnected;
+        public string Status { get; set; } = ProfileConnectionStatus.Disconnected.ToString();
 
         [JsonPropertyName("Site")]
         public string Site { get; set; } = string.Empty;
@@ -38,7 +39,12 @@ namespace SystemeAideBasculement.Models
 
         public bool IsConnected()
         {
-            return Status == ProfileConnectionStatus.Connected;
+            return string.Equals(Status, ProfileConnectionStatus.Connected.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        public bool IsDisconnected()
+        {
+            return string.Equals(Status, ProfileConnectionStatus.Disconnected.ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
         public string GetKey()

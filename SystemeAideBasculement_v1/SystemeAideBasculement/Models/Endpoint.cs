@@ -41,12 +41,12 @@ namespace SystemeAideBasculement.Models
 
         public Endpoint Clone() => new()
         {
-            PiccNames = PiccNames.Clone(),
-            ProfileNames = ProfileNames.Clone(),
-            CRA = CRA.Clone(),
-            REU = REU.Clone(),
-            SGCZ = SGCZ.Clone(),
-            STI = STI.Clone()
+            PiccNames = this.PiccNames.Clone(),
+            ProfileNames = this.ProfileNames.Clone(),
+            CRA = this.CRA.Clone(),
+            REU = this.REU.Clone(),
+            SGCZ = this.SGCZ.Clone(),
+            STI = this.STI.Clone()
         };
     }
 }

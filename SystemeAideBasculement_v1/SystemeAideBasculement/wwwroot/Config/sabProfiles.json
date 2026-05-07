@@ -5,53 +5,53 @@
     "displayName": "PCC-L2-T MM",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -62,53 +62,53 @@
     "displayName": "PCC-L2-VRTU",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -119,53 +119,53 @@
     "displayName": "PCC-L2",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -176,53 +176,53 @@
     "displayName": "PCC-L4",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -233,53 +233,53 @@
     "displayName": "PCC-L5",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -290,53 +290,53 @@
     "displayName": "PCC-L1",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -347,53 +347,53 @@
     "displayName": "PCC-L1-T BG",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -404,53 +404,53 @@
     "displayName": "CCM-L2L4",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -461,53 +461,53 @@
     "displayName": "CCM-L1L5",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -518,53 +518,53 @@
     "displayName": "PCM-A",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -575,53 +575,53 @@
     "displayName": "PCM-S",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -632,53 +632,53 @@
     "displayName": "PCM-E",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -689,53 +689,53 @@
     "displayName": "CC",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }
@@ -746,53 +746,53 @@
     "displayName": "COS",
     "ccp": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     },
     "ccr": {
       "piccNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "profileNames": {
-        "value": "Aucun",
+        "value": "",
         "status": "Disconnected"
       },
       "cra": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "reu": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sgcz": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       },
       "sti": {
-        "value": "NA",
+        "value": "",
         "status": "Notmonitored"
       }
     }

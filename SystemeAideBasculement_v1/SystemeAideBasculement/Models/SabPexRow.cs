@@ -25,12 +25,12 @@ namespace SystemeAideBasculement.Models
 
         public SabPexRow Clone() => new()
         {
-            Index = Index,
-            CCPHostname = CCPHostname,
-            CCRHostname = CCRHostname,
-            DisplayName = DisplayName,
-            CCP = CCP.Clone(),
-            CCR = CCR.Clone()
+            Index = this.Index,
+            CCPHostname = this.CCPHostname,
+            CCRHostname = this.CCRHostname,
+            DisplayName = this.DisplayName,
+            CCP = this.CCP.Clone(),
+            CCR = this.CCR.Clone()
         };
     }
 
