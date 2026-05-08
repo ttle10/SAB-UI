@@ -32,6 +32,16 @@
         private ImmutableList<SabProfileRow> _profiles = ImmutableList<SabProfileRow>.Empty;
         private ImmutableList<SabPexRow> _pexs = ImmutableList<SabPexRow>.Empty;
 
+        // Index for quick lookup during updates (not serialized, built on LoadInitialStateAsync and maintained on updates)
+        private readonly Dictionary<string, PexIndexEntry> _pexByCcpHostname =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        private readonly Dictionary<string, PexIndexEntry> _pexByCcrHostname =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        private ImmutableDictionary<int, PexIndexEntry> _pexEntriesByRowIndex =
+            ImmutableDictionary<int, PexIndexEntry>.Empty;
+
         public IReadOnlyList<SabProfileRow> Profiles => _profiles;
         public IReadOnlyList<SabPexRow> Pexs => _pexs;
 
@@ -129,6 +139,7 @@
                         .OrderBy(p => p.Index)
                         .Select(p => p.Clone())
                         .ToImmutableList();
+                RebuildPexIndex();
             }
             catch (JsonException ex)
             {
@@ -192,6 +203,13 @@
                 retDataNotif.Profiles = updatedProfiles;
                 retDataNotif.Pexs = updatedPexs;
                 _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed with state changes: Profiles [{Profiles}], Pexs [{Pexs}].", updatedProfiles.Count, updatedPexs.Count);
+                var prettyJson = JsonSerializer.Serialize(
+                     retDataNotif.Pexs,
+                     new JsonSerializerOptions
+                     {
+                         WriteIndented = true
+                     });
+                _logger.LogInformation("[SabUI:SabStateCache:Update]: After Update:\n{Payload}", prettyJson);
             }
             else
             {
@@ -265,75 +283,75 @@
 
         internal List<SabPexRow> UpdatePexCache(ProfileConnectionNotificationModel notificationUpdate)
         {
-            var updatedRows = new List<SabPexRow>();
+            var changedRowIndexes = new HashSet<int>();
 
             bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(notificationUpdate.Site);
             bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(notificationUpdate.Site);
 
             if (!isCcp && !isCcr)
             {
-                _logger.LogWarning("Unknown site '{Site}' in UpdatePexCache", notificationUpdate.Site);
-                return updatedRows;
+                _logger.LogWarning("[SabUI:SabStateCache:UpdatePexCache]: Unknown site '{Site}' in UpdatePexCache", notificationUpdate.Site);
+                return new List<SabPexRow>();
             }
 
             if (notificationUpdate.IsConnected())
             {
-                foreach (var host in notificationUpdate.HostNames
-                             .Where(h => !string.IsNullOrWhiteSpace(h))
-                             .Distinct(StringComparer.OrdinalIgnoreCase))
-                {
-                    int index = _pexs.FindIndex(p =>
-                        isCcp
-                            ? string.Equals(p.CCPHostname, host, StringComparison.OrdinalIgnoreCase)
-                            : string.Equals(p.CCRHostname, host, StringComparison.OrdinalIgnoreCase));
+                var lookup = isCcp ? _pexByCcpHostname : _pexByCcrHostname;
+                var distinctHosts = notificationUpdate.HostNames
+                    .Where(h => !string.IsNullOrWhiteSpace(h))
+                    .Distinct(StringComparer.OrdinalIgnoreCase);
 
-                    if (index < 0)
+                foreach (var host in distinctHosts)
+                {
+                    if (!lookup.TryGetValue(host, out var entry))
                         continue;
 
-                    var oldRow = _pexs[index];
-                    var newRow = oldRow.Clone();
-                    var endpoint = isCcp ? newRow.CCP : newRow.CCR;
-
-                    var profileNames = SplitCsv(endpoint.ProfileNames.Value);
-
-                    if (!profileNames.Contains(notificationUpdate.ProfileName, StringComparer.OrdinalIgnoreCase))
+                    var siteState = isCcp ? entry.CCP : entry.CCR;
+                    if (siteState.ProfileNames.Add(notificationUpdate.ProfileName))
                     {
-                        profileNames.Add(notificationUpdate.ProfileName);
+                        changedRowIndexes.Add(entry.RowIndex);
                     }
-
-                    endpoint.ProfileNames.Value = JoinCsv(profileNames);
-                    endpoint.ProfileNames.Status = EndpointStatus.Connected;
-
-                    _pexs = _pexs.SetItem(index, newRow);
-                    updatedRows.Add(newRow);
                 }
             }
             else if (notificationUpdate.IsDisconnected())
             {
-                for (int i = 0; i < _pexs.Count; i++)
+                foreach (var pair in _pexEntriesByRowIndex)
                 {
-                    var oldRow = _pexs[i];
-                    var endpoint = isCcp ? oldRow.CCP : oldRow.CCR;
+                    var entry = pair.Value;
+                    var siteState = isCcp ? entry.CCP : entry.CCR;
 
-                    var existingProfiles = SplitCsv(endpoint.ProfileNames.Value);
-
-                    if (!existingProfiles.Contains(notificationUpdate.ProfileName, StringComparer.OrdinalIgnoreCase))
-                        continue;
-
-                    var newRow = oldRow.Clone();
-                    var newEndpoint = isCcp ? newRow.CCP : newRow.CCR;
-
-                    var remaining = SplitCsv(newEndpoint.ProfileNames.Value)
-                        .Where(p => !string.Equals(p, notificationUpdate.ProfileName, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-
-                    newEndpoint.ProfileNames.Value = JoinCsv(remaining);
-                    newEndpoint.ProfileNames.Status =
-                        remaining.Count == 0 ? EndpointStatus.Disconnected : EndpointStatus.Connected;
-
-                    _pexs = _pexs.SetItem(i, newRow);
-                    updatedRows.Add(newRow);
+                    if (siteState.ProfileNames.Remove(notificationUpdate.ProfileName))
+                    {
+                        changedRowIndexes.Add(entry.RowIndex);
+                    }
                 }
+            }
+            else
+                {
+                _logger.LogWarning("[SabUI:SabStateCache:UpdatePexCache]: Unsupported connection status in UpdatePexCache for Profile '{Profile}'", notificationUpdate.ProfileName);
+                return new List<SabPexRow>();
+            }
+
+            if (changedRowIndexes.Count == 0)
+                return new List<SabPexRow>();
+
+            var updatedRows = new List<SabPexRow>();
+
+            foreach (var rowIndex in changedRowIndexes.OrderBy(i => i))
+            {
+                var oldRow = _pexs[rowIndex];
+                var entry = _pexEntriesByRowIndex[rowIndex];
+
+                var newRow = oldRow.Clone();
+
+                newRow.CCP.ProfileNames.Value = JoinCsv(entry.CCP.ProfileNames);
+                newRow.CCP.ProfileNames.Status = entry.CCP.Status;
+
+                newRow.CCR.ProfileNames.Value = JoinCsv(entry.CCR.ProfileNames);
+                newRow.CCR.ProfileNames.Status = entry.CCR.Status;
+
+                _pexs = _pexs.SetItem(rowIndex, newRow);
+                updatedRows.Add(newRow);
             }
 
             return updatedRows;
@@ -442,6 +460,43 @@
             {
                 Interlocked.Exchange(ref _notifying, 0);
             }
+        }
+
+        private void RebuildPexIndex()
+        {
+            _pexByCcpHostname.Clear();
+            _pexByCcrHostname.Clear();
+
+            var builder = ImmutableDictionary.CreateBuilder<int, PexIndexEntry>();
+
+            for (int i = 0; i < _pexs.Count; i++)
+            {
+                var row = _pexs[i];
+
+                var entry = new PexIndexEntry
+                {
+                    RowIndex = i,
+                    CCPHostname = row.CCPHostname,
+                    CCRHostname = row.CCRHostname,
+                    DisplayName = row.DisplayName
+                };
+
+                foreach (var name in SplitCsv(row.CCP.ProfileNames.Value))
+                    entry.CCP.ProfileNames.Add(name);
+
+                foreach (var name in SplitCsv(row.CCR.ProfileNames.Value))
+                    entry.CCR.ProfileNames.Add(name);
+
+                builder[i] = entry;
+
+                if (!string.IsNullOrWhiteSpace(row.CCPHostname))
+                    _pexByCcpHostname[row.CCPHostname] = entry;
+
+                if (!string.IsNullOrWhiteSpace(row.CCRHostname))
+                    _pexByCcrHostname[row.CCRHostname] = entry;
+            }
+
+            _pexEntriesByRowIndex = builder.ToImmutable();
         }
     }
 }
