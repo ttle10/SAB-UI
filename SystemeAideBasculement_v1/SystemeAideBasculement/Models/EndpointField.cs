@@ -32,6 +32,12 @@ namespace SystemeAideBasculement.Models
         [JsonPropertyName("status")]
         public EndpointStatus Status { get; set; } = EndpointStatus.Disconnected;
 
+        // Return an ordred list from CSV Value content.
+        public List<string> GetValueList()
+        {
+                return CSVHelper.SplitCsvOrdered(this.Value);
+        }
+
         public EndpointField Clone() => new()
         {
             Value = this.Value,

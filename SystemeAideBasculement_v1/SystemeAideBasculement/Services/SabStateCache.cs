@@ -1,11 +1,14 @@
 ﻿namespace SystemeAideBasculement.Services
 {
     using Microsoft.AspNetCore.SignalR;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
+    using Newtonsoft.Json;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Immutable;
     using System.IO;
+    using System.Linq;
     using System.Text.Json;
     using SystemeAideBasculement.Controllers;
     using SystemeAideBasculement.Hubs;
@@ -121,7 +124,7 @@
                         .ToImmutableList();
 
             }
-            catch (JsonException ex)
+            catch (System.Text.Json.JsonException ex)
             {
                 _logger.LogError($"[SabUI:SabStateCache:LoadInitialStateAsync]: Failed to deserialize sabProfiles initial configuration: {ex}");
                 return;
@@ -141,7 +144,7 @@
                         .ToImmutableList();
                 RebuildPexIndex();
             }
-            catch (JsonException ex)
+            catch (System.Text.Json.JsonException ex)
             {
                 _logger.LogError($"[SabUI:SabStateCache:LoadInitialStateAsync]: Failed to deserialize sabPexs initial configuration: {ex}");
                 return;
@@ -168,7 +171,7 @@
             }
 
             // Try to start processing (safe – semaphore protected)
-            _ = TryProcessProfileNotificationsAsync();
+            _ = TryProcessProfileNotificationsAsync(notifications, senderId);
 
         }
 
@@ -184,11 +187,11 @@
             // Apply profile updates
             foreach (var notif in notifications)
             {
-                var proflieUpdate = UpdateProfileCache(notif);
-                if (proflieUpdate != null)
+                var profileUpdateData = UpdateProfileCache(notif);
+                if (profileUpdateData != null)
                 {
-                    updatedProfiles.Add(proflieUpdate);
-                    var updatePexs = UpdatePexCache(notif);
+                    updatedProfiles.Add(profileUpdateData.UpdatedProfile);
+                    var updatePexs = UpdatePexCache(profileUpdateData, notif.Site);
                     if (updatePexs != null)
                         updatedPexs.AddRange(updatePexs);
                 }
@@ -203,13 +206,6 @@
                 retDataNotif.Profiles = updatedProfiles;
                 retDataNotif.Pexs = updatedPexs;
                 _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed with state changes: Profiles [{Profiles}], Pexs [{Pexs}].", updatedProfiles.Count, updatedPexs.Count);
-                var prettyJson = JsonSerializer.Serialize(
-                     retDataNotif.Pexs,
-                     new JsonSerializerOptions
-                     {
-                         WriteIndented = true
-                     });
-                _logger.LogInformation("[SabUI:SabStateCache:Update]: After Update:\n{Payload}", prettyJson);
             }
             else
             {
@@ -219,7 +215,7 @@
             return retDataNotif;
         }
 
-        internal SabProfileRow? UpdateProfileCache(ProfileConnectionNotificationModel notif)
+        internal SabProfileUpdatedData? UpdateProfileCache(ProfileConnectionNotificationModel notif)
         {
             var oldProfiles = _profiles;
 
@@ -248,15 +244,20 @@
                 return null;
             }
 
-            var csvPiccNames = ConvertToCSV(notif.HostNames);
-            var notifStatus = GetStatus(notif);
+            _logger.LogInformation("[SabUI:SabStateCache:UpdateProfileCache]: Starting update for site '{Site}'", notif.Site);
 
-            if (!string.Equals(endpoint.PiccNames.Value, csvPiccNames, StringComparison.OrdinalIgnoreCase))
+            var oldCsvPiccNames = endpoint.PiccNames.GetValueList();
+            var removedHosts = oldCsvPiccNames.Except(notif.HostNames).ToList();
+            var addedHosts = notif.HostNames.Except(oldCsvPiccNames).ToList();
+            bool areEqual = !removedHosts.Any() && !addedHosts.Any();
+
+            if (!areEqual)
             {
-                endpoint.PiccNames.Value = csvPiccNames;
+                endpoint.PiccNames.Value = notif.HostNamesCSV();
                 isDirty = true;
             }
 
+            var notifStatus = GetStatus(notif);
             if (endpoint.PiccNames.Status != notifStatus)
             {
                 endpoint.PiccNames.Status = notifStatus;
@@ -267,74 +268,54 @@
                 return null;
 
             _profiles = oldProfiles.SetItem(index, updatedProfile);
-            return updatedProfile;
-        }
-
-        private static string ConvertToCSV(List<string> hostNames)
-        {
-            if (hostNames == null || hostNames.Count == 0)
+            return new SabProfileUpdatedData
             {
-                return string.Empty;
-            }
-
-            var sorted = hostNames.OrderBy(h => h, StringComparer.OrdinalIgnoreCase);
-            return string.Join(", ", sorted);
+                UpdatedProfile = updatedProfile,
+                AddedToHostList = addedHosts,
+                RemovedFromHostList = removedHosts
+            };
         }
 
-        internal List<SabPexRow> UpdatePexCache(ProfileConnectionNotificationModel notificationUpdate)
+        internal List<SabPexRow> UpdatePexCache(SabProfileUpdatedData updatedProfileData, string site)
         {
             var changedRowIndexes = new HashSet<int>();
 
-            bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(notificationUpdate.Site);
-            bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(notificationUpdate.Site);
+            bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(site);
+            bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(site);
 
             if (!isCcp && !isCcr)
             {
-                _logger.LogWarning("[SabUI:SabStateCache:UpdatePexCache]: Unknown site '{Site}' in UpdatePexCache", notificationUpdate.Site);
+                _logger.LogWarning("[SabUI:SabStateCache:UpdatePexCache]: Unknown site '{Site}' in UpdatePexCache", site);
                 return new List<SabPexRow>();
             }
 
-            if (notificationUpdate.IsConnected())
+            _logger.LogInformation("[SabUI:SabStateCache:UpdatePexCache]: Starting update Pex Cache for site '{Site}'", site);
+
+            // Add profile to PEX entries matching the hosts in the profile, remove from entries that no longer match
+
+            // Add profile to PEX if there is any.
+            if (updatedProfileData.AddedToHostList.Count > 0)
             {
-                var lookup = isCcp ? _pexByCcpHostname : _pexByCcrHostname;
-                var distinctHosts = notificationUpdate.HostNames
-                    .Where(h => !string.IsNullOrWhiteSpace(h))
-                    .Distinct(StringComparer.OrdinalIgnoreCase);
-
-                foreach (var host in distinctHosts)
-                {
-                    if (!lookup.TryGetValue(host, out var entry))
-                        continue;
-
-                    var siteState = isCcp ? entry.CCP : entry.CCR;
-                    if (siteState.ProfileNames.Add(notificationUpdate.ProfileName))
-                    {
-                        changedRowIndexes.Add(entry.RowIndex);
-                    }
-                }
+                _logger.LogInformation("[SabUI:SabStateCache:UpdatePexCache]: Add '{Profile}' to hosts '{hosts}'",
+                                        updatedProfileData.UpdatedProfile.Profile, CSVHelper.JoinCsvOrdered(updatedProfileData.AddedToHostList));
+                AddProfileToPex(updatedProfileData.UpdatedProfile.Profile, updatedProfileData.AddedToHostList, site, changedRowIndexes);
             }
-            else if (notificationUpdate.IsDisconnected())
+
+            // Remove profile from PEX if there is any.
+            if (updatedProfileData.RemovedFromHostList.Count > 0)
             {
-                foreach (var pair in _pexEntriesByRowIndex)
-                {
-                    var entry = pair.Value;
-                    var siteState = isCcp ? entry.CCP : entry.CCR;
-
-                    if (siteState.ProfileNames.Remove(notificationUpdate.ProfileName))
-                    {
-                        changedRowIndexes.Add(entry.RowIndex);
-                    }
-                }
-            }
-            else
-                {
-                _logger.LogWarning("[SabUI:SabStateCache:UpdatePexCache]: Unsupported connection status in UpdatePexCache for Profile '{Profile}'", notificationUpdate.ProfileName);
-                return new List<SabPexRow>();
+                _logger.LogInformation("[SabUI:SabStateCache:UpdatePexCache]: Remove '{Profile}' from hosts '{hosts}'",
+                                        updatedProfileData.UpdatedProfile.Profile, CSVHelper.JoinCsvOrdered(updatedProfileData.RemovedFromHostList));
+                RemoveProfileFromPex(updatedProfileData.UpdatedProfile.Profile, updatedProfileData.RemovedFromHostList, site, changedRowIndexes);
             }
 
             if (changedRowIndexes.Count == 0)
+            {
+                _logger.LogInformation("[SabUI:SabStateCache:UpdatePexCache]: No changes detected for site '{Site}'", site);
                 return new List<SabPexRow>();
+            }
 
+            _logger.LogInformation("[SabUI:SabStateCache:UpdatePexCache]: '{NbChanges}' Changes detected for site '{Site}'", changedRowIndexes.Count, site);
             var updatedRows = new List<SabPexRow>();
 
             foreach (var rowIndex in changedRowIndexes.OrderBy(i => i))
@@ -344,42 +325,58 @@
 
                 var newRow = oldRow.Clone();
 
-                newRow.CCP.ProfileNames.Value = JoinCsv(entry.CCP.ProfileNames);
+                newRow.CCP.ProfileNames.Value = entry.CCP.ToProfileNamesCSV();
                 newRow.CCP.ProfileNames.Status = entry.CCP.Status;
 
-                newRow.CCR.ProfileNames.Value = JoinCsv(entry.CCR.ProfileNames);
+                newRow.CCR.ProfileNames.Value = entry.CCR.ToProfileNamesCSV();
                 newRow.CCR.ProfileNames.Status = entry.CCR.Status;
 
                 _pexs = _pexs.SetItem(rowIndex, newRow);
                 updatedRows.Add(newRow);
             }
+            var json = JsonConvert.SerializeObject(_pexs, Formatting.Indented);
+            _logger.LogInformation("[SabUI:SabStateCache:UpdatePexCache]: After Update:\n{Payload}", json);
 
             return updatedRows;
         }
 
-        private static List<string> SplitCsv(string? value)
+        // Helper to add profile to PEX entries based on host list (used for both CCP and CCR)
+        private void AddProfileToPex(string profileName, List<string> AddedToHostList, string site, HashSet<int> changedRowIndexes)
         {
-            if (string.IsNullOrWhiteSpace(value) ||
-                string.Equals(value, EndpointValue.None, StringComparison.OrdinalIgnoreCase))
-            {
-                return new List<string>();
-            }
+            bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(site);
+            bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(site);
 
-            return value
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            var lookup = isCcp ? _pexByCcpHostname : _pexByCcrHostname;
+            foreach (var host in AddedToHostList)
+            {
+                if (!lookup.TryGetValue(host, out var entry))
+                    continue;
+                var siteState = isCcp ? entry.CCP : entry.CCR;
+                if (siteState.ProfileNames.Add(profileName))
+                {
+                    changedRowIndexes.Add(entry.RowIndex);
+                }       
+            }
         }
 
-        private static string JoinCsv(IEnumerable<string> values)
+        private void RemoveProfileFromPex(string profileName, List<string> removedFromHostList, string site, HashSet<int> changedRowIndexes)
         {
-            return string.Join(", ",
-                values
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+            bool isCcp = _controlCenterFacilities.CCPFacility.IsFacility(site);
+            bool isCcr = _controlCenterFacilities.CCRFacility.IsFacility(site);
+
+            var lookup = isCcp ? _pexByCcpHostname : _pexByCcrHostname;
+
+            foreach (var hostname in removedFromHostList)
+            {
+                if (!lookup.TryGetValue(hostname, out var entry))
+                    continue;
+
+                var siteState = isCcp ? entry.CCP : entry.CCR;
+                if (siteState.ProfileNames.Remove(profileName))
+                {
+                    changedRowIndexes.Add(entry.RowIndex);
+                }
+            }
         }
 
         private static EndpointStatus GetStatus(ProfileConnectionNotificationModel notication)
@@ -431,10 +428,43 @@
             finally
             {
                 _processGate.Release();
+            }
+        }
 
-                // New updates arrived during processing/cooldown → run again
-                if (!_pendingProfileNotifications.IsEmpty)
-                    _ = TryProcessProfileNotificationsAsync();
+        private async Task TryProcessProfileNotificationsAsync(List<ProfileConnectionNotificationModel> notifications,
+                                                                string senderId )
+
+        {
+            // Ensure only ONE processing loop
+            if (!await _processGate.WaitAsync(0))
+            {
+                _logger.LogTrace(
+                                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Current process is already running. Skipping new notifications.");
+                return;
+            }
+
+            try
+            {
+                _logger.LogInformation(
+                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Processing {Count} profile notification(s) from sender(s): {Senders}",
+                    notifications.Count, senderId);
+
+                var result = Update(notifications);
+
+                if (!result.IsEmpty)
+                    await Notify(result);
+
+                // Cooldown before next run
+                await Task.Delay(UpdateCooldown);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Unhandled error while processing profile notifications.");
+            }
+            finally
+            {
+                _processGate.Release();
             }
         }
 
@@ -481,10 +511,10 @@
                     DisplayName = row.DisplayName
                 };
 
-                foreach (var name in SplitCsv(row.CCP.ProfileNames.Value))
+                foreach (var name in row.CCP.ProfileNames.GetValueList())
                     entry.CCP.ProfileNames.Add(name);
 
-                foreach (var name in SplitCsv(row.CCR.ProfileNames.Value))
+                foreach (var name in row.CCR.ProfileNames.GetValueList())
                     entry.CCR.ProfileNames.Add(name);
 
                 builder[i] = entry;

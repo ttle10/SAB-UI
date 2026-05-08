@@ -33,11 +33,4 @@ namespace SystemeAideBasculement.Models
             CCR = this.CCR.Clone()
         };
     }
-
-    public class SabPexTransform
-    {
-        public string Hostname { get; set; } = "";
-        public List<string> ProfileNames { get; set; } = [];
-        public string Site { get; set; } = string.Empty; // "CCR" ou "CCP"
-    }
 }

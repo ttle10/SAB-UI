@@ -47,6 +47,11 @@ namespace SystemeAideBasculement.Models
             return string.Equals(Status, ProfileConnectionStatus.Disconnected.ToString(), StringComparison.OrdinalIgnoreCase);
         }
 
+        public string HostNamesCSV()
+        {
+            return CSVHelper.JoinCsvOrdered(HostNames);
+        }
+
         public string GetKey()
             => $"{ProfileName}:{Site}:{Status}";
     }

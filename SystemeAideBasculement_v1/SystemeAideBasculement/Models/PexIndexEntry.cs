@@ -9,6 +9,11 @@
             ProfileNames.Count == 0
                 ? EndpointStatus.Disconnected
                 : EndpointStatus.Connected;
+
+        public string ToProfileNamesCSV() 
+        {
+            return CSVHelper.JoinCsvOrdered(ProfileNames);
+        }
     }
 
     internal sealed class PexIndexEntry

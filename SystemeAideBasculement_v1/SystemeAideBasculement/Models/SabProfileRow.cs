@@ -31,7 +31,8 @@ namespace SystemeAideBasculement.Models
 
     public class SabProfileUpdatedData
     {
-        public SabProfileRow OldProfile { get; set; } = new();
-        public SabProfileRow NewProfile { get; set; } = new();
+        public SabProfileRow UpdatedProfile { get; set; } = new();
+        public List<string> AddedToHostList { get; set; } = new();
+        public List<string> RemovedFromHostList { get; set; } = new();
     }
 }
