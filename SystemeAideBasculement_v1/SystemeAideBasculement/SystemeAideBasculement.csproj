@@ -16,7 +16,7 @@
 	  <P4_CHANGELIST Condition="'$(P4_CHANGELIST)' == ''">0</P4_CHANGELIST>
  
 	  <!-- Use Perforce changelist as build number -->
-	  <FileVersion>1.0.0.$(P4_CHANGELIST)</FileVersion>
+	  <FileVersion>1.0.0.$([MSBuild]::Modulo($(P4_CHANGELIST), 65535))</FileVersion>
 
 	  <InformationalVersion>
 		1.0.0+cl.$(P4_CHANGELIST)
@@ -29,7 +29,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
-    <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="System.Collections.Immutable" Version="10.0.7" />
   </ItemGroup>
 
