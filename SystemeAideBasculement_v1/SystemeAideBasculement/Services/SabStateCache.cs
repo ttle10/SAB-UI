@@ -1,20 +1,14 @@
-﻿namespace SystemeAideBasculement.Services
-{
-    using Microsoft.AspNetCore.SignalR;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Options;
-    using Newtonsoft.Json;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Immutable;
-    using System.IO;
-    using System.Linq;
-    using System.Text.Json;
-    using SystemeAideBasculement.Controllers;
-    using SystemeAideBasculement.Hubs;
-    using SystemeAideBasculement.Models;
-//    using static SystemeAideBasculement.Models.SabProfileRow;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using SystemeAideBasculement.Controllers;
+using SystemeAideBasculement.Hubs;
+using SystemeAideBasculement.Models;
 
+namespace SystemeAideBasculement.Services
+{
     // Invariants:
     // - Profiles are the source of truth
     // PEX invariants:
@@ -26,9 +20,9 @@
     // - Immutable replace-on-write only
     public class SabStateCache
     {
-        private readonly IHubContext<NotificationHub> _hubContext;
+        
         private readonly IWebHostEnvironment _env;
-        private readonly ILogger<NotificationsController> _logger;
+        private readonly ILogger<SabStateCache> _logger;
 
         private ControlCenterFacilities _controlCenterFacilities;
 
@@ -48,22 +42,8 @@
         public IReadOnlyList<SabProfileRow> Profiles => _profiles;
         public IReadOnlyList<SabPexRow> Pexs => _pexs;
 
-        // Pending notifications received while an update is in progress
-        private readonly SabNotificationOptions _options;
-        private readonly CancellationToken _shutdownToken;
-
-        // Keeps ONLY the latest update per logical key
-        private readonly ConcurrentDictionary<string, IncomingNotification>
-            _pendingProfileNotifications = new();
-
         // Ensures a single update process at a time
-        private readonly SemaphoreSlim _processGate = new(1, 1);
-
-        // Cooldown between update runs
-        private readonly TimeSpan UpdateCooldown = TimeSpan.FromSeconds(5);
-
-        private int _notifying = 0;
-
+        private readonly SemaphoreSlim _updateGate = new(1, 1);
 
         // Test‑only hooks (internal)
         internal ImmutableList<SabProfileRow> ProfilesInternal
@@ -87,22 +67,13 @@
         public bool IsReady { get; private set; } = false;
 
         public SabStateCache(IWebHostEnvironment env,
-                             IHubContext<NotificationHub> hubContext,
-                             ILogger<NotificationsController> logger,
-                             IOptions<SabNotificationOptions> options,
-                             IHostApplicationLifetime lifetime
+                             ILogger<SabStateCache> logger
                             )
         {
             _env = env;
-            _hubContext = hubContext;
             _logger = logger;
-            _options = options.Value;
-            UpdateCooldown = _options.DebounceInterval;
 
             _controlCenterFacilities = new ControlCenterFacilities(_env, logger);
-
-            // Used for graceful shutdown
-            _shutdownToken = lifetime.ApplicationStopping;
         }
 
         public async Task LoadInitialStateAsync()
@@ -153,67 +124,113 @@
             IsReady = await _controlCenterFacilities.LoadData();
         }
 
-        /* === METHOD CALLED BY NOTIFICATIONS === */
-
-        public void EnqueueProfileNotification(
-                                            List<ProfileConnectionNotificationModel> notifications,
-                                            string senderId)
+        public async Task<SabDataNotification> UpdateAsync(
+           List<ProfileConnectionNotificationModel> notifications,
+           CancellationToken cancellationToken = default)
         {
+            await _updateGate.WaitAsync(cancellationToken);
 
-            var now = DateTime.UtcNow;
-
-            foreach (var n in notifications)
+            try
             {
-                var incoming = new IncomingNotification(n, senderId, now);
-
-                // Latest wins → outdated update is dropped here
-                _pendingProfileNotifications[n.GetKey()] = incoming;
+                return UpdateCore(notifications);
             }
-
-            // Try to start processing (safe – semaphore protected)
-            _ = TryProcessProfileNotificationsAsync(notifications, senderId);
-
+            finally
+            {
+                _updateGate.Release();
+            }
         }
 
-        public SabDataNotification Update(List<ProfileConnectionNotificationModel> notifications)
+        private SabDataNotification UpdateCore(List<ProfileConnectionNotificationModel> notifications)
         {
-
-            if (notifications == null || notifications.Count == 0)
+            if (notifications.Count == 0)
+            {
+                _logger.LogInformation(
+                    "[SabUI:SabStateCache:Update]: Receiving 0 notification to Update cache.");
                 return SabDataNotification.Empty;
+            }
 
             var updatedProfiles = new List<SabProfileRow>();
             var updatedPexs = new List<SabPexRow>();
 
-            // Apply profile updates
             foreach (var notif in notifications)
             {
                 var profileUpdateData = UpdateProfileCache(notif);
                 if (profileUpdateData != null)
                 {
                     updatedProfiles.Add(profileUpdateData.UpdatedProfile);
+
                     var updatePexs = UpdatePexCache(profileUpdateData, notif.Site);
                     if (updatePexs != null)
+                    {
                         updatedPexs.AddRange(updatePexs);
+                    }
                 }
             }
 
             var retDataNotif = new SabDataNotification();
 
-            if (updatedProfiles.Count > 0 ||
-                updatedPexs.Count > 0)
+            if (updatedProfiles.Count > 0 || updatedPexs.Count > 0)
             {
-                //  Build notification
                 retDataNotif.Profiles = updatedProfiles;
                 retDataNotif.Pexs = updatedPexs;
-                _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed with state changes: Profiles [{Profiles}], Pexs [{Pexs}].", updatedProfiles.Count, updatedPexs.Count);
+
+                _logger.LogTrace(
+                    "[SabUI:SabStateCache:Update]: Update cache processed with state changes: Profiles [{Profiles}], Pexs [{Pexs}].",
+                    updatedProfiles.Count,
+                    updatedPexs.Count);
             }
             else
             {
-                _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed but no state changes detected.");
+                _logger.LogTrace(
+                    "[SabUI:SabStateCache:Update]: Update cache processed but no state changes detected.");
             }
 
             return retDataNotif;
         }
+
+
+        //public SabDataNotification Update(List<ProfileConnectionNotificationModel> notifications)
+        //{
+        //    if (notifications.Count == 0)
+        //    {
+        //        _logger.LogInformation(
+        //            "[SabUI:SabStateCache:Update]: Receiving 0 notification to Update cache.");
+        //        return SabDataNotification.Empty;
+        //    }
+
+        //    var updatedProfiles = new List<SabProfileRow>();
+        //    var updatedPexs = new List<SabPexRow>();
+
+        //    // Apply profile updates
+        //    foreach (var notif in notifications)
+        //    {
+        //        var profileUpdateData = UpdateProfileCache(notif);
+        //        if (profileUpdateData != null)
+        //        {
+        //            updatedProfiles.Add(profileUpdateData.UpdatedProfile);
+        //            var updatePexs = UpdatePexCache(profileUpdateData, notif.Site);
+        //            if (updatePexs != null)
+        //                updatedPexs.AddRange(updatePexs);
+        //        }
+        //    }
+
+        //    var retDataNotif = new SabDataNotification();
+
+        //    if (updatedProfiles.Count > 0 ||
+        //        updatedPexs.Count > 0)
+        //    {
+        //        //  Build notification
+        //        retDataNotif.Profiles = updatedProfiles;
+        //        retDataNotif.Pexs = updatedPexs;
+        //        _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed with state changes: Profiles [{Profiles}], Pexs [{Pexs}].", updatedProfiles.Count, updatedPexs.Count);
+        //    }
+        //    else
+        //    {
+        //        _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed but no state changes detected.");
+        //    }
+
+        //    return retDataNotif;
+        //}
 
         internal SabProfileUpdatedData? UpdateProfileCache(ProfileConnectionNotificationModel notif)
         {
@@ -232,7 +249,7 @@
             var updatedProfile = oldProfile.Clone();
             bool isDirty = false;
 
-            Endpoint? endpoint = null;
+            Models.Endpoint? endpoint = null;
 
             if (_controlCenterFacilities.CCPFacility.IsFacility(notif.Site))
                 endpoint = updatedProfile.CCP;
@@ -387,109 +404,6 @@
                 return EndpointStatus.Disconnected; 
 
             return EndpointStatus.Unknown;
-        }
-
-        private async Task TryProcessProfileNotificationsAsync()
-        {
-            // Ensure only ONE processing loop
-            if (!await _processGate.WaitAsync(0))
-                return;
-
-            try
-            {
-                if (_pendingProfileNotifications.IsEmpty)
-                    return;
-
-                var batch = _pendingProfileNotifications.Values.ToList();
-                _pendingProfileNotifications.Clear();
-
-                var distinctSenders = batch
-                    .Select(b => b.SenderId)
-                    .Distinct(StringComparer.OrdinalIgnoreCase);
-
-                _logger.LogInformation(
-                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Processing {Count} profile notification(s) from sender(s): {Senders}",
-                    batch.Count,
-                    string.Join(", ", distinctSenders));
-
-                var result = Update(batch.Select(b => b.Notification).ToList());
-
-                if (!result.IsEmpty)
-                    await Notify(result);
-
-                // Cooldown before next run
-                await Task.Delay(UpdateCooldown);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Unhandled error while processing profile notifications.");
-            }
-            finally
-            {
-                _processGate.Release();
-            }
-        }
-
-        private async Task TryProcessProfileNotificationsAsync(List<ProfileConnectionNotificationModel> notifications,
-                                                                string senderId )
-
-        {
-            // Ensure only ONE processing loop
-            if (!await _processGate.WaitAsync(0))
-            {
-                _logger.LogTrace(
-                                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Current process is already running. Skipping new notifications.");
-                return;
-            }
-
-            try
-            {
-                _logger.LogInformation(
-                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Processing {Count} profile notification(s) from sender(s): {Senders}",
-                    notifications.Count, senderId);
-
-                var result = Update(notifications);
-
-                if (!result.IsEmpty)
-                    await Notify(result);
-
-                // Cooldown before next run
-                await Task.Delay(UpdateCooldown);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    "[SabUI:SabStateCache:TryProcessProfileNotificationsAsync]: Unhandled error while processing profile notifications.");
-            }
-            finally
-            {
-                _processGate.Release();
-            }
-        }
-
-        private async Task Notify(SabDataNotification notification)
-        {
-            // Ensure single execution (atomic)
-            if (Interlocked.Exchange(ref _notifying, 1) == 1)
-                return;
-
-            try
-            {
-                _logger.LogTrace("[SabUI:SabStateCache:Notify]: Notify Client to refresh.");
-                await _hubContext.Clients.All.SendAsync(
-                    "ProfileUpdated",
-                    notification,
-                    _shutdownToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[SabUI:SabStateCache:Notify]: Failed to send status change to clients.");
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _notifying, 0);
-            }
         }
 
         private void RebuildPexIndex()

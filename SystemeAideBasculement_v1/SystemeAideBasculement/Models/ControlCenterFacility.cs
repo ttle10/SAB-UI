@@ -54,7 +54,7 @@ namespace SystemeAideBasculement.Models
         private string ConfFilePath;
         private CCPFacility _ccpFacility;
         private CCRFacility _ccrFacility;
-        private readonly ILogger<NotificationsController> _logger;
+        private readonly ILogger _logger;
 
         public IControlCenterFacility CCPFacility { get => _ccpFacility; }
 
@@ -63,7 +63,7 @@ namespace SystemeAideBasculement.Models
         public bool IsReady { get; private set; } = false;
 
         public ControlCenterFacilities(IWebHostEnvironment env, 
-                                       ILogger<NotificationsController> logger)
+                                       ILogger logger)
         {
             _env = env;
             _logger = logger;

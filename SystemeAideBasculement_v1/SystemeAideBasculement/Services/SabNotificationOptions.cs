@@ -1,4 +1,4 @@
-﻿namespace SystemeAideBasculement.Controllers
+﻿namespace SystemeAideBasculement.Services
 {
     public sealed class SabNotificationOptions
     {

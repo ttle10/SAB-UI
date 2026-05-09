@@ -44,9 +44,13 @@ try
 
     builder.Services.AddSignalR();
 
-    builder.Services.AddSingleton<NotificationService>();
-
     builder.Services.AddSingleton<SabStateCache>();
+
+    builder.Services.AddSingleton<INotificationQueue, NotificationQueue>();
+
+    builder.Services.AddHostedService<NotificationWorker>();
+
+    builder.Services.AddSingleton<NotificationService>();
 
     builder.Services.AddSingleton<JsonSchemaProvider>(sp =>
     {
