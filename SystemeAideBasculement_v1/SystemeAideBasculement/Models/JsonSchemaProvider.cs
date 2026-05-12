@@ -1,37 +1,54 @@
-﻿using Newtonsoft.Json.Schema;
+﻿using Json.Schema;
+using System.IO;
 
 namespace SystemeAideBasculement.Models
 {
-    public class JsonSchemaProvider
+    public sealed class JsonSchemaProvider
     {
-        private readonly Dictionary<string, JSchema> _schemas;
+        private readonly Dictionary<string, JsonSchema> _cache =
+                        new(StringComparer.OrdinalIgnoreCase);
+        private readonly string _rootPath;
 
         public JsonSchemaProvider(string rootPath)
         {
-            _schemas = new Dictionary<string, JSchema>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["ClientNotification"] = Load(rootPath, "ClientNotification.schema.json"),
-            };
+            _rootPath = rootPath;
         }
 
-        public JSchema Get(string name)
+        public JsonSchema Get(string schemaName)
         {
-            if (!_schemas.TryGetValue(name, out var schema))
-                throw new KeyNotFoundException($"Schema '{name}' not found.");
+            if (_cache.TryGetValue(schemaName, out var cached))
+            {
+                return cached;
+            }
+
+            var filePath = Path.Combine(
+                  _rootPath,
+                  schemaName);
+
+            var schema = Load(_rootPath, schemaName);
+            _cache[schemaName] = schema;
 
             return schema;
         }
 
-        private static JSchema Load(string rootPath, string fileName)
+        private static JsonSchema Load(string rootPath, string schemaName)
         {
-            var path = Path.Combine(rootPath, "config", fileName);
 
-            if (!File.Exists(path))
-                throw new FileNotFoundException($"Schema file not found: {path}");
+            var schemaFileName = Path.Combine(
+                rootPath,
+                "config",
+                $"{schemaName}.schema.json");
 
-            var json = File.ReadAllText(path);
+            if (!File.Exists(schemaFileName))
+            {
+                throw new FileNotFoundException(
+                    $"JSON schema file not found for '{schemaFileName}'.",
+                    schemaFileName);
+            }
 
-            return JSchema.Parse(json);
+            var schemaText = File.ReadAllText(schemaFileName);
+
+            return JsonSchema.FromText(schemaText);
         }
     }
 }

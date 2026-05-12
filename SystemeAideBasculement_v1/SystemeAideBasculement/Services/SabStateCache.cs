@@ -1,10 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using SystemeAideBasculement.Controllers;
-using SystemeAideBasculement.Hubs;
+﻿using System.Collections.Immutable;
+using System.Text.Json;
 using SystemeAideBasculement.Models;
 
 namespace SystemeAideBasculement.Services
@@ -351,7 +346,7 @@ namespace SystemeAideBasculement.Services
                 _pexs = _pexs.SetItem(rowIndex, newRow);
                 updatedRows.Add(newRow);
             }
-            var json = JsonConvert.SerializeObject(_pexs, Formatting.Indented);
+            var json = JsonSerializer.Serialize(_pexs, new JsonSerializerOptions { WriteIndented = true });
             _logger.LogInformation("[SabUI:SabStateCache:UpdatePexCache]: After Update:\n{Payload}", json);
 
             return updatedRows;

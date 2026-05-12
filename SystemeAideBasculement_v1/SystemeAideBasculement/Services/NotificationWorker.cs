@@ -47,7 +47,7 @@ namespace SystemeAideBasculement.Services
 
                 if (batch.Count == 0)
                 {
-                    _logger.LogDebug(
+                    _logger.LogTrace(
                         "[SabUI:NotificationWorker:ExecuteAsync]: No notification to process.");
                     await Task.Delay(500, stoppingToken);
                     continue;
@@ -84,6 +84,9 @@ namespace SystemeAideBasculement.Services
                 var item = await _queue.DequeueAsync(stoppingToken);
                 batch.Add(item);
             }
+            _logger.LogTrace(
+            "[SabUI:NotificationWorker:ReadMultipleAsync]: Batching {Count} notification(s), remaining {Remaining} from queue.",
+            batch.Count, _queue.Count);
 
             return batch;
         }

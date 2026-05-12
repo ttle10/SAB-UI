@@ -11,15 +11,12 @@ namespace SystemeAideBasculement.Controllers
     {
         private readonly ILogger<NotificationsController> _logger;
         private readonly INotificationQueue _notificationQueue;
-        private readonly JsonSchemaProvider _schemaProvider;
 
         public NotificationsController(
             ILogger<NotificationsController> logger,
-            JsonSchemaProvider schemaProvider,
             INotificationQueue notificationQueue)
         {
             _logger = logger;
-            _schemaProvider = schemaProvider;
             _notificationQueue = notificationQueue;
         }
 
@@ -52,21 +49,11 @@ namespace SystemeAideBasculement.Controllers
             {
                 var rawJson = body.GetRawText();
 
-                var schema = _schemaProvider.Get("ClientNotification");
-                var isValid = JsonHelper.Validate(rawJson, schema, out var jsonValidationError);
-
-                if (!isValid)
+                if (string.IsNullOrWhiteSpace(rawJson))
                 {
                     _logger.LogError(
-                        "[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Failed schema validation: {Error}",
-                        jsonValidationError);
-
-                    return new ContentResult
-                    {
-                        Content = jsonValidationError,
-                        ContentType = "application/json",
-                        StatusCode = StatusCodes.Status400BadRequest
-                    };
+                        "[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: Empty JSON payload received.");
+                    return BadRequest("Empty JSON payload.");
                 }
 
                 if (body.ValueKind == JsonValueKind.Array)
@@ -111,6 +98,18 @@ namespace SystemeAideBasculement.Controllers
                 await _notificationQueue.EnqueueAsync(
                     incoming,
                     HttpContext.RequestAborted);
+            }
+            
+            if (_notificationQueue.Count > 0)
+            {
+                _logger.LogTrace(
+                    "[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: After enqueueing, {_notificationQueue.Count} notification(s) in the queue.",
+                    _notificationQueue.Count);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "[SabUI:NotificationsController:ReceiveProfileConnectionNotification]: No notifications were enqueued.");
             }
 
             return Accepted();

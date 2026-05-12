@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json.Schema;
-using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
+using Json.Schema;
 
 namespace SystemeAideBasculement.Models
 {
@@ -25,50 +24,38 @@ namespace SystemeAideBasculement.Models
             return JsonSerializer.Deserialize<List<T>>(json, JsonOptions) ?? new List<T>();
         }
 
-        public static bool Validate(string rawJson, JSchema schema, out string jsonValidationError)
+        public static bool Validate(string rawJson, JsonSchema schema, out string jsonValidationError)
         {
             jsonValidationError = string.Empty;
 
-            JToken token;
             try
             {
-                token = JToken.Parse(rawJson);
-            }
-            catch (Newtonsoft.Json.JsonReaderException ex)
-            {
-                throw new JsonException("Malformed JSON payload.", ex);
-            }
+                using var document = JsonDocument.Parse(rawJson);
+                var result = schema.Evaluate(document.RootElement);
 
-            IList<ValidationError> errors;
-            bool isValid = token.IsValid(schema, out errors);
-
-            if (!isValid)
-            {
-                var errorPayload = new
+                if (result.IsValid)
                 {
-                    error = "Invalid notification schema.",
-                    details = errors.Select(e => new
-                    {
-                        path = e.Path,
-                        message = e.Message,
-                        errorType = e.ErrorType.ToString()
-                    })
-                };
+                    return true;
+                }
 
-                jsonValidationError = System.Text.Json.JsonSerializer.Serialize(errorPayload);
+                jsonValidationError = string.Join(
+                    Environment.NewLine,
+                    result.Errors?.Select(e => $"{e.Key}: {e.Value}") ?? Enumerable.Empty<string>());
+
+                return false;
             }
-
-            return isValid;
+            catch (JsonException ex)
+            {
+                jsonValidationError = ex.Message;
+                return false;
+            }
         }
 
         public static List<T> DeserializeList<T>(string rawJson)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(rawJson))
-                    throw new JsonException("Empty JSON payload.");
-
-                   return JsonSerializer.Deserialize<List<T>>(rawJson, JsonOptions) ?? new List<T>();
+                return JsonSerializer.Deserialize<List<T>>(rawJson, JsonOptions) ?? new List<T>();
             }
             catch (JsonException ex)
             {
@@ -80,10 +67,7 @@ namespace SystemeAideBasculement.Models
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(rawJson))
-                    throw new JsonException("Empty JSON payload.");
-
-                var single = System.Text.Json.JsonSerializer.Deserialize<T>(rawJson, JsonOptions)
+                var single = JsonSerializer.Deserialize<T>(rawJson, JsonOptions)
                                                 ?? throw new JsonException("Invalid notification object.");
                 return single;
 
