@@ -5,35 +5,30 @@
             <div class="modal-header">
                 <h2>Connexion</h2>
             </div>
-
             <EditForm Model="model" OnValidSubmit="HandleLogin">
                 <div class="modal-body">
-
                     <div class="field">
                         <span>Nom d’utilisateur</span>
-                        <InputText @bind-Value="model.Username" class="form-input" />
+                        <InputText @ref="_usernameInput"
+                                   @bind-Value="model.Username"
+                                   class="form-input" />
                     </div>
-
                     <div class="field">
                         <span>Mot de passe</span>
                         <InputText @bind-Value="model.Password" type="password" class="form-input" />
                     </div>
-
                     @if (showError)
                     {
                         <div class="error">
                             Veuillez entrer un nom d’utilisateur et un mot de passe.
                         </div>
                     }
-
                     <div class="modal-actions">
                         <button type="submit" class="btn-primary">Se connecter</button>
                         <button type="button" class="btn-secondary" @onclick="Close">Annuler</button>
                     </div>
-
                 </div>
             </EditForm>
-
         </div>
     </div>
 }
@@ -41,10 +36,21 @@
 @code {
     private LoginModel model = new();
     private bool showError;
+    private InputText? _usernameInput;
+    private bool _focused;
 
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback<string> OnLoginSuccess { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_focused && _usernameInput?.Element.HasValue == true)
+        {
+            _focused = true;   // mark as done before awaiting
+            await _usernameInput.Element.Value.FocusAsync();
+        }
+    }
 
     private async Task HandleLogin()
     {

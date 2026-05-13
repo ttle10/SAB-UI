@@ -12,11 +12,15 @@
         <div class="user-dropdown" role="menu">
             @if (!IsAuthenticated)
             {
-                <a class="user-item" href="#" id="loginLink">Se connecter</a>
+                <a class="user-item" href="#"
+                   @onclick="OnLoginClicked"
+                   @onclick:preventDefault="true">Se connecter</a>
             }
             else
             {
-                <a class="user-item" hidden="" href="#" id="logoutLink">Se déconnecter</a>
+                <a class="user-item" href="#"
+                   @onclick="OnLogoutClicked"
+                   @onclick:preventDefault="true">Se déconnecter</a>
             }
         </div>
     }
@@ -27,7 +31,6 @@
 
     [Parameter] public bool IsAuthenticated { get; set; }
     [Parameter] public string DisplayName { get; set; } = "";
-
     [Parameter] public EventCallback OnLogin { get; set; }
     [Parameter] public EventCallback OnLogout { get; set; }
 
@@ -37,10 +40,7 @@
         ? GetInitials(DisplayName)
         : "?";
 
-    private void ToggleMenu()
-    {
-        isOpen = !isOpen;
-    }
+    private void ToggleMenu() => isOpen = !isOpen;
 
     private async Task OnLoginClicked()
     {
