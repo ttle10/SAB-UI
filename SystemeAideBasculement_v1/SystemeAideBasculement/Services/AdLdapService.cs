@@ -3,21 +3,23 @@ using System.Net;
 
 namespace SystemeAideBasculement.Services
 {
-    public sealed class AdLdapService
+    public sealed class AdLdapService : IAdLdapService
     {
         private readonly string _host;
         private readonly int _port;
         private readonly string _baseDn;
         private readonly string _domainNetbios;
         private readonly string _ccsabGroupDn;
+        private readonly ILogger<AuthService> _logger;
 
-        public AdLdapService(IConfiguration cfg)
+        public AdLdapService(IConfiguration cfg, ILogger<AuthService> logger)
         {
             _host = cfg["Ldap:Host"]!;
             _port = int.Parse(cfg["Ldap:Port"] ?? "636");
             _baseDn = cfg["Ldap:BaseDn"]!;
             _domainNetbios = cfg["Ldap:DomainNetbios"]!;
             _ccsabGroupDn = cfg["Ldap:CcsabGroupDn"]!;
+            _logger = logger;
         }
 
         /// <summary>
@@ -34,6 +36,7 @@ namespace SystemeAideBasculement.Services
             }
             catch
             {
+                _logger.LogWarning("[SabUI:AdLdapService]: Invalid credentials or TLS issue for user {Username}", username);
                 return (false, false, null);
             }
 
@@ -48,34 +51,46 @@ namespace SystemeAideBasculement.Services
                 "memberOf"
             );
 
-            var resp = (SearchResponse)conn.SendRequest(req);
-
-            if (resp.Entries.Count != 1)
-                return (true, false, null);
-
-            var entry = resp.Entries[0];
-
-            // DisplayName (optionnel)
-            var displayName = entry.Attributes["displayName"]?.Count > 0
-                ? entry.Attributes["displayName"][0]?.ToString()
-                : null;
-
-            // 3) Vérifier membership direct
-            bool isCcsab = false;
-            var memberOf = entry.Attributes["memberOf"];
-            if (memberOf != null)
+            try
             {
-                foreach (var g in memberOf)
+                var resp = (SearchResponse)conn.SendRequest(req);
+
+                if (resp.Entries.Count != 1)
                 {
-                    if (g?.ToString()?.Equals(_ccsabGroupDn, StringComparison.OrdinalIgnoreCase) == true)
+                    _logger.LogWarning("[SabUI:AdLdapService]: Unable to request User Data for {Username}", username);
+                    return (true, false, null);
+                }
+
+                var entry = resp.Entries[0];
+
+                // DisplayName (optionnel)
+                var displayName = entry.Attributes["displayName"]?.Count > 0
+                    ? entry.Attributes["displayName"][0]?.ToString()
+                    : null;
+
+                // 3) Vérifier membership direct
+                bool isCcsab = false;
+                var memberOf = entry.Attributes["memberOf"];
+                if (memberOf != null)
+                {
+                    foreach (var g in memberOf)
                     {
-                        isCcsab = true;
-                        break;
+                        if (g?.ToString()?.Equals(_ccsabGroupDn, StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            isCcsab = true;
+                            break;
+                        }
                     }
                 }
-            }
 
-            return (true, isCcsab, displayName);
+                return (true, isCcsab, displayName);
+            }
+            catch
+            {
+                // Si le serveur ne supporte pas, on continue sans sealing/signing.
+                _logger.LogWarning("[SabUI:AdLdapService]: Server does not support sealing/signing for user {Username}", username);
+                return (true, false, null);
+            }            
         }
 
         private LdapConnection CreateLdapsConnection(string username, string password)

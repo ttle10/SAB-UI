@@ -37,6 +37,9 @@
     [Parameter] public DashboardViewMode ViewMode { get; set; } = DashboardViewMode.Profile;
     [Parameter] public EventCallback<DashboardViewMode> OnViewModeChanged { get; set; }
 
+    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
     private string CurrentTime { get; set; } = DateTime.Now.ToString("HH:mm:ss");
     private PeriodicTimer? _timer;
     private CancellationTokenSource? _cts;
@@ -56,9 +59,16 @@
 
     private async Task UpdateClockAsync()
     {
+
+        var timer = _timer;
+        var ct = _cts?.Token ?? CancellationToken.None;
+
+        if (timer == null)
+            return;
+
         try
         {
-            while (_timer != null && await _timer.WaitForNextTickAsync(_cts!.Token))
+            while (await timer.WaitForNextTickAsync(ct))
             {
                 await InvokeAsync(() =>
                 {
@@ -69,6 +79,7 @@
         }
         catch (OperationCanceledException)
         {
+            // expected on dispose
         }
     }
 
@@ -91,10 +102,12 @@
         showLogin = false;
     }
 
-    private void Logout()
+    private async Task Logout()
     {
+        await Http.PostAsync("/api/auth/logout", null);
         isAuthenticated = false;
         displayName = "";
+        Nav.NavigateTo(Nav.Uri, forceLoad: true);
     }
 
     private void OnLoginSuccess(string username)
@@ -106,8 +119,13 @@
 
     public void Dispose()
     {
-        _cts?.Cancel();
-        _timer?.Dispose();
-        _cts?.Dispose();
+        try
+        {
+            _cts?.Cancel();
+            _timer?.Dispose();
+            _cts?.Dispose();
+        }
+        catch { }
+
     }
 }

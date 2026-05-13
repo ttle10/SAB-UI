@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
@@ -8,6 +10,7 @@ using SystemeAideBasculement.Context;
 using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Services;
+using SystemeAideBasculement.Services.AdLdapTest;
 
 var logger = LogManager
     .Setup()
@@ -24,6 +27,9 @@ try
     builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     builder.Host.UseNLog(); // NLog.Web.AspNetCore extension
 
+    builder.Services.Configure<SabNotificationOptions>(
+        builder.Configuration.GetSection("SabNotifications"));
+
     // Add services to the container.
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();
@@ -31,7 +37,14 @@ try
     // Razor Pages pour /Account/Login et /Account/Logout
     builder.Services.AddRazorPages();
     // Service LDAP (LDAPS)
-    builder.Services.AddSingleton<AdLdapService>();
+    if (builder.Environment.IsDevelopment())
+    {
+        builder.Services.AddSingleton<IAdLdapService, MockAdLdapService>();
+    }
+    else
+    {
+        builder.Services.AddSingleton<IAdLdapService, AdLdapService>();
+    }
     // Cookie Authentication
     builder.Services
         .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -39,7 +52,7 @@ try
         {
             options.LoginPath = "/Account/Login";
             options.AccessDeniedPath = "/Account/Denied";
-            options.ExpireTimeSpan = TimeSpan.FromHours(8);
+            options.ExpireTimeSpan = TimeSpan.FromHours(48);
             options.SlidingExpiration = true;
             options.Cookie.HttpOnly = true;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -54,6 +67,13 @@ try
 
     });
 
+    builder.Services.AddScoped<AuthService>();
+
+    builder.Services.AddScoped(sp =>
+    {
+        var nav = sp.GetRequiredService<NavigationManager>();
+        return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
+    });
 
     builder.Services
         .AddControllers()
@@ -63,9 +83,6 @@ try
                 new JsonStringEnumConverter()
             );
         });
-
-    builder.Services.Configure<SabNotificationOptions>(
-        builder.Configuration.GetSection("SabNotifications"));
 
     builder.Services.AddSignalR();
 
@@ -128,6 +145,18 @@ try
     app.MapPost("/api/page/save", () => Results.Ok(new { ok = true }))
 
      .RequireAuthorization("CanEdit"); // pas juste l’UI ?4-6bb978??3-955893?
+
+    app.MapPost("/api/auth/login",
+        (HttpContext http, AuthService auth, AuthRequest req)
+            => auth.LoginAsync(http, req))
+       .AllowAnonymous();
+
+    // Logout endpoint — clears cookie
+    app.MapPost("/api/auth/logout", async (HttpContext http) =>
+    {
+        await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Results.Ok();
+    }).RequireAuthorization();
 
     app.UseAntiforgery();
 
