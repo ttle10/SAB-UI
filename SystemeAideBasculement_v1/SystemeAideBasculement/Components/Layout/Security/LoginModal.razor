@@ -1,0 +1,83 @@
+﻿@if (IsOpen)
+{
+    <div class="modal-backdrop" @onclick="OnBackdropClick">
+        <div class="modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Connexion</h2>
+            </div>
+
+            <EditForm Model="model" OnValidSubmit="HandleLogin">
+                <div class="modal-body">
+
+                    <div class="field">
+                        <span>Nom d’utilisateur</span>
+                        <InputText @bind-Value="model.Username" class="form-input" />
+                    </div>
+
+                    <div class="field">
+                        <span>Mot de passe</span>
+                        <InputText @bind-Value="model.Password" type="password" class="form-input" />
+                    </div>
+
+                    @if (showError)
+                    {
+                        <div class="error">
+                            Veuillez entrer un nom d’utilisateur et un mot de passe.
+                        </div>
+                    }
+
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-primary">Se connecter</button>
+                        <button type="button" class="btn-secondary" @onclick="Close">Annuler</button>
+                    </div>
+
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+@code {
+    private LoginModel model = new();
+    private bool showError;
+
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<string> OnLoginSuccess { get; set; }
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(model.Username) ||
+            string.IsNullOrWhiteSpace(model.Password))
+        {
+            showError = true;
+            return;
+        }
+
+        showError = false;
+
+        // Simulated auth (replace with API / Identity)
+        await OnLoginSuccess.InvokeAsync(model.Username);
+
+        await Close();
+    }
+
+    private async Task Close()
+    {
+        model = new();
+        showError = false;
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task OnBackdropClick()
+    {
+        await Close();
+    }
+
+    private class LoginModel
+    {
+        public string Username { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+}

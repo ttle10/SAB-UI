@@ -1,11 +1,10 @@
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
 using System.Text.Json.Serialization;
 using SystemeAideBasculement.Components;
 using SystemeAideBasculement.Context;
-using SystemeAideBasculement.Controllers;
 using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Services;
@@ -28,6 +27,32 @@ try
     // Add services to the container.
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();
+
+    // Razor Pages pour /Account/Login et /Account/Logout
+    builder.Services.AddRazorPages();
+    // Service LDAP (LDAPS)
+    builder.Services.AddSingleton<AdLdapService>();
+    // Cookie Authentication
+    builder.Services
+        .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(options =>
+        {
+            options.LoginPath = "/Account/Login";
+            options.AccessDeniedPath = "/Account/Denied";
+            options.ExpireTimeSpan = TimeSpan.FromHours(8);
+            options.SlidingExpiration = true;
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+        });
+
+    // Authorization Policy (claim-based)
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("CanEdit", policy =>
+        policy.RequireClaim("group", "CCSAB"));
+
+    });
 
 
     builder.Services
@@ -90,8 +115,19 @@ try
     app.UseHttpsRedirection();
 
     app.MapStaticAssets();
+    app.UseStaticFiles();
+    app.UseRouting();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    // Endpoints Razor Pages (Login/Logout)
+    app.MapRazorPages();
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();
+
+    // Exemple endpoint d’écriture protégé (IMPORTANT: enforcement serveur)
+    app.MapPost("/api/page/save", () => Results.Ok(new { ok = true }))
+
+     .RequireAuthorization("CanEdit"); // pas juste l’UI ?4-6bb978??3-955893?
 
     app.UseAntiforgery();
 

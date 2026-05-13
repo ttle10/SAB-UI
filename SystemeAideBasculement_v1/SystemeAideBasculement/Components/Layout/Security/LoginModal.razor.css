@@ -1,0 +1,117 @@
+﻿/* =====================
+   Splash modal de connexion
+   ===================== */
+.modal-backdrop[hidden] {
+    display: none;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(31,41,51,.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 16px;
+}
+
+.modal {
+    width: min(420px, 100%);
+    background: #fff;
+    border: 1px solid var(--stm-gray-300);
+    border-radius: 12px;
+    box-shadow: 0 20px 55px rgba(0,0,0,.22);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 14px 16px;
+    background: var(--stm-gray-100);
+    border-bottom: 1px solid var(--stm-gray-200);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--stm-gray-900);
+}
+
+.modal-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field span {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--stm-gray-700);
+}
+
+.field input {
+    padding: 10px 12px;
+    border: 1px solid var(--stm-gray-300);
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+}
+.field input:focus {
+    border-color: rgba(2, 119, 182, .55);
+    box-shadow: 0 0 0 3px rgba(2, 119, 182, .12);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.btn-primary {
+    border: none;
+    background: var(--stm-blue);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: var(--stm-blue-dark);
+}
+
+.btn-secondary {
+    border: 1px solid var(--stm-gray-300);
+    background: #fff;
+    color: var(--stm-gray-700);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: var(--stm-gray-100);
+}
+
+.error {
+    background: rgba(198,40,40,.08);
+    border: 1px solid rgba(198,40,40,.25);
+    color: var(--stm-danger);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}

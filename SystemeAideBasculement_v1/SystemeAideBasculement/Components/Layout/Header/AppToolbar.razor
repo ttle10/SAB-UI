@@ -1,4 +1,5 @@
 ﻿@using SystemeAideBasculement.Components.Layout
+@using SystemeAideBasculement.Components.Layout.Security
 @implements IDisposable
 
 <div class="app-toolbar" role="navigation" aria-label="Actions principales">
@@ -21,6 +22,14 @@
 
     <div class="toolbar-right">
         <div class="clock">@CurrentTime</div>
+        <UserMenu IsAuthenticated="@isAuthenticated"
+                  DisplayName="@displayName"
+                  OnLogin="OpenLogin"
+                  OnLogout="Logout" />
+        <LoginModal IsOpen="@showLogin"
+                    OnClose="CloseLogin"
+                    OnLoginSuccess="OnLoginSuccess" />
+
     </div>
 </div>
 
@@ -31,6 +40,12 @@
     private string CurrentTime { get; set; } = DateTime.Now.ToString("HH:mm:ss");
     private PeriodicTimer? _timer;
     private CancellationTokenSource? _cts;
+    
+	// Authentication state (replace with real auth)
+    private bool isAuthenticated;
+    private bool showLogin;
+    private string displayName = "";
+
 
     protected override void OnInitialized()
     {
@@ -64,6 +79,29 @@
 
         ViewMode = mode;
         return OnViewModeChanged.InvokeAsync(mode);
+    }
+
+    private void OpenLogin()
+    {
+        showLogin = true;
+    }
+
+    private void CloseLogin()
+    {
+        showLogin = false;
+    }
+
+    private void Logout()
+    {
+        isAuthenticated = false;
+        displayName = "";
+    }
+
+    private void OnLoginSuccess(string username)
+    {
+        isAuthenticated = true;
+        displayName = username;
+        showLogin = false;
     }
 
     public void Dispose()

@@ -1,0 +1,66 @@
+﻿/* =====================
+   Auth UI (Login/Logoff) – style Outlook-like
+   ===================== */
+.user-menu {
+    position: relative;
+}
+
+.user-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid var(--stm-gray-300);
+    color: var(--stm-gray-900);
+    padding: 6px 10px;
+    border-radius: 18px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.user-btn:hover {
+    background: var(--stm-gray-100);
+}
+
+.user-btn .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--stm-gray-200);
+    color: var(--stm-gray-900);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.user-btn .chev {
+    opacity: .8;
+}
+
+.user-dropdown {
+    position: absolute;
+    right: 0;
+    top: 38px;
+    background: #fff;
+    border: 1px solid var(--stm-gray-300);
+    border-radius: 8px;
+    min-width: 190px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.12);
+    padding: 6px;
+    z-index: 200;
+}
+
+.user-item {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: var(--stm-gray-900);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.user-item:hover {
+    background: var(--stm-gray-100);
+}

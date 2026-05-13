@@ -12,14 +12,14 @@
     padding: var(--toolbar-pad-y, 8px) var(--toolbar-pad-x, 14px);
 }
 
-.toolbar-left {
+.app-toolbar .toolbar-left {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     align-items: center;
 }
 
-.toolbar-right {
+.app-toolbar .toolbar-right {
     display: flex;
     gap: 10px;
     align-items: center;
@@ -69,8 +69,7 @@
     .app-toolbar {
         gap: 10px;
     }
-
-    .toolbar-left {
+    .app-toolbar .toolbar-left {
         gap: 8px;
     }
 }

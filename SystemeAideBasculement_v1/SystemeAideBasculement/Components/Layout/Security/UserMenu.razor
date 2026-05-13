@@ -1,0 +1,69 @@
+﻿@using Microsoft.AspNetCore.Components
+
+<div class="user-menu" @onclick:stopPropagation="true">
+    <button class="user-btn" @onclick="ToggleMenu" aria-expanded="@isOpen">
+        <span class="avatar">@AvatarText</span>
+        <span>@Label</span>
+        <span class="chev">▾</span>
+    </button>
+
+    @if (isOpen)
+    {
+        <div class="user-dropdown" role="menu">
+            @if (!IsAuthenticated)
+            {
+                <a class="user-item" href="#" id="loginLink">Se connecter</a>
+            }
+            else
+            {
+                <a class="user-item" hidden="" href="#" id="logoutLink">Se déconnecter</a>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private bool isOpen;
+
+    [Parameter] public bool IsAuthenticated { get; set; }
+    [Parameter] public string DisplayName { get; set; } = "";
+
+    [Parameter] public EventCallback OnLogin { get; set; }
+    [Parameter] public EventCallback OnLogout { get; set; }
+
+    private string Label => IsAuthenticated ? DisplayName : "Se connecter";
+
+    private string AvatarText => IsAuthenticated
+        ? GetInitials(DisplayName)
+        : "?";
+
+    private void ToggleMenu()
+    {
+        isOpen = !isOpen;
+    }
+
+    private async Task OnLoginClicked()
+    {
+        isOpen = false;
+        await OnLogin.InvokeAsync();
+    }
+
+    private async Task OnLogoutClicked()
+    {
+        isOpen = false;
+        await OnLogout.InvokeAsync();
+    }
+
+    private string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "?";
+
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length switch
+        {
+            1 => parts[0][0].ToString().ToUpper(),
+            _ => $"{parts[0][0]}{parts[^1][0]}".ToUpper()
+        };
+    }
+}
