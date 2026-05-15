@@ -23,6 +23,11 @@
 	  </InformationalVersion>
 	</PropertyGroup>
 
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);MOKADLDAP;DEBUG</DefineConstants>
+	</PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="JsonSchema.Net" Version="9.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.8" />

@@ -118,13 +118,17 @@ namespace SystemeAideBasculement.Services.Security
                             }
                             else
                             {
-                                memberDn = m.ToString();
+                                memberDn = m?.ToString() ?? string.Empty;
+                                if (string.IsNullOrEmpty(memberDn))
+                                {
+                                    _logger.LogWarning("[SabUI:AdLdapService]: Null memberDn entry detected");
+                                }
                             }
 
                             _logger.LogTrace("[SabUI:AdLdapService]:Compare GROUP MEMBER: {MemberDn} to USER DN: {UserDn}", memberDn, userDn);
 
                             if (!string.IsNullOrWhiteSpace(memberDn) &&
-                                string.Equals(memberDn.Trim(), userDn.Trim(), StringComparison.OrdinalIgnoreCase))
+                                string.Equals(memberDn.Trim(), userDn?.Trim(), StringComparison.OrdinalIgnoreCase))
                             {
                                 _logger.LogTrace("[SabUI:AdLdapService]: MATCH FOUND");
                                 isCcsab = true;

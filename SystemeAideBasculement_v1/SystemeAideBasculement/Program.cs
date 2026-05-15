@@ -10,7 +10,7 @@ using SystemeAideBasculement.Context;
 using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Services;
-using SystemeAideBasculement.Services.AdLdapTest;
+using SystemeAideBasculement.Services.Security;
 
 var logger = LogManager
     .Setup()
@@ -37,14 +37,11 @@ try
     // Razor Pages pour /Account/Login et /Account/Logout
     builder.Services.AddRazorPages();
     // Service LDAP (LDAPS)
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Services.AddSingleton<IAdLdapService, MockAdLdapService>();
-    }
-    else
-    {
-        builder.Services.AddSingleton<IAdLdapService, AdLdapService>();
-    }
+#if MOKADLDAP && DEBUG
+    builder.Services.AddSingleton<IAdLdapService, MockAdLdapService>();
+#else
+    builder.Services.AddSingleton<IAdLdapService, AdLdapService>();
+#endif
     // Cookie Authentication
     builder.Services
         .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
