@@ -1,4 +1,4 @@
-﻿namespace SystemeAideBasculement.Services
+﻿namespace SystemeAideBasculement.Services.Security
 {
     public interface IAdLdapService
     {

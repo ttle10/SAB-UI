@@ -1,4 +1,4 @@
-﻿namespace SystemeAideBasculement.Services.AdLdapTest
+﻿namespace SystemeAideBasculement.Services.Security
 {
     /// <summary>
     /// Dev-only mock — bypasses real LDAP.

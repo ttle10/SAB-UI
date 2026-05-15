@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity.Data;
 using System.Security.Claims;
 
-namespace SystemeAideBasculement.Services
+namespace SystemeAideBasculement.Services.Security
 {
     public record AuthRequest(string Username, string Password);
 
@@ -56,13 +56,13 @@ namespace SystemeAideBasculement.Services
                         ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
                     });
 
-                _logger.LogInformation("User '{Username}' authenticated.", req.Username);
+                _logger.LogInformation("[SabUI:AuthService]: User '{Username}' authenticated.", req.Username);
 
                 return Results.Ok(new { displayName = name });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "LDAP error for '{Username}'", req.Username);
+                _logger.LogError(ex, "[SabUI:AuthService]: LDAP error for '{Username}'", req.Username);
                 return Results.Json(
                     new { error = "Erreur de connexion au service d'authentification." },
                     statusCode: 500);
