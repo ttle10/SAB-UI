@@ -2,4 +2,21 @@
 
 <section class="panel">
 	<AideMemoire />
+    <div/>
+    <div />
+    <div class="memo-toolbar">
+        <div class="memo-toolbar-left">
+            <button class="memo-btn" type="button" @onclick="ResetMemo">
+                ResetMemo
+            </button>
+            @* Future buttons go here *@
+        </div>
+    </div>
 </section>
+
+@code {
+    private void ResetMemo()
+    {
+        // TODO: implement reset logic
+    }
+}

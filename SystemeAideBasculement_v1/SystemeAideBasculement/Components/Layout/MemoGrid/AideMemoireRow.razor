@@ -11,6 +11,12 @@
             @Etape.Step
         }
     </td>
+    <td class="aide-memoire-cell">
+        @Etape.IsCompleted
+    </td>
+    <td class="aide-memoire-cell">
+        @Etape.Initiales
+    </td>
 
     <td class="actions-col">
         @if (Etape.Id == EtapeEnEdition?.Id)

@@ -1,10 +1,19 @@
-﻿namespace SystemeAideBasculement.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SystemeAideBasculement.Models
 {
     public class AideMemoireModel
     {
+        [Key]
         public int Id { get; set; }
-        public string Step { get; set; } = string.Empty;
-        public bool IsDeleted { get; set; }
+
+        public string? Step { get; set; } = string.Empty;
+
+        public string? Initiales { get; set; } = string.Empty;
+
+        public bool IsCompleted { get; set; } = false;
+
+        public bool IsDeleted { get; set; } = false;
     }
 
 }

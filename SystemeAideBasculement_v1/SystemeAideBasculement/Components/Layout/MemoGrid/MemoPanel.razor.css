@@ -1,0 +1,40 @@
+﻿/* Toolbar sits flush below the grid */
+.memo-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.25rem;
+    border-top: 1px solid var(--color-divider, #ddd);
+    margin-top: 0.25rem;
+}
+
+/* Left group — ResetMemo and any future left-side buttons */
+.memo-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Base style shared by all toolbar buttons */
+.memo-btn {
+    border: none;
+    background: var(--stm-blue, #0095d9);
+    color: #ffffff;
+    padding: 7px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms ease, background 150ms ease;
+}
+
+.memo-btn:hover {
+    background: var(--stm-blue-dark, #0077b6);
+}
+
+.memo-btn:active {
+    background: var(--stm-blue, #0095d9);
+}

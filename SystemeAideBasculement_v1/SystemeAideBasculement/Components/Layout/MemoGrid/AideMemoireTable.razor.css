@@ -1,0 +1,53 @@
+﻿/* Table */
+::deep .aide-memoire-table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 11px;
+}
+
+::deep .aide-memoire-table th,
+::deep .aide-memoire-table td {
+    border: 1px solid var(--stm-gray-300, #d1d5d8);
+    padding: 6px 8px;
+    text-align: left;
+    color: var(--stm-gray-900, #1f2933);
+    overflow-wrap: break-word;
+}
+
+::deep .aide-memoire-table th {
+    background-color: var(--stm-gray-250, #dde1e5);
+    font-weight: 700;
+}
+
+/* Zebra rows */
+::deep .aide-memoire-table tbody tr:nth-child(odd) td {
+    background-color: #ffffff;
+}
+
+::deep .aide-memoire-table tbody tr:nth-child(even) td {
+    background-color: #fbfbfc;
+}
+
+/* Cells */
+::deep .aide-memoire-cell {
+    white-space: normal;
+}
+
+/* Actions */
+::deep .actions-col {
+    width: 56px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+::deep .btn-icon {
+    background: white;
+    border: 1px solid var(--stm-gray-300, #d1d5d8);
+    border-radius: 4px;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    cursor: pointer;
+}

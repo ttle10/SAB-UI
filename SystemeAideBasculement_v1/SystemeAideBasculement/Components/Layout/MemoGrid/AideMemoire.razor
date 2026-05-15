@@ -48,6 +48,8 @@
         {
             Id = etape.Id,
             Step = etape.Step,
+            Initiales = etape.Initiales,
+            IsCompleted = etape.IsCompleted,
             IsDeleted = etape.IsDeleted
         };
 
@@ -60,6 +62,8 @@
         if (original != null)
         {
             original.Step = etape.Step;
+            original.Initiales = etape.Initiales;
+            original.IsCompleted = etape.IsCompleted;
             await Db.SaveChangesAsync();
             await RechargerEtapes();
         }
