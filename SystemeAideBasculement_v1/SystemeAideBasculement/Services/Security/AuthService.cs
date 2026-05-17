@@ -11,6 +11,7 @@ namespace SystemeAideBasculement.Services.Security
     {
         private readonly IAdLdapService _ldap;
         private readonly ILogger<AuthService> _logger;
+        private readonly OrgranisationUnit _orgUnit = new();
 
         public AuthService(IAdLdapService ldap, ILogger<AuthService> logger)
         {
@@ -41,7 +42,7 @@ namespace SystemeAideBasculement.Services.Security
             {
                 new(ClaimTypes.Name, req.Username),
                 new(ClaimTypes.GivenName, name),
-                new("group", "CCSAB")
+                new("group", _orgUnit.CCSABName)
             };
 
                 var identity = new ClaimsIdentity(

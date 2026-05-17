@@ -4,7 +4,7 @@
     {
         private const string UNIT_NAME = "CCSAB";
 
-        public string Name {
+        public string CCSABName {
             get
             { 
                 return UNIT_NAME;

@@ -27,12 +27,21 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: var(--stm-gray-200);
-    color: var(--stm-gray-900);
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
+    transition: background-color 200ms ease;
+}
+
+.user-btn .avatar.avatar--auth {
+    background: var(--stm-success, #2e7d32);
+}
+
+.user-btn .avatar.avatar--anon {
+    background: var(--stm-gray-200);
+    color: var(--stm-gray-900);
 }
 
 .user-btn .chev {
@@ -63,4 +72,13 @@
 
 .user-item:hover {
     background: var(--stm-gray-100);
+}
+
+/* Status backgrounds */
+.connected {
+background: var(--stm-success, #2e7d32);
+}
+
+.disconnected {
+    color: var(--stm-gray-200);
 }

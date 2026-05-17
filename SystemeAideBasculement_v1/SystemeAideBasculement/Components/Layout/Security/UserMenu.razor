@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components
+@using SystemeAideBasculement.Models
 
 <div class="user-menu" @onclick:stopPropagation="true">
     <button class="user-btn" @onclick="ToggleMenu" aria-expanded="@isOpen">
-        <span class="avatar">@AvatarText</span>
+        <span class="avatar @AvatarClass">@AvatarText</span>
         <span>@Label</span>
         <span class="chev">▾</span>
     </button>
@@ -35,6 +36,8 @@
     [Parameter] public EventCallback OnLogout { get; set; }
 
     private string Label => IsAuthenticated ? DisplayName : "Se connecter";
+
+    private string AvatarClass => IsAuthenticated ? "avatar--auth" : "avatar--anon";
 
     private string AvatarText => IsAuthenticated
         ? GetInitials(DisplayName)

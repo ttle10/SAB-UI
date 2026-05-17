@@ -99,14 +99,17 @@
 
             if (response.IsSuccessStatusCode)
             {
+                // Read as string
+                string content = await response.Content.ReadAsStringAsync();
                 var result = await response.Content.ReadFromJsonAsync<LoginResult>();
                 var displayName = result?.DisplayName ?? model.Username;
-
-                await OnLoginSuccess.InvokeAsync(displayName);
-                await Close();
+                var isCcsab = result?.IsCcsab ?? false;
 
                 // Full page reload so Blazor picks up the new auth cookie
                 Nav.NavigateTo(Nav.Uri, forceLoad: true);
+
+                await OnLoginSuccess.InvokeAsync(displayName);
+                await Close();
             }
             else
             {
@@ -150,6 +153,6 @@
         public string Password { get; set; } = "";
     }
 
-    private record LoginResult(string DisplayName);
+    private record LoginResult(bool IsCcsab, string DisplayName);
     private record ErrorResult(string Error);
 }
