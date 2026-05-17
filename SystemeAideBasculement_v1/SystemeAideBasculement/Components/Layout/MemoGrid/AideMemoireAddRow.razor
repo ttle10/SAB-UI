@@ -1,28 +1,43 @@
 ﻿<tr>
-    <td class="aide-memoire-cell">
-        @if (AjoutEnCours)
-        {
-            <textarea rows="3"
-                      @bind="NouvelleEtape"
-                      @bind:event="oninput" />
-        }
-        else
-        {
-            <em>Ajouter une nouvelle étape…</em>
-        }
-    </td>
+    @if (AjoutEnCours)
+    {
+        <!-- Étape -->
+        <td class="col-step">
+            <AutoResizeTextarea Value="@NouvelleEtape"
+                                ValueChanged="OnNouvelleEtapeChanged"
+                                MaxLength="200"
+                                Placeholder="Nouvelle étape..."
+                                ShowCounter="false"
+                                OnCtrlEnter="OnAdd" />
+        </td>
 
-    <td class="actions-col">
-        @if (AjoutEnCours)
-        {
-            <button class="btn-icon" @onclick="OnAdd">💾</button>
-            <button class="btn-icon" @onclick="OnCancelAdd">✖</button>
-        }
-        else
-        {
-            <button class="btn-icon" @onclick="OnStartAdd">＋</button>
-        }
-    </td>
+        <!-- Complété -->
+        <td class="col-completed"></td>
+
+        <!-- Initiales -->
+        <td class="col-initials">
+        </td>
+        <!-- Actions -->
+        <td class="col-actions">
+            <button class="btn-icon"
+                    disabled="@string.IsNullOrWhiteSpace(NouvelleEtape)"
+                    @onclick="() => OnAdd.InvokeAsync()">
+                   💾
+            </button>
+            <button class="btn-icon"
+                    @onclick="() => OnCancelAdd.InvokeAsync()">
+                ✖
+            </button>
+        </td>
+    }
+    else
+    {
+        <td colspan="4">
+            <button class="btn-add" @onclick="() => OnStartAdd.InvokeAsync()">
+                ＋ Ajouter une nouvelle étape…
+            </button>
+        </td>
+    }
 </tr>
 
 @code {
@@ -32,11 +47,5 @@
     [Parameter] public EventCallback OnStartAdd { get; set; }
     [Parameter] public EventCallback OnCancelAdd { get; set; }
     [Parameter] public EventCallback OnAdd { get; set; }
-    [Parameter] public EventCallback<string> OnNouvelleEtapeChanged { get; set; }
-
-    private string NouvelleEtapeProxy
-    {
-        get => NouvelleEtape;
-        set => OnNouvelleEtapeChanged.InvokeAsync(value);
-    }
+    [Parameter] public EventCallback<string?> OnNouvelleEtapeChanged { get; set; }
 }

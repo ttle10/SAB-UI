@@ -1,0 +1,59 @@
+﻿<textarea class="textarea-step"
+          value="@Value"
+          rows="1"
+          maxlength="@MaxLength"
+          placeholder="@Placeholder"
+          @ref="textareaRef"
+          @oninput="OnInput"
+          @onkeydown="HandleKeyDown">
+</textarea>
+
+@if (ShowCounter)
+{
+    <div class="char-counter">
+        @(Value?.Length ?? 0)/@MaxLength
+    </div>
+}
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter] public int MaxLength { get; set; } = 200;
+    [Parameter] public string Placeholder { get; set; } = "";
+    [Parameter] public bool ShowCounter { get; set; } = false;
+
+    [Parameter] public EventCallback OnCtrlEnter { get; set; }
+
+    private ElementReference textareaRef;
+
+    private string? _previousValue;
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_previousValue != Value)
+        {
+            _previousValue = Value;
+            await JS.InvokeVoidAsync("autoResizeTextarea", textareaRef);
+        }
+    }
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        await ValueChanged.InvokeAsync(value);
+
+        await JS.InvokeVoidAsync("autoResizeTextarea", textareaRef);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && e.CtrlKey)
+        {
+            await OnCtrlEnter.InvokeAsync();
+        }
+    }
+}

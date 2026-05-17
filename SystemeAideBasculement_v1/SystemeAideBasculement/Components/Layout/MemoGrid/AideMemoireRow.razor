@@ -1,33 +1,49 @@
 ﻿@using SystemeAideBasculement.Models
 
 <tr>
-    <td class="aide-memoire-cell">
+    <!-- Étape -->
+    <td class="col-step aide-memoire-cell">
         @if (Etape.Id == EtapeEnEdition?.Id)
         {
-            <textarea @bind="EtapeEnEdition.Step" rows="3" />
+            <AutoResizeTextarea Value="@EtapeEnEdition.Step"
+                                ValueChanged="@(v => EtapeEnEdition.Step = v)"
+                                MaxLength="200"
+                                ShowCounter="false"
+                                OnCtrlEnter="() => OnSave.InvokeAsync(EtapeEnEdition)" />
         }
         else
         {
             @Etape.Step
         }
     </td>
-    <td class="aide-memoire-cell">
-        @Etape.IsCompleted
-    </td>
-    <td class="aide-memoire-cell">
-        @Etape.Initiales
+
+    <!-- Complété (TOUJOURS éditable) -->
+    <td class="col-complete">
+        <input type="checkbox" @bind="Etape.IsCompleted" />
     </td>
 
-    <td class="actions-col">
+    <!-- Initiales (TOUJOURS éditable) -->
+    <td class="col-initiales">
+        <input class="input-initiales"
+               @bind="Etape.Initiales" 
+               maxlength="7" />
+    </td>
+
+    <!-- Actions -->
+    <td class="col-actions">
         @if (Etape.Id == EtapeEnEdition?.Id)
         {
-            <button class="btn-icon" @onclick="() => OnSave.InvokeAsync(EtapeEnEdition)">💾</button>
-            <button class="btn-icon" @onclick="OnCancel">✖</button>
+            <button class="btn-icon"
+                    @onclick="() => OnSave.InvokeAsync(EtapeEnEdition)">💾</button>
+            <button class="btn-icon"
+                    @onclick="() => OnCancel.InvokeAsync()">✖</button>
         }
         else
         {
-            <button class="btn-icon" @onclick="OnEdit">✎</button>
-            <button class="btn-icon" @onclick="OnDelete">🗑</button>
+            <button class="btn-icon"
+                    @onclick="() => OnEdit.InvokeAsync(Etape)">✎</button>
+            <button class="btn-icon"
+                    @onclick="() => OnDelete.InvokeAsync(Etape)">🗑</button>
         }
     </td>
 </tr>
@@ -36,8 +52,8 @@
     [Parameter] public AideMemoireModel Etape { get; set; } = default!;
     [Parameter] public AideMemoireModel? EtapeEnEdition { get; set; }
 
-    [Parameter] public EventCallback OnEdit { get; set; }
+    [Parameter] public EventCallback<AideMemoireModel> OnEdit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback<AideMemoireModel?> OnSave { get; set; }
-    [Parameter] public EventCallback OnDelete { get; set; }
+    [Parameter] public EventCallback<AideMemoireModel> OnDelete { get; set; }
 }

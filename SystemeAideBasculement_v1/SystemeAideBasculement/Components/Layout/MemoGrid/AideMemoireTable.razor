@@ -1,6 +1,6 @@
 ﻿@using SystemeAideBasculement.Models
 
-<div class="memo-grid">
+<div class="table-container">
     <table class="aide-memoire-table">
         <AideMemoireHeaderRow />
 
@@ -21,7 +21,7 @@
             @if (!IsLoading && !Etapes.Any())
             {
                 <tr>
-                    <td colspan="2"
+                    <td colspan="4"
                         style="text-align:center;
                            font-style:italic;
                            color: var(--stm-gray-700);">
