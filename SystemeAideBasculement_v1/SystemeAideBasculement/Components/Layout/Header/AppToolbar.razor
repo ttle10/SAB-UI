@@ -55,6 +55,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Subscribe to auth state changes (login, logout, F5 revalidation)
+        AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+
         // Restore auth state from the cookie — survives F5
         await LoadAuthStateAsync();
 
@@ -63,16 +66,24 @@
         _ = UpdateClockAsync();
     }
 
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
+    {
+        var authState = await task;
+        ApplyAuthState(authState.User);
+        await InvokeAsync(StateHasChanged);
+    }
+
     private async Task LoadAuthStateAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        ApplyAuthState(authState.User);
+    }
 
+    private void ApplyAuthState(ClaimsPrincipal user)
+    {
         if (user.Identity?.IsAuthenticated == true)
         {
             isAuthenticated = true;
-
-            // Use GivenName claim (set during SignInAsync), fall back to Name
             displayName = user.FindFirstValue(ClaimTypes.GivenName)
                        ?? user.FindFirstValue(ClaimTypes.Name)
                        ?? "";
@@ -146,6 +157,7 @@
 
     public void Dispose()
     {
+        AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged; //  unsubscribe
         try
         {
             _cts?.Cancel();
