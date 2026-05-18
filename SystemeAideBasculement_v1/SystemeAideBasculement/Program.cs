@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
@@ -39,6 +40,10 @@ try
     // Razor Pages pour /Account/Login et /Account/Logout
     builder.Services.AddRazorPages();
     // Service LDAP (LDAPS)
+
+    builder.Services.Configure<LdapOptions>(
+        builder.Configuration.GetSection("Ldap"));
+
 #if MOKADLDAP && DEBUG
     builder.Services.AddSingleton<IAdLdapService, MockAdLdapService>();
 #else
@@ -67,6 +72,10 @@ try
     });
 
     builder.Services.AddScoped<AuthService>();
+
+    // Replace the default ServerAuthenticationStateProvider
+    builder.Services.AddScoped<AuthenticationStateProvider,
+        RevalidatingAuthenticationStateProvider>();
 
     builder.Services.AddScoped(sp =>
     {
@@ -135,6 +144,9 @@ try
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.UseAntiforgery();
+
     // Endpoints Razor Pages (Login/Logout)
     app.MapRazorPages();
     app.MapRazorComponents<App>()
@@ -156,8 +168,6 @@ try
         await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Results.Ok();
     }).RequireAuthorization();
-
-    app.UseAntiforgery();
 
     app.Run();
 }
