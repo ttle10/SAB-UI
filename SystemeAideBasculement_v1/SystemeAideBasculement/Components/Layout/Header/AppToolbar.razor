@@ -1,5 +1,7 @@
 ﻿@using SystemeAideBasculement.Components.Layout
 @using SystemeAideBasculement.Components.Layout.Security
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @implements IDisposable
 
 <div class="app-toolbar" role="navigation" aria-label="Actions principales">
@@ -39,6 +41,7 @@
 
     [Inject] private HttpClient Http { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
     private string CurrentTime { get; set; } = DateTime.Now.ToString("HH:mm:ss");
     private PeriodicTimer? _timer;
@@ -50,11 +53,35 @@
     private string displayName = "";
 
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        // Restore auth state from the cookie — survives F5
+        await LoadAuthStateAsync();
+
         _cts = new CancellationTokenSource();
         _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
         _ = UpdateClockAsync();
+    }
+
+    private async Task LoadAuthStateAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            isAuthenticated = true;
+
+            // Use GivenName claim (set during SignInAsync), fall back to Name
+            displayName = user.FindFirstValue(ClaimTypes.GivenName)
+                       ?? user.FindFirstValue(ClaimTypes.Name)
+                       ?? "";
+        }
+        else
+        {
+            isAuthenticated = false;
+            displayName = "";
+        }
     }
 
     private async Task UpdateClockAsync()

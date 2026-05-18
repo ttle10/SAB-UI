@@ -34,6 +34,8 @@ try
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();
 
+    builder.Services.AddCascadingAuthenticationState();
+
     // Razor Pages pour /Account/Login et /Account/Logout
     builder.Services.AddRazorPages();
     // Service LDAP (LDAPS)
