@@ -2,20 +2,21 @@
 {
     public interface IOrgranisationUnit
     {
-        string Name { get; }
+        string GroupName { get; }
         
         bool IsAuthorized();
     }
 
     public class DefaultUnit : IOrgranisationUnit
     {
-        private const string UNIT_NAME = "DEFAULT";
+        private const string GROUP_NAME = "DEFAULT";
         private bool  _isAuthorized = false;
 
-        public string Name {
+        public string GroupName
+        {
             get
             { 
-                return UNIT_NAME;
+                return GROUP_NAME;
             }
             
             }
@@ -28,15 +29,15 @@
 
     public class SABUnit : IOrgranisationUnit
     {
-        private const string UNIT_NAME = "CCSAB";
+        private const string GROUP_NAME = "CCSAB";
 
         private bool _isAuthorized = true;
 
-        public string Name
+        public string GroupName
         {
             get
             {
-                return UNIT_NAME;
+                return GROUP_NAME;
             }
 
         }
@@ -45,9 +46,9 @@
             return _isAuthorized;
         }
 
-        public bool IsValidUnit(string unitName)
+        public bool IsValidGroup(string groupName)
         {
-            return unitName.Equals(UNIT_NAME, StringComparison.OrdinalIgnoreCase);
+            return groupName.Equals(GROUP_NAME, StringComparison.OrdinalIgnoreCase);
         }
     }
 

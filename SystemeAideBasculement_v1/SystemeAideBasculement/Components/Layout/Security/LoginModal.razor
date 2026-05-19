@@ -59,12 +59,11 @@
     private InputText? _usernameInput;
     private bool _focused;
 
-
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback<string> OnLoginSuccess { get; set; }
 
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ILogger<LoginModal> Logger { get; set; } = default!;
 
@@ -91,19 +90,14 @@
 
         try
         {
-            var response = await Http.PostAsJsonAsync("/api/auth/login", new
-            {
+            // Call browser-side JS to send the HTTP request
+            var result = await JS.InvokeAsync<LoginResult>("sabAuth.login",
                 model.Username,
-                model.Password
-            });
+                model.Password);
 
-            if (response.IsSuccessStatusCode)
+            if (result.Success)
             {
-                // Read as string
-                string content = await response.Content.ReadAsStringAsync();
-                var result = await response.Content.ReadFromJsonAsync<LoginResult>();
-                var displayName = result?.DisplayName ?? model.Username;
-                var isCcsab = result?.IsCcsab ?? false;
+                var displayName = result.DisplayName ?? model.Username;
 
                 // Full page reload so Blazor picks up the new auth cookie
                 Nav.NavigateTo(Nav.Uri, forceLoad: true);
@@ -113,8 +107,7 @@
             }
             else
             {
-                var error = await response.Content.ReadFromJsonAsync<ErrorResult>();
-                errorMessage = error?.Error ?? "Erreur de connexion.";
+                errorMessage = result.Error ?? "Erreur de connexion.";
             }
         }
         catch (Exception ex)
@@ -131,6 +124,8 @@
         }
     }
 
+    // Adjust the record to match the JS return shape
+    private record LoginResult(bool Success, string? DisplayName, string? groupName, string? Error);
 
     private async Task Close()
     {
@@ -152,7 +147,4 @@
         public string Username { get; set; } = "";
         public string Password { get; set; } = "";
     }
-
-    private record LoginResult(bool IsCcsab, string DisplayName);
-    private record ErrorResult(string Error);
 }

@@ -41,7 +41,7 @@ namespace SystemeAideBasculement.Services.Security
             {
                 new(ClaimTypes.Name, req.Username),
                 new(ClaimTypes.GivenName, name),
-                new("group", result.Unit.Name)
+                new("group", result.Unit.GroupName)
             };
 
                 var identity = new ClaimsIdentity(
@@ -58,7 +58,7 @@ namespace SystemeAideBasculement.Services.Security
 
                 _logger.LogInformation("[SabUI:AuthService]: User '{Username}' authenticated.", req.Username);
 
-                return Results.Ok(new { displayName = name });
+                return Results.Ok(new { displayName = name, groupName = result.Unit.GroupName });
             }
             catch (Exception ex)
             {
