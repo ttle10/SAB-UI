@@ -108,8 +108,6 @@ try
         return new JsonSchemaProvider(env.WebRootPath);
     });
 
-    builder.Services.AddHttpContextAccessor();
-
     //builder.Services.AddSingleton(new HttpClient
     //{
     //    BaseAddress = new Uri("https://localhost:5163/") // Remplace par l’URL réelle de ton application
@@ -120,6 +118,17 @@ try
 
     var app = builder.Build();
 
+    app.MapControllers(); // This enables routing for your API controllers
+
+    app.MapHub<NotificationHub>("/notifications");
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var cache = scope.ServiceProvider.GetRequiredService<SabStateCache>();
+        await cache.LoadInitialStateAsync();
+    }
+
+
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
     {
@@ -129,17 +138,15 @@ try
     }
 
     app.UseHttpsRedirection();
+
     app.MapStaticAssets();
     app.UseStaticFiles();
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
+
     app.UseAntiforgery();
 
-    // Endpoints (AFTER middleware)
-
-    app.MapControllers(); // This enables routing for your API controllers
-    app.MapHub<NotificationHub>("/notifications");
     // Endpoints Razor Pages (Login/Logout)
     app.MapRazorPages();
     app.MapRazorComponents<App>()
@@ -147,6 +154,7 @@ try
 
     // Exemple endpoint d’écriture protégé (IMPORTANT: enforcement serveur)
     app.MapPost("/api/page/save", () => Results.Ok(new { ok = true }))
+
      .RequireAuthorization("CanEdit"); // pas juste l’UI ?4-6bb978??3-955893?
 
     app.MapPost("/api/auth/login",
@@ -160,13 +168,6 @@ try
         await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Results.Ok();
     }).RequireAuthorization();
-
-    // Startup tasks
-    using (var scope = app.Services.CreateScope())
-    {
-        var cache = scope.ServiceProvider.GetRequiredService<SabStateCache>();
-        await cache.LoadInitialStateAsync();
-    }
 
     app.Run();
 }
