@@ -1,4 +1,5 @@
-﻿using System.DirectoryServices.Protocols;
+﻿using Microsoft.Extensions.Options;
+using System.DirectoryServices.Protocols;
 using System.Net;
 using System.Text;
 
@@ -6,40 +7,34 @@ namespace SystemeAideBasculement.Services.Security
 {
     public sealed class AdLdapService : IAdLdapService
     {
-        private readonly string _host;
-        private readonly int _port;
-        private readonly string _baseDn;
-        private readonly string _domainNetbios;
-        private readonly string _ccsabGroupDn;
+        private readonly LdapOptions _options;
         private readonly ILogger<AuthService> _logger;
 
-        public AdLdapService(IConfiguration cfg, ILogger<AuthService> logger)
+        public AdLdapService(IOptions<LdapOptions> opt, ILogger<AuthService> logger)
         {
-            _host = cfg["Ldap:Host"]!;
-            _port = int.Parse(cfg["Ldap:Port"] ?? "636");
-            _baseDn = cfg["Ldap:BaseDn"]!;
-            _domainNetbios = cfg["Ldap:DomainNetbios"]!;
-            _ccsabGroupDn = cfg["Ldap:CcsabGroupDn"]!;
+            _options = opt.Value;
             _logger = logger;
         }
 
         /// <summary>
         /// Valide username/password via LDAPS bind et retourne si l'utilisateur est membre direct de CCSAB.
         /// </summary>
-        public (bool Ok, bool IsCcsab, string? DisplayName) AuthenticateAndCheckCcsab(string username, string password)
+        public AuthResult Authenticate(string username, string password)
         {
             using var conn = CreateLdapsConnection(username, password);
+            bool isAuthenticated = false;
 
             _logger.LogInformation("[SabUI:AdLdapService]: Attempting to authenticate user {Username}", username);
             // 1) Bind = validation des identifiants (si erreur => invalid credentials / TLS issue)
             try
             {
                 conn.Bind();
+                isAuthenticated = true;
             }
             catch(Exception ex)
             {
                 _logger.LogWarning(ex,  "[SabUI:AdLdapService]: Invalid credentials or TLS issue for user {Username}", username);
-                return (false, false, null);
+                return new AuthResult { IsAuthenticated = isAuthenticated };
             }
 
             _logger.LogInformation("[SabUI:AdLdapService]: Successfully authenticated user {Username}", username);
@@ -47,7 +42,7 @@ namespace SystemeAideBasculement.Services.Security
             var filter = $"(&(objectClass=user)(sAMAccountName={Escape(username)}))";
 
             var req = new SearchRequest(
-                _baseDn,
+                _options.BaseDn,
                 filter,
                 SearchScope.Subtree,
                 "displayName",
@@ -58,7 +53,7 @@ namespace SystemeAideBasculement.Services.Security
             {
                 // 1. récupérer DN + displayName utilisateur
                 var userReq = new SearchRequest(
-                    _baseDn,
+                    _options.BaseDn,
                     $"(&(objectClass=user)(sAMAccountName={username}))",
                     SearchScope.Subtree,
                     "distinguishedName",
@@ -69,7 +64,7 @@ namespace SystemeAideBasculement.Services.Security
                 if (userResp.Entries.Count != 1)
                 {
                     _logger.LogWarning("[SabUI:AdLdapService]: User not found or multiple entries: {Username}", username);
-                    return (true, false, null);
+                    return new AuthResult { IsAuthenticated = isAuthenticated };
                 }
 
                 var entry = userResp.Entries[0];
@@ -82,7 +77,7 @@ namespace SystemeAideBasculement.Services.Security
 
                 // 2. vérifier membership dans CCSAB
                 var groupReq = new SearchRequest(
-                    _ccsabGroupDn,
+                    _options.CcsabGroupDn,
                     $"(member={userDn})",
                     SearchScope.Base,
                     "member");
@@ -143,24 +138,33 @@ namespace SystemeAideBasculement.Services.Security
                     _logger.LogWarning("[SabUI:AdLdapService]: User NOT in CCSAB");
                 }
 
-                return (true, isCcsab, displayName);
+
+                return new AuthResult
+                {
+                    IsAuthenticated = isAuthenticated,
+                    UserDisplayName = displayName,
+                    Unit = isCcsab ? new SABUnit() : new DefaultUnit()
+                };
             }
-            catch
+            catch (LdapException ex)
             {
-                // Si le serveur ne supporte pas, on continue sans sealing/signing.
-                _logger.LogWarning("[SabUI:AdLdapService]: Server does not support sealing/signing for user {Username}", username);
-                return (true, false, null);
-            }            
+                _logger.LogWarning(ex, "[SabUI:AdLdapService]: Auth failed for {User}", username);
+                return new AuthResult { IsAuthenticated = isAuthenticated };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[SabUI:AdLdapService]: Unexpected error for {User}", username);
+                return new AuthResult { IsAuthenticated = false };
+            }
         }
 
         private LdapConnection CreateLdapsConnection(string username, string password)
         {
-            var id = new LdapDirectoryIdentifier(_host, _port, fullyQualifiedDnsHostName: false, connectionless: false);
+            var id = new LdapDirectoryIdentifier(_options.Host, _options.Port, fullyQualifiedDnsHostName: false, connectionless: false);
 
             // DOMAIN\username
             //var cred = new NetworkCredential($"{_domainNetbios}\\{username}", password);
-            var cred = new NetworkCredential(username, password, _domainNetbios);
-
+            var cred = new NetworkCredential(username, password, _options.DomainNetbios);
             var conn = new LdapConnection(id, cred, AuthType.Negotiate);
             conn.SessionOptions.ProtocolVersion = 3;
             conn.SessionOptions.SecureSocketLayer = true; // LDAPS 636 【2-b3a620】

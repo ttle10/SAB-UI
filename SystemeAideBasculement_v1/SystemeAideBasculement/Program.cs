@@ -39,6 +39,10 @@ try
     // Razor Pages pour /Account/Login et /Account/Logout
     builder.Services.AddRazorPages();
     // Service LDAP (LDAPS)
+
+    builder.Services.Configure<LdapOptions>(
+        builder.Configuration.GetSection("Ldap"));
+
 #if MOKADLDAP && DEBUG
     builder.Services.AddSingleton<IAdLdapService, MockAdLdapService>();
 #else
@@ -109,17 +113,6 @@ try
 
     var app = builder.Build();
 
-    app.MapControllers(); // This enables routing for your API controllers
-
-    app.MapHub<NotificationHub>("/notifications");
-
-    using (var scope = app.Services.CreateScope())
-    {
-        var cache = scope.ServiceProvider.GetRequiredService<SabStateCache>();
-        await cache.LoadInitialStateAsync();
-    }
-
-
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
     {
@@ -135,6 +128,12 @@ try
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseAntiforgery();
+
+    // Endpoints (AFTER middleware)
+
+    app.MapControllers(); // This enables routing for your API controllers
+    app.MapHub<NotificationHub>("/notifications");
     // Endpoints Razor Pages (Login/Logout)
     app.MapRazorPages();
     app.MapRazorComponents<App>()
@@ -142,7 +141,6 @@ try
 
     // Exemple endpoint d’écriture protégé (IMPORTANT: enforcement serveur)
     app.MapPost("/api/page/save", () => Results.Ok(new { ok = true }))
-
      .RequireAuthorization("CanEdit"); // pas juste l’UI ?4-6bb978??3-955893?
 
     app.MapPost("/api/auth/login",
@@ -157,7 +155,12 @@ try
         return Results.Ok();
     }).RequireAuthorization();
 
-    app.UseAntiforgery();
+    // Startup tasks
+    using (var scope = app.Services.CreateScope())
+    {
+        var cache = scope.ServiceProvider.GetRequiredService<SabStateCache>();
+        await cache.LoadInitialStateAsync();
+    }
 
     app.Run();
 }
