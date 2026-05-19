@@ -19,7 +19,8 @@
                 .Get<List<DevUser>>() ?? new List<DevUser>();
         }
 
-        public AuthResult Authenticate(string username, string password)
+        public (bool Ok, bool IsCcsab, string? DisplayName) AuthenticateAndCheckCcsab(
+            string username, string password)
         {
             _logger.LogWarning(
                 "[SabUI:MockAdLdapService]: DEV MODE — LDAP bypassed for user '{Username}'",
@@ -30,14 +31,9 @@
                 u.Password == password);
 
             if (user is null)
-                return new AuthResult { IsAuthenticated = false };
+                return (false, false, null);
 
-            return new AuthResult
-            {
-                IsAuthenticated = true,
-                Unit = user.IsCcsab ? new SABUnit() : new DefaultUnit(),
-                UserDisplayName = user.DisplayName
-            };
+            return (true, user.IsCcsab, user.DisplayName);
         }
 
         private class DevUser

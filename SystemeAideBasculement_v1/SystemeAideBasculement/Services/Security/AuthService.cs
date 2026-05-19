@@ -11,6 +11,7 @@ namespace SystemeAideBasculement.Services.Security
     {
         private readonly IAdLdapService _ldap;
         private readonly ILogger<AuthService> _logger;
+        private readonly OrgranisationUnit _orgUnit = new();
 
         public AuthService(IAdLdapService ldap, ILogger<AuthService> logger)
         {
@@ -26,22 +27,22 @@ namespace SystemeAideBasculement.Services.Security
 
             try
             {
-                var result = await Task.Run(() =>
-                    _ldap.Authenticate(req.Username, req.Password));
+                var (ok, isCcsab, displayName) = await Task.Run(() =>
+                    _ldap.AuthenticateAndCheckCcsab(req.Username, req.Password));
 
-                if (!result.IsAuthenticated)
+                if (!ok)
                     return Results.Json(new { error = "Nom d'utilisateur ou mot de passe invalide." }, statusCode: 401);
 
-                if (!result.Unit.IsAuthorized())
+                if (!isCcsab)
                     return Results.Json(new { error = "Accès refusé." }, statusCode:403);
 
-                var name = string.IsNullOrWhiteSpace(result.UserDisplayName) ? req.Username : result.UserDisplayName;
+                var name = string.IsNullOrWhiteSpace(displayName) ? req.Username : displayName;
 
                 var claims = new List<Claim>
             {
                 new(ClaimTypes.Name, req.Username),
                 new(ClaimTypes.GivenName, name),
-                new("group", result.Unit.Name)
+                new("group", _orgUnit.CCSABName)
             };
 
                 var identity = new ClaimsIdentity(
