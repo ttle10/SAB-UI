@@ -1,5 +1,6 @@
 ﻿@using SystemeAideBasculement.Components.Layout
 @using SystemeAideBasculement.Components.Layout.Security
+@using SystemeAideBasculement.Services.Security
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @implements IDisposable
@@ -24,11 +25,11 @@
 
     <div class="toolbar-right">
         <div class="clock">@CurrentTime</div>
-        <UserMenu IsAuthenticated="@isAuthenticated"
-                  DisplayName="@displayName"
+        <UserMenu IsAuthenticated="@IsAuthenticated"
+                  DisplayName="@DisplayName"
                   OnLogin="OpenLogin"
                   OnLogout="Logout" />
-        <LoginModal IsOpen="@showLogin"
+        <LoginModal IsOpen="@ShowLogin"
                     OnClose="CloseLogin"
                     OnLoginSuccess="OnLoginSuccess" />
 
@@ -39,7 +40,7 @@
     [Parameter] public DashboardViewMode ViewMode { get; set; } = DashboardViewMode.Profile;
     [Parameter] public EventCallback<DashboardViewMode> OnViewModeChanged { get; set; }
 
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
@@ -48,10 +49,9 @@
     private CancellationTokenSource? _cts;
     
 	// Authentication state (replace with real auth)
-    private bool isAuthenticated;
-    private bool showLogin;
-    private string displayName = "";
-
+    private bool IsAuthenticated { get; set; } = false;
+    private bool ShowLogin { get; set; } = false;
+    private string DisplayName { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,17 +70,17 @@
 
         if (user.Identity?.IsAuthenticated == true)
         {
-            isAuthenticated = true;
+            IsAuthenticated = true;
 
             // Use GivenName claim (set during SignInAsync), fall back to Name
-            displayName = user.FindFirstValue(ClaimTypes.GivenName)
+            DisplayName = user.FindFirstValue(ClaimTypes.GivenName)
                        ?? user.FindFirstValue(ClaimTypes.Name)
                        ?? "";
         }
         else
         {
-            isAuthenticated = false;
-            displayName = "";
+            IsAuthenticated = false;
+            DisplayName = "";
         }
     }
 
@@ -121,27 +121,27 @@
 
     private void OpenLogin()
     {
-        showLogin = true;
+        ShowLogin = true;
     }
 
     private void CloseLogin()
     {
-        showLogin = false;
+        ShowLogin = false;
     }
 
     private async Task Logout()
     {
-        await Http.PostAsync("/api/auth/logout", null);
-        isAuthenticated = false;
-        displayName = "";
+        await JS.InvokeVoidAsync("sabAuth_logout");
+        IsAuthenticated = false;
+        DisplayName = "";
         Nav.NavigateTo(Nav.Uri, forceLoad: true);
     }
 
     private void OnLoginSuccess(string username)
     {
-        isAuthenticated = true;
-        displayName = username;
-        showLogin = false;
+        IsAuthenticated = true;
+        DisplayName = username;
+        ShowLogin = false;
     }
 
     public void Dispose()

@@ -2,24 +2,22 @@
 {
     public interface IOrgranisationUnit
     {
-        string GroupName { get; }
-        
+        string Role { get; }
         bool IsAuthorized();
     }
 
     public class DefaultUnit : IOrgranisationUnit
     {
-        private const string GROUP_NAME = "DEFAULT";
+        private const string ROLE = "DEFAULT_ROLE";
         private bool  _isAuthorized = false;
 
-        public string GroupName
+        public string Role
         {
             get
-            { 
-                return GROUP_NAME;
+            {
+                return ROLE;
             }
-            
-            }
+        }
 
         public bool IsAuthorized()
         {
@@ -29,26 +27,26 @@
 
     public class SABUnit : IOrgranisationUnit
     {
-        private const string GROUP_NAME = "CCSAB";
+        private const string ROLE_CC = "CCSAB";
 
         private bool _isAuthorized = true;
 
-        public string GroupName
+        public string Role
         {
             get
             {
-                return GROUP_NAME;
+                return ROLE_CC;
             }
-
         }
+
         public bool IsAuthorized()
         {
             return _isAuthorized;
         }
 
-        public bool IsValidGroup(string groupName)
+        public bool IsValidRole(string? role)
         {
-            return groupName.Equals(GROUP_NAME, StringComparison.OrdinalIgnoreCase);
+            return role != null && role.Equals(ROLE_CC, StringComparison.OrdinalIgnoreCase);
         }
     }
 

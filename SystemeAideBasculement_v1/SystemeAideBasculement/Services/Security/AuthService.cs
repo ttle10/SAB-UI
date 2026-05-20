@@ -35,13 +35,13 @@ namespace SystemeAideBasculement.Services.Security
                 if (!result.Unit.IsAuthorized())
                     return Results.Json(new { error = "Accès refusé." }, statusCode:403);
 
-                var name = string.IsNullOrWhiteSpace(result.UserDisplayName) ? req.Username : result.UserDisplayName;
+                var givenName = string.IsNullOrWhiteSpace(result.UserDisplayName) ? req.Username : result.UserDisplayName;
 
                 var claims = new List<Claim>
             {
                 new(ClaimTypes.Name, req.Username),
-                new(ClaimTypes.GivenName, name),
-                new("group", result.Unit.GroupName)
+                new(ClaimTypes.GivenName, givenName),
+                new(ClaimTypes.Role, result.Unit.Role),
             };
 
                 var identity = new ClaimsIdentity(
@@ -58,7 +58,7 @@ namespace SystemeAideBasculement.Services.Security
 
                 _logger.LogInformation("[SabUI:AuthService]: User '{Username}' authenticated.", req.Username);
 
-                return Results.Ok(new { displayName = name, groupName = result.Unit.GroupName });
+                return Results.Ok(new { displayName = givenName, role = result.Unit.Role });
             }
             catch (Exception ex)
             {

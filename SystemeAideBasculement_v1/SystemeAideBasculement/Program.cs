@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
@@ -43,6 +44,8 @@ try
     builder.Services.Configure<LdapOptions>(
         builder.Configuration.GetSection("Ldap"));
 
+    //builder.Services.AddAuthorizationCore();
+
 #if MOKADLDAP && DEBUG
     builder.Services.AddSingleton<IAdLdapService, MockAdLdapService>();
 #else
@@ -71,6 +74,11 @@ try
     });
 
     builder.Services.AddScoped<AuthService>();
+
+
+    //builder.Services.AddScoped<SabAuthStateProvider>();
+    //builder.Services.AddScoped<AuthenticationStateProvider>(
+    //    sp => sp.GetRequiredService<SabAuthStateProvider>());
 
     builder.Services.AddScoped(sp =>
     {

@@ -1,4 +1,5 @@
 ﻿@using SystemeAideBasculement.Services
+@using SystemeAideBasculement.Services.Security
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Net.Http.Json
 @using System.Text.Json
@@ -12,35 +13,35 @@
                 <h2>Connexion</h2>
             </div>
 
-            <EditForm Model="model" OnValidSubmit="HandleLogin">
+            <EditForm Model="_model" OnValidSubmit="HandleLogin">
                 <div class="modal-body">
 
                     <div class="field">
                         <span>Nom d'utilisateur</span>
                         <InputText @ref="_usernameInput"
-                                   @bind-Value="model.Username"
+                                   @bind-Value="_model.Username"
                                    class="form-input" />
                     </div>
 
                     <div class="field">
                         <span>Mot de passe</span>
-                        <InputText @bind-Value="model.Password"
+                        <InputText @bind-Value="_model.Password"
                                    type="password"
                                    class="form-input" />
                     </div>
 
-                    @if (errorMessage is not null)
+                    @if (_errorMessage is not null)
                     {
-                        <div class="error">@errorMessage</div>
+                        <div class="error">@_errorMessage</div>
                     }
 
                     <div class="modal-actions">
-                        <button type="submit" class="btn-primary" disabled="@isLoading">
-                            @(isLoading ? "Connexion..." : "Se connecter")
+                        <button type="submit" class="btn-primary" disabled="@_isLoading">
+                            @(_isLoading ? "Connexion..." : "Se connecter")
                         </button>
                         <button type="button" class="btn-secondary"
                                 @onclick="Close"
-                                disabled="@isLoading">
+                                disabled="@_isLoading">
                             Annuler
                         </button>
                     </div>
@@ -53,9 +54,9 @@
 }
 
 @code {
-    private LoginModel model = new();
-    private string? errorMessage;
-    private bool isLoading;
+    private LoginModel _model = new();
+    private string? _errorMessage;
+    private bool _isLoading;
     private InputText? _usernameInput;
     private bool _focused;
 
@@ -78,67 +79,74 @@
 
     private async Task HandleLogin()
     {
-        if (string.IsNullOrWhiteSpace(model.Username) ||
-            string.IsNullOrWhiteSpace(model.Password))
+        if (_isLoading) return;
+
+        if (string.IsNullOrWhiteSpace(_model.Username) ||
+            string.IsNullOrWhiteSpace(_model.Password))
         {
-            errorMessage = "Veuillez entrer un nom d'utilisateur et un mot de passe.";
+            _errorMessage = "Veuillez entrer un nom d'utilisateur et un mot de passe.";
             return;
         }
 
-        isLoading = true;
-        errorMessage = null;
+        _isLoading = true;
+        _errorMessage = null;
 
         try
         {
             // Call browser-side JS to send the HTTP request
-            var result = await JS.InvokeAsync<LoginResult>("sabAuth.login",
-                model.Username,
-                model.Password);
-
-            if (result.Success)
+            var result = await JS.InvokeAsync<LoginResult>("sabAuth_login",
+                _model.Username,
+                _model.Password);
+            if (!result.Success)
             {
-                var displayName = result.DisplayName ?? model.Username;
-
-                // Full page reload so Blazor picks up the new auth cookie
-                Nav.NavigateTo(Nav.Uri, forceLoad: true);
-
-                await OnLoginSuccess.InvokeAsync(displayName);
-                await Close();
+                _errorMessage = result.Error ?? "Erreur de connexion.";
+                return;
             }
-            else
+
+            var ccsabGroup = new SABUnit();
+            if (!ccsabGroup.IsValidRole(result.Role))
             {
-                errorMessage = result.Error ?? "Erreur de connexion.";
+                _errorMessage = "Vous n'avez pas les droits nécessaires.";
+                return;
             }
+
+            var displayName = result.DisplayName ?? _model.Username;
+
+            // Full page reload so Blazor picks up the new auth cookie
+            Nav.NavigateTo(Nav.Uri, forceLoad: true);
+
+            await OnLoginSuccess.InvokeAsync(displayName);
+            await Close();
         }
         catch (Exception ex)
         {
             Logger.LogError(ex,
                 "[SabUI:LoginModal:HandleLogin]: HTTP error for user '{Username}'",
-                model.Username);
+                _model.Username);
 
-            errorMessage = "Erreur de connexion au service d'authentification.";
+            _errorMessage = "Erreur de connexion au service d'authentification.";
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 
     // Adjust the record to match the JS return shape
-    private record LoginResult(bool Success, string? DisplayName, string? groupName, string? Error);
+    private record LoginResult(bool Success, string? DisplayName, string? Role, string? Error);
 
     private async Task Close()
     {
-        model = new();
-        errorMessage = null;
-        isLoading = false;
+        _model = new();
+        _errorMessage = null;
+        _isLoading = false;
         _focused = false;
         await OnClose.InvokeAsync();
     }
 
     private async Task OnBackdropClick()
     {
-        if (!isLoading)
+        if (!_isLoading)
             await Close();
     }
 
