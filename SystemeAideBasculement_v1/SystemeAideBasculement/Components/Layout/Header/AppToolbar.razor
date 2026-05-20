@@ -1,6 +1,7 @@
 ﻿@using SystemeAideBasculement.Components.Layout
 @using SystemeAideBasculement.Components.Layout.Security
 @using SystemeAideBasculement.Services.Security
+@using SystemeAideBasculement.Shared
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @implements IDisposable
@@ -39,6 +40,7 @@
 @code {
     [Parameter] public DashboardViewMode ViewMode { get; set; } = DashboardViewMode.Profile;
     [Parameter] public EventCallback<DashboardViewMode> OnViewModeChanged { get; set; }
+    [Parameter] public EventCallback<UserInfo> OnCurrentUserChanged { get; set; }
 
     [Inject] private HttpClient Http { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
@@ -49,6 +51,7 @@
     private string CurrentTime { get; set; } = DateTime.Now.ToString("HH:mm:ss");
     private PeriodicTimer? _timer;
     private CancellationTokenSource? _cts;
+    private UserInfo? _userInfo;
 
     // Authentication state (replace with real auth)
     private bool IsAuthenticated { get; set; } = false;
@@ -84,23 +87,20 @@
              var authState = await task;
 
              UpdateUserState(authState.User);
-
              StateHasChanged();
          });
     }
 
     private void UpdateUserState(ClaimsPrincipal user)
     {
-        if (user.Identity?.IsAuthenticated == true)
+        IsAuthenticated = user.Identity?.IsAuthenticated == true;
+
+        if (IsAuthenticated)
         {
-            IsAuthenticated = true;
+            _userInfo = user.ToUserInfo();
 
-            DisplayName =
-                user.FindFirstValue(ClaimTypes.GivenName)
-                ?? user.FindFirstValue(ClaimTypes.Name)
-                ?? "";
-
-            var role = user.FindFirst(ClaimTypes.Role)?.Value;
+            DisplayName = _userInfo.DisplayName ??
+                          _userInfo.Username ?? "";
 
             //var ccsabGroup = new SABUnit();
             //canEdit = role != null && ccsabGroup.IsValidRole(role);
@@ -109,8 +109,7 @@
         {
             IsAuthenticated = false;
             DisplayName = "";
-            //role = "";
-            //canEdit = false;
+            _userInfo = null;
         }
     }
 
