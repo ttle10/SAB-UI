@@ -1,37 +1,40 @@
 ﻿
+
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
 using System.Security.Claims;
-using System.Xml.Linq;
+
 
 namespace SystemeAideBasculement.Services.Security
 {
-    public class SabAuthStateProvider : AuthenticationStateProvider
+    // Provider serveur : l'état initial (au démarrage du circuit après F5)
+    // est fourni par le cookie via HttpContext.User (donc IsAuthenticated sera correct).
+    public sealed class SabAuthStateProvider : ServerAuthenticationStateProvider
     {
-        private ClaimsPrincipal _user = new(new ClaimsIdentity());
-
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        public void NotifyLogin(string username, string? displayName, string role)
         {
-            return Task.FromResult(new AuthenticationState(_user));
-        }
-
-        public void MarkUserAsAuthenticated(string username, string role)
-        {
-            var identity = new ClaimsIdentity(new[]
+            var claims = new List<Claim>
             {
-            new Claim(ClaimTypes.Name, username),
-            new Claim(ClaimTypes.Role, role)
-            }, "SabAuth");
+                new(ClaimTypes.Name, username),
+                new(ClaimTypes.GivenName, string.IsNullOrWhiteSpace(displayName) ? username : displayName),
+                new(ClaimTypes.Role, role),
+            };
 
-            _user = new ClaimsPrincipal(identity);
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
 
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            var principal = new ClaimsPrincipal(identity);
+
+            // Met à jour l'état du circuit Blazor (sans reload)
+            SetAuthenticationState(Task.FromResult(new AuthenticationState(principal)));
         }
 
-        public void MarkUserAsLoggedOut()
+        public void NotifyLogout()
         {
-            _user = new ClaimsPrincipal(new ClaimsIdentity());
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            SetAuthenticationState(Task.FromResult(
+                new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()))));
         }
-
     }
 }

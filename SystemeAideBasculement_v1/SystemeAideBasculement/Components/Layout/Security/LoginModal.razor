@@ -13,35 +13,35 @@
                 <h2>Connexion</h2>
             </div>
 
-            <EditForm Model="_model" OnValidSubmit="HandleLogin">
+            <EditForm Model="Model" OnValidSubmit="HandleLogin">
                 <div class="modal-body">
 
                     <div class="field">
                         <span>Nom d'utilisateur</span>
-                        <InputText @ref="_usernameInput"
-                                   @bind-Value="_model.Username"
+                        <InputText @ref="UsernameInput"
+                                   @bind-Value="Model.Username"
                                    class="form-input" />
                     </div>
 
                     <div class="field">
                         <span>Mot de passe</span>
-                        <InputText @bind-Value="_model.Password"
+                        <InputText @bind-Value="Model.Password"
                                    type="password"
                                    class="form-input" />
                     </div>
 
-                    @if (_errorMessage is not null)
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
                     {
-                        <div class="error">@_errorMessage</div>
+                        <div class="error">@ErrorMessage</div>
                     }
 
                     <div class="modal-actions">
-                        <button type="submit" class="btn-primary" disabled="@_isLoading">
-                            @(_isLoading ? "Connexion..." : "Se connecter")
+                        <button type="submit" class="btn-primary" disabled="@IsLoading">
+                            @(IsLoading ? "Connexion..." : "Se connecter")
                         </button>
                         <button type="button" class="btn-secondary"
                                 @onclick="Close"
-                                disabled="@_isLoading">
+                                disabled="@IsLoading">
                             Annuler
                         </button>
                     </div>
@@ -54,10 +54,6 @@
 }
 
 @code {
-    private LoginModel _model = new();
-    private string? _errorMessage;
-    private bool _isLoading;
-    private InputText? _usernameInput;
     private bool _focused;
 
     [Parameter] public bool IsOpen { get; set; }
@@ -65,70 +61,73 @@
     [Parameter] public EventCallback<string> OnLoginSuccess { get; set; }
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private SabAuthStateProvider AuthProvider { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ILogger<LoginModal> Logger { get; set; } = default!;
 
+    private LoginModel Model { get; set; } = new();
+    private string? ErrorMessage { get; set; } = null;
+    private bool IsLoading { get; set; } = false;
+    private InputText? UsernameInput { get; set; }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (IsOpen && !_focused && _usernameInput?.Element.HasValue == true)
+        if (IsOpen && !_focused && UsernameInput?.Element.HasValue == true)
         {
             _focused = true;   // mark as done before awaiting
-            await _usernameInput.Element.Value.FocusAsync();
+            await UsernameInput.Element.Value.FocusAsync();
         }
     }
 
     private async Task HandleLogin()
     {
-        if (_isLoading) return;
+        if (IsLoading) return;
 
-        if (string.IsNullOrWhiteSpace(_model.Username) ||
-            string.IsNullOrWhiteSpace(_model.Password))
+        if (string.IsNullOrWhiteSpace(Model.Username) ||
+            string.IsNullOrWhiteSpace(Model.Password))
         {
-            _errorMessage = "Veuillez entrer un nom d'utilisateur et un mot de passe.";
+            ErrorMessage = "Veuillez entrer un nom d'utilisateur et un mot de passe.";
             return;
         }
 
-        _isLoading = true;
-        _errorMessage = null;
+        IsLoading = true;
+        ErrorMessage = null;
 
         try
         {
             // Call browser-side JS to send the HTTP request
-            var result = await JS.InvokeAsync<LoginResult>("sabAuth_login",
-                _model.Username,
-                _model.Password);
-            if (!result.Success)
+            var result = await JS.InvokeAsync<LoginResult>(
+                "sabAuth_login",
+                Model.Username,
+                Model.Password);
+
+            if (result.Success)
             {
-                _errorMessage = result.Error ?? "Erreur de connexion.";
-                return;
-            }
+                var username = Model.Username;
+                var role = result.Role ?? "CCSAB";
 
-            var ccsabGroup = new SABUnit();
-            if (!ccsabGroup.IsValidRole(result.Role))
+                // INFORME le provider → déclenche AuthenticationStateChanged
+                AuthProvider.NotifyLogin(username, result.DisplayName ?? username, role);
+
+                // fermer modal seulement
+                await OnLoginSuccess.InvokeAsync(result.DisplayName ?? username);
+            }
+            else
             {
-                _errorMessage = "Vous n'avez pas les droits nécessaires.";
-                return;
+                ErrorMessage = result.Error ?? "Erreur de connexion.";
             }
-
-            var displayName = result.DisplayName ?? _model.Username;
-
-            // Full page reload so Blazor picks up the new auth cookie
-            Nav.NavigateTo(Nav.Uri, forceLoad: true);
-
-            await OnLoginSuccess.InvokeAsync(displayName);
-            await Close();
         }
         catch (Exception ex)
         {
             Logger.LogError(ex,
                 "[SabUI:LoginModal:HandleLogin]: HTTP error for user '{Username}'",
-                _model.Username);
+                Model.Username);
 
-            _errorMessage = "Erreur de connexion au service d'authentification.";
+            ErrorMessage = "Erreur de connexion au service d'authentification.";
         }
         finally
         {
-            _isLoading = false;
+            IsLoading = false;
         }
     }
 
@@ -137,16 +136,16 @@
 
     private async Task Close()
     {
-        _model = new();
-        _errorMessage = null;
-        _isLoading = false;
+        Model = new();
+        ErrorMessage = null;
+        IsLoading = false;
         _focused = false;
         await OnClose.InvokeAsync();
     }
 
     private async Task OnBackdropClick()
     {
-        if (!_isLoading)
+        if (!IsLoading)
             await Close();
     }
 

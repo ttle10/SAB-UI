@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
 using System.Text.Json.Serialization;
+using SystemeAideBasculement.Shared;
 using SystemeAideBasculement.Components;
 using SystemeAideBasculement.Context;
 using SystemeAideBasculement.Hubs;
@@ -44,7 +45,7 @@ try
     builder.Services.Configure<LdapOptions>(
         builder.Configuration.GetSection("Ldap"));
 
-    //builder.Services.AddAuthorizationCore();
+    builder.Services.AddAuthorizationCore();
 
 #if MOKADLDAP && DEBUG
     builder.Services.AddSingleton<IAdLdapService, MockAdLdapService>();
@@ -76,14 +77,23 @@ try
     builder.Services.AddScoped<AuthService>();
 
 
-    //builder.Services.AddScoped<SabAuthStateProvider>();
-    //builder.Services.AddScoped<AuthenticationStateProvider>(
-    //    sp => sp.GetRequiredService<SabAuthStateProvider>());
+    builder.Services.AddScoped<SabAuthStateProvider>();
+    builder.Services.AddScoped<AuthenticationStateProvider>(
+        sp => sp.GetRequiredService<SabAuthStateProvider>());
+    
+    builder.Services.AddScoped<IUserContextService, UserContextService>();
 
-    builder.Services.AddScoped(sp =>
+/*    builder.Services.AddScoped(sp =>
     {
         var nav = sp.GetRequiredService<NavigationManager>();
         return new HttpClient { BaseAddress = new Uri(nav.BaseUri) };
+    });*/
+
+    builder.Services.AddScoped<HttpClient>(sp =>
+    {
+        var client = new HttpClient();
+        client.BaseAddress = new Uri("https://localhost:7205/");
+        return client;
     });
 
     builder.Services
@@ -162,6 +172,21 @@ try
         await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Results.Ok();
     }).RequireAuthorization();
+
+    app.MapGet("/api/auth/logout", async (HttpContext http) =>
+    {
+        await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Results.Redirect("/");
+    }).RequireAuthorization();
+
+    app.MapGet("/api/me", (HttpContext http, IUserContextService svc) =>
+    {
+        var userInfo = svc.GetUserInfo(http.User);
+        return userInfo is null
+            ? Results.Unauthorized()
+            : Results.Ok(userInfo);
+    })
+    .RequireAuthorization();
 
     // Startup tasks
     using (var scope = app.Services.CreateScope())

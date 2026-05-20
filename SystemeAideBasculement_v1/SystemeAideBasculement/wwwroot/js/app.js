@@ -75,11 +75,13 @@ window.sabAuth_login = async function (username, password) {
 };
 
 window.sabAuth_logout = async function () {
-    const response = await fetch('/api/auth/logout', {
-        method: 'POST'
-    });
-
-    return {
-        success: response.ok
-    };
+    try {
+        const resp = await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "same-origin"
+        });
+        return resp.ok;
+    } catch {
+        return false;
+    }
 };

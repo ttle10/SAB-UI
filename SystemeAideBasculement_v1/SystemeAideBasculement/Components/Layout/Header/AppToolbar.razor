@@ -40,23 +40,29 @@
     [Parameter] public DashboardViewMode ViewMode { get; set; } = DashboardViewMode.Profile;
     [Parameter] public EventCallback<DashboardViewMode> OnViewModeChanged { get; set; }
 
+    [Inject] private HttpClient Http { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private SabAuthStateProvider AuthProvider { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
     private string CurrentTime { get; set; } = DateTime.Now.ToString("HH:mm:ss");
     private PeriodicTimer? _timer;
     private CancellationTokenSource? _cts;
-    
-	// Authentication state (replace with real auth)
+
+    // Authentication state (replace with real auth)
     private bool IsAuthenticated { get; set; } = false;
     private bool ShowLogin { get; set; } = false;
     private string DisplayName { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
-        // Restore auth state from the cookie — survives F5
-        await LoadAuthStateAsync();
+        // abonnement event
+        AuthStateProvider.AuthenticationStateChanged += OnAuthChanged;
+
+        // récupère état initial (important pour F5)
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        UpdateUserState(authState.User);
 
         _cts = new CancellationTokenSource();
         _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
@@ -65,24 +71,49 @@
 
     private async Task LoadAuthStateAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
 
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        UpdateUserState(authState.User);
+    }
+
+    private void OnAuthChanged(Task<AuthenticationState> task)
+    {
+
+        _ = InvokeAsync(async () =>
+         {
+             var authState = await task;
+
+             UpdateUserState(authState.User);
+
+             StateHasChanged();
+         });
+    }
+
+    private void UpdateUserState(ClaimsPrincipal user)
+    {
         if (user.Identity?.IsAuthenticated == true)
         {
             IsAuthenticated = true;
 
-            // Use GivenName claim (set during SignInAsync), fall back to Name
-            DisplayName = user.FindFirstValue(ClaimTypes.GivenName)
-                       ?? user.FindFirstValue(ClaimTypes.Name)
-                       ?? "";
+            DisplayName =
+                user.FindFirstValue(ClaimTypes.GivenName)
+                ?? user.FindFirstValue(ClaimTypes.Name)
+                ?? "";
+
+            var role = user.FindFirst(ClaimTypes.Role)?.Value;
+
+            //var ccsabGroup = new SABUnit();
+            //canEdit = role != null && ccsabGroup.IsValidRole(role);
         }
         else
         {
             IsAuthenticated = false;
             DisplayName = "";
+            //role = "";
+            //canEdit = false;
         }
     }
+
 
     private async Task UpdateClockAsync()
     {
@@ -131,16 +162,23 @@
 
     private async Task Logout()
     {
-        await JS.InvokeVoidAsync("sabAuth_logout");
-        IsAuthenticated = false;
-        DisplayName = "";
-        Nav.NavigateTo(Nav.Uri, forceLoad: true);
+        // 1) Tentative B (browser fetch)
+        var ok = await JS.InvokeAsync<bool>("sabAuth_logout");
+
+        if (ok)
+        {
+            // UI immédiate : on notifie le provider
+            AuthProvider.NotifyLogout();
+            return;
+        }
+
+        // 2) Fallback A : navigation "hard" (GET) pour forcer nettoyage cookie
+        // => nécessite le GET /api/auth/logout (ou /Account/Logout)
+        Nav.NavigateTo("/api/auth/logout", forceLoad: true);
     }
 
     private void OnLoginSuccess(string username)
     {
-        IsAuthenticated = true;
-        DisplayName = username;
         ShowLogin = false;
     }
 
@@ -148,6 +186,8 @@
     {
         try
         {
+             AuthStateProvider.AuthenticationStateChanged -= OnAuthChanged;
+
             _cts?.Cancel();
             _timer?.Dispose();
             _cts?.Dispose();
