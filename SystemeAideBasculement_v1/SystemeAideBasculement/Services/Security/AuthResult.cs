@@ -1,4 +1,6 @@
-﻿namespace SystemeAideBasculement.Services.Security
+﻿using SystemeAideBasculement.Shared;
+
+namespace SystemeAideBasculement.Services.Security
 {
     public class AuthResult
     {

@@ -70,7 +70,7 @@ try
     builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy("CanEdit", policy =>
-        policy.RequireClaim("group", "CCSAB"));
+        policy.RequireRole("CCSAB"));
 
     });
 
@@ -179,6 +179,7 @@ try
         return Results.Redirect("/");
     }).RequireAuthorization();
 
+    // Endpoint pour récupérer les infos de l’utilisateur courant (affichage dans le header)
     app.MapGet("/api/me", (HttpContext http, IUserContextService svc) =>
     {
         var userInfo = svc.GetUserInfo(http.User);

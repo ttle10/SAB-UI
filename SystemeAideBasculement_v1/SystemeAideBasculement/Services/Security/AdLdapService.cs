@@ -2,6 +2,7 @@
 using System.DirectoryServices.Protocols;
 using System.Net;
 using System.Text;
+using SystemeAideBasculement.Shared;
 
 namespace SystemeAideBasculement.Services.Security
 {

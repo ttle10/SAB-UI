@@ -1,4 +1,6 @@
-﻿namespace SystemeAideBasculement.Services.Security
+﻿using SystemeAideBasculement.Shared;
+
+namespace SystemeAideBasculement.Services.Security
 {
     /// <summary>
     /// Dev-only mock — bypasses real LDAP.

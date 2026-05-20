@@ -1,4 +1,4 @@
-﻿namespace SystemeAideBasculement.Services.Security
+﻿namespace SystemeAideBasculement.Shared
 {
     public interface IOrgranisationUnit
     {
