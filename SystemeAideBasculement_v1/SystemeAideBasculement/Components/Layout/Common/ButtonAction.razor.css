@@ -27,7 +27,7 @@
 }
 
 .btn-action:not(:disabled):hover {
-    background: var(--stm-blue-dark, #0077b6);
+    background: var(--stm-hover-blue, #007CB5);
 }
 
 /* Active only when NOT disabled

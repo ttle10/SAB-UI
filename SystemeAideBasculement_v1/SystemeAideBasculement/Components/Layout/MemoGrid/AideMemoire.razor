@@ -4,13 +4,14 @@
 @using Microsoft.EntityFrameworkCore
 
 <div class="aide-memoire-layout">
-<AideMemoireHeader IsLoading="etapes == null" />
+<AideMemoireHeader IsLoading="_etapes == null" />
 
-<AideMemoireTable Etapes="etapes ?? new List<AideMemoireModel>()"
-                  IsLoading="etapes == null"
+<AideMemoireTable Etapes="_etapes ?? new List<AideMemoireModel>()"
+                  IsLoading="_etapes == null"
                   EtapeEnEdition="etapeEnEdition"
                   AjoutEnCours="ajoutEnCours"
                   NouvelleEtape="nouvelleEtape"
+				  CanEdit="CanEdit"
                   OnEdit="ModifierEtape"
                   OnCancelEdit="AnnulerEdition"
                   OnSave="SauvegarderEtape"
@@ -23,7 +24,7 @@
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
 
-    private List<AideMemoireModel>? etapes;
+    private List<AideMemoireModel>? _etapes;
     private AideMemoireModel? etapeEnEdition;
     private string nouvelleEtape = string.Empty;
     private bool ajoutEnCours;
@@ -35,9 +36,9 @@
 
     private async Task RechargerEtapes()
     {
-        etapes = null; // explicit loading state
+        _etapes = null; // explicit loading state
 
-        etapes = await Db.AideMemoires
+        _etapes = await Db.AideMemoires
             .Where(e => !e.IsDeleted)
             .OrderBy(e => e.Id)
             .ToListAsync();
@@ -50,7 +51,7 @@
         {
             Id = etape.Id,
             Step = etape.Step,
-            Initiales = etape.Initiales,
+            Initials = etape.Initials,
             IsCompleted = etape.IsCompleted,
             IsDeleted = etape.IsDeleted
         };
@@ -64,7 +65,7 @@
         if (original != null)
         {
             original.Step = etape.Step;
-            original.Initiales = etape.Initiales;
+            original.Initials = etape.Initials;
             original.IsCompleted = etape.IsCompleted;
             await Db.SaveChangesAsync();
             await RechargerEtapes();
@@ -85,6 +86,31 @@
             }
         }
     }
+
+   //  private async Task ResetSteps()
+   //  {
+   //      if (await JS.InvokeAsync<bool>("confirm",
+   //          $"Voulez-vous réinitialiser le suivi des étapes?"))
+   //      {
+   //          foreach (var etape in _etapes)
+   //          {
+   //              etape.IsDeleted = true;
+			// }
+   //          etapes = await Db.AideMemoires
+   //              .Where(e => !e.IsDeleted)
+   //              .OrderBy(e => e.Id)
+   //              .ToListAsync();
+
+   //          var original = await Db.AideMemoires .FindAsync(etape.Id);
+   //          if (original != null)
+   //          {
+   //              original.IsDeleted = true;
+   //              await Db.SaveChangesAsync();
+   //              await RechargerEtapes();
+   //          }
+   //      }
+   //  }
+
 
     private void CommencerAjout() => ajoutEnCours = true;
     private void AnnulerAjout() => ajoutEnCours = false;

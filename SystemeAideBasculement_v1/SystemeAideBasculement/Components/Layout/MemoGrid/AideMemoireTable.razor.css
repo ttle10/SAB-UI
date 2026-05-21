@@ -72,9 +72,12 @@
 }
 /* Actions */
 ::deep .col-actions,
-::deep td.col-actions {
-    width: 60px;
+.aide-memoire-table ::deep td.col-actions {
+    width: 70px;
     text-align: center;
+    align-items: center;
+    justify-content: center; /* optional: center buttons in the cell */
+    gap: 6px; /* adjust spacing as you like */
     white-space: nowrap;
 }
 
@@ -84,7 +87,7 @@
     box-sizing: border-box;
 }
 
-::deep .input-initiales {
+::deep .input-initials {
     width: 100%;
     box-sizing: border-box;
     font-family: "Segoe UI", Roboto, Arial, sans-serif;
@@ -114,6 +117,7 @@
     color: #6b7280;
 }
 
+/*
 ::deep .btn-icon {
     background: white;
     border: 1px solid var(--stm-gray-300, #d1d5d8);
@@ -126,6 +130,7 @@
     font-size: 11px;
     cursor: pointer;
 }
+
 
 ::deep .btn-add {
     border: none;
@@ -144,3 +149,4 @@
 ::deep .btn-add:hover {
     background-color: #007acc;
 }
+     */

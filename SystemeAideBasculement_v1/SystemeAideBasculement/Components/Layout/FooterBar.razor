@@ -1,7 +1,10 @@
-﻿<div class="footer-bar">
-    <button class="open-btn" @onclick="OnOpenClicked">
-        🗂 Ouvrir
-    </button>
+﻿@using SystemeAideBasculement.Components.Layout.Common
+
+<div class="footer-bar">
+    <ButtonAction DisplayText="🗂 Ouvrir"
+                  TooltipText="Ouvrir une liste de documents à consulter."
+                  CanEdit="CanEdit"
+                  OnClick="OnOpenClicked" />
 
     <div class="footer-text">
         Consulter la procédure complète de basculement entre CCP et CCR
@@ -9,6 +12,7 @@
 </div>
 
 @code {
+    [Parameter] public bool CanEdit { get; set; } = false;
     [Parameter] public EventCallback OnOpen { get; set; }
 
     private async Task OnOpenClicked()

@@ -1,10 +1,12 @@
-﻿<tr>
+﻿@using SystemeAideBasculement.Components.Layout.Common
+
+<tr>
     @if (AjoutEnCours)
     {
         <!-- Étape -->
         <td class="col-step">
             <AutoResizeTextarea Value="@NouvelleEtape"
-                                ValueChanged="OnNouvelleEtapeChanged"
+                                ValueChanged="NouvelleEtapeChanged"
                                 MaxLength="200"
                                 Placeholder="Nouvelle étape..."
                                 ShowCounter="false"
@@ -19,23 +21,33 @@
         </td>
         <!-- Actions -->
         <td class="col-actions">
-            <button class="btn-icon"
+            <ButtonIconAction DisplayText="💾"
+                              TooltipText="Sauvegarder l'ajout"
+                              CanEdit="@string.IsNullOrWhiteSpace(NouvelleEtape)"
+                              OnClick="AddIfValid" />
+            <ButtonIconAction DisplayText="✖"
+                              TooltipText="Annuler l'ajout"
+                              CanEdit="@true"
+                              OnClick="OnCancelAdd" />
+
+            <!--<button class="btn-icon"
                     disabled="@string.IsNullOrWhiteSpace(NouvelleEtape)"
-                    @onclick="() => OnAdd.InvokeAsync()">
+                    @onclick="AddIfValid">
                    💾
-            </button>
-            <button class="btn-icon"
-                    @onclick="() => OnCancelAdd.InvokeAsync()">
+            </button> -->
+            <!-- <button class="btn-icon"
+                    @onclick="OnCancelAdd">
                 ✖
-            </button>
+            </button>  -->
         </td>
     }
     else
     {
         <td colspan="4">
-            <button class="btn-add" @onclick="() => OnStartAdd.InvokeAsync()">
-                ＋ Ajouter une nouvelle étape…
-            </button>
+            <ButtonAction DisplayText="Ajouter une nouvelle étape…"
+                          TooltipText="Ajouter une nouvelle étape à l'aide-mémoire"
+                          CanEdit="CanEdit"
+                          OnClick="OnStartAdd" />
         </td>
     }
 </tr>
@@ -43,9 +55,22 @@
 @code {
     [Parameter] public bool AjoutEnCours { get; set; }
     [Parameter] public string NouvelleEtape { get; set; } = "";
+    [Parameter] public bool CanEdit { get; set; }
 
     [Parameter] public EventCallback OnStartAdd { get; set; }
     [Parameter] public EventCallback OnCancelAdd { get; set; }
     [Parameter] public EventCallback OnAdd { get; set; }
-    [Parameter] public EventCallback<string?> OnNouvelleEtapeChanged { get; set; }
+    [Parameter] public EventCallback<string?> NouvelleEtapeChanged { get; set; }
+
+
+    private async Task AddIfValid()
+    {
+        if (!CanEdit)
+            return;
+
+        if (string.IsNullOrWhiteSpace(NouvelleEtape))
+            return;
+
+        await OnAdd.InvokeAsync();
+    }
 }

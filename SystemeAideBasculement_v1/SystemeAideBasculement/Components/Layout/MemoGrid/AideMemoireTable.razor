@@ -1,4 +1,5 @@
 ﻿@using SystemeAideBasculement.Models
+@using Microsoft.AspNetCore.Components.Authorization
 
 <div class="table-container">
     <table class="aide-memoire-table">
@@ -11,6 +12,7 @@
             {
                 <AideMemoireRow Etape="etape"
                                 EtapeEnEdition="EtapeEnEdition"
+								CanEdit="CanEdit"
                                 OnEdit="() => OnEdit.InvokeAsync(etape)"
                                 OnSave="OnSave"
                                 OnCancel="OnCancelEdit"
@@ -30,14 +32,14 @@
                 </tr>
             }
 
-            @* Add row always present *@
+            @* Add row only when authenticated *@
             <AideMemoireAddRow AjoutEnCours="AjoutEnCours"
-                               NouvelleEtape="NouvelleEtape"
-                               OnStartAdd="OnStartAdd"
-                               OnCancelAdd="OnCancelAdd"
-                               OnAdd="OnAdd"
-                               OnNouvelleEtapeChanged="OnNouvelleEtapeChanged" />
-
+                                NouvelleEtape="NouvelleEtape"
+							    CanEdit="CanEdit"
+                                OnStartAdd="OnStartAdd"
+                                OnCancelAdd="OnCancelAdd"
+                                OnAdd="OnAdd"
+                                NouvelleEtapeChanged="NouvelleEtapeChanged" />
         </tbody>
     </table>
 </div>
@@ -48,6 +50,7 @@
     [Parameter] public AideMemoireModel? EtapeEnEdition { get; set; }
     [Parameter] public bool AjoutEnCours { get; set; }
     [Parameter] public string NouvelleEtape { get; set; } = "";
+    [Parameter] public bool CanEdit { get; set; } = false;
 
     [Parameter] public EventCallback<AideMemoireModel> OnEdit { get; set; }
     [Parameter] public EventCallback<AideMemoireModel?> OnSave { get; set; }
@@ -57,5 +60,5 @@
     [Parameter] public EventCallback OnStartAdd { get; set; }
     [Parameter] public EventCallback OnCancelAdd { get; set; }
     [Parameter] public EventCallback OnAdd { get; set; }
-    [Parameter] public EventCallback<string> OnNouvelleEtapeChanged { get; set; }
+    [Parameter] public EventCallback<string> NouvelleEtapeChanged { get; set; }
 }

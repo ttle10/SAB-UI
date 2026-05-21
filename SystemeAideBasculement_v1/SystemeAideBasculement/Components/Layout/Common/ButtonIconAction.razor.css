@@ -1,0 +1,27 @@
+﻿/* Disabled look: gray, no pointer, slightly faded */
+.btn-icon:disabled {
+    background-color: var(--stm-gray-200, #e5e7eb);
+    color: var(--stm-gray-500, #6b7280);
+    border-color: var(--stm-gray-300, #d1d5db);
+    border: 1px solid;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-icon:not(:disabled) {
+    background: white;
+    border: 1px solid var(--stm-gray-300, #d1d5d8);
+    align-items: center;
+    border-radius: 4px;
+    gap: 6px;
+    padding: 2px 2px;
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+    .btn-icon:not(:disabled):hover {
+        background: var(--stm-light-blue, #87CEFA);
+    }

@@ -18,11 +18,11 @@
             <ProfilesPanel ViewMode="@ViewMode" />
         </div>
         <div class="memo-column">
-            <MemoPanel UserInfo="@CurrentUserInfo" />
+            <MemoPanel CanEdit="@CanEdit()" />
         </div>
     </div>
     <div class="dashboard-bottom">
-        <FooterBar />
+        <FooterBar CanEdit="@CanEdit()" />
         <OptionNote Text="@OptionNoteText" />
         <div class="dashboard-version">
             Version @AppVersion
@@ -56,6 +56,15 @@
     private void HandleUserChanged(UserInfo? userInfo)
     {
         CurrentUserInfo = userInfo;
+    }
+
+    private bool CanEdit()
+    {
+        if (CurrentUserInfo == null)
+            return false;
+
+        var sab = new SABUnit();
+        return sab.IsValidRole(CurrentUserInfo.Role);
     }
 
 	// Start the notification service to listen to state updates    

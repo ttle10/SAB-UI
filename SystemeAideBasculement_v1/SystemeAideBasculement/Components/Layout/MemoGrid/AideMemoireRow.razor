@@ -1,4 +1,5 @@
 ﻿@using SystemeAideBasculement.Models
+@using SystemeAideBasculement.Components.Layout.Common
 
 <tr>
     <!-- Étape -->
@@ -18,32 +19,57 @@
     </td>
 
     <!-- Complété (TOUJOURS éditable) -->
-    <td class="col-complete">
-        <input type="checkbox" @bind="Etape.IsCompleted" />
+    <td class="col-completed">
+        <input type="checkbox"
+			    disabled="@(Etape.Id != EtapeEnEdition?.Id && !CanEdit)"
+                checked="@Etape.IsCompleted"
+                @ref="_completedCheck"
+                @onchange="OnCompletedChanged" />
     </td>
 
-    <!-- Initiales (TOUJOURS éditable) -->
-    <td class="col-initiales">
-        <input class="input-initiales"
-               @bind="Etape.Initiales" 
-               maxlength="7" />
+    <!-- Initials (TOUJOURS éditable) -->
+    <td class="col-initials">
+        <input class="input-initials"
+               disabled="@(Etape.Id != EtapeEnEdition?.Id && !CanEdit)"
+               value="@Etape.Initials"
+               maxlength="7"
+               @ref="_initialesInput"
+               @onchange="OnInitialesChanged" />
     </td>
 
     <!-- Actions -->
     <td class="col-actions">
         @if (Etape.Id == EtapeEnEdition?.Id)
         {
-            <button class="btn-icon"
-                    @onclick="() => OnSave.InvokeAsync(EtapeEnEdition)">💾</button>
-            <button class="btn-icon"
-                    @onclick="() => OnCancel.InvokeAsync()">✖</button>
+            <ButtonIconAction DisplayText="💾"
+                            TooltipText="Sauvegarder les modifications"
+                            CanEdit="CanEdit"
+                            OnClick="() =>OnSave.InvokeAsync(EtapeEnEdition)" />
+            <ButtonIconAction DisplayText="✖"
+                              TooltipText="Annuler les modifications"
+                              CanEdit="CanEdit"
+                              OnClick="() =>OnCancel.InvokeAsync()" />
+            <!--  <button class="btn-icon"
+                    @onclick="() => OnSave.InvokeAsync(EtapeEnEdition)">💾</button>  -->
+            <!--  <button class="btn-icon"
+                    @onclick="() => OnCancel.InvokeAsync()">✖</button>  -->
         }
         else
         {
-            <button class="btn-icon"
-                    @onclick="() => OnEdit.InvokeAsync(Etape)">✎</button>
-            <button class="btn-icon"
-                    @onclick="() => OnDelete.InvokeAsync(Etape)">🗑</button>
+            <ButtonIconAction DisplayText="✎"
+                              TooltipText="Modifier l'étape"
+                              CanEdit="CanEdit"
+                              OnClick="() =>OnEdit.InvokeAsync(Etape)" />
+            <ButtonIconAction DisplayText="🗑"
+                              TooltipText="Supprimer l'étape"
+                              CanEdit="CanEdit"
+                              OnClick="() =>OnDelete.InvokeAsync(Etape)" />
+
+            <!-- <button class="btn-icon"
+                    @onclick="() => OnEdit.InvokeAsync(Etape)">✎</button>  -->
+            <!-- <button class="btn-icon"
+                    @onclick="() => OnDelete.InvokeAsync(Etape)">🗑</button> -->
+
         }
     </td>
 </tr>
@@ -51,9 +77,53 @@
 @code {
     [Parameter] public AideMemoireModel Etape { get; set; } = default!;
     [Parameter] public AideMemoireModel? EtapeEnEdition { get; set; }
+    [Parameter] public bool CanEdit { get; set; } = false;
 
     [Parameter] public EventCallback<AideMemoireModel> OnEdit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback<AideMemoireModel?> OnSave { get; set; }
     [Parameter] public EventCallback<AideMemoireModel> OnDelete { get; set; }
+
+    private ElementReference _initialesInput;
+    private ElementReference _completedCheck;
+
+    private async Task OnCompletedChanged(ChangeEventArgs e)
+    {
+        var isChecked = e.Value is bool b && b;
+
+        // Some browsers send "true"/"false" as string
+        if (!isChecked && e.Value is string s && bool.TryParse(s, out var parsed))
+        {
+            isChecked = parsed;
+        }
+
+        Etape.IsCompleted = isChecked;
+        // If user tries to mark as completed without initials → block and focus input
+        if (isChecked && string.IsNullOrWhiteSpace(Etape.Initials))
+        {
+            // Move cursor to initials field
+            await _initialesInput.FocusAsync();
+
+            return; // do not save yet
+        }
+
+        // Persist change via parent save callback
+        await OnSave.InvokeAsync(Etape);
+    }
+
+    private async Task OnInitialesChanged(ChangeEventArgs e)
+    {
+        var text = e.Value?.ToString() ?? string.Empty;
+
+        // Update the row model
+        Etape.Initials = text;
+        // If Initales is not empty, mark as Completed
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            Etape.IsCompleted = true;
+        }
+
+        // Persist change via parent save callback
+        await OnSave.InvokeAsync(Etape);
+    }
 }

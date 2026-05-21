@@ -1,6 +1,7 @@
 ﻿:root {
     --stm-blue: #0095d9;
     --stm-blue-dark: #0077b6;
+    --stm-hover-blue: #007CB5;
     --stm-gray-100: #f5f6f7;
     --stm-gray-200: #e6e8ea;
     --stm-gray-250: #dde1e5; /* slightly darker than gray-200 */

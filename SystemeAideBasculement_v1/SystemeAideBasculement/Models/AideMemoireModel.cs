@@ -9,7 +9,7 @@ namespace SystemeAideBasculement.Models
 
         public string? Step { get; set; } = string.Empty;
 
-        public string? Initiales { get; set; } = string.Empty;
+        public string? Initials { get; set; } = string.Empty;
 
         public bool IsCompleted { get; set; } = false;
 
