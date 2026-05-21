@@ -18,9 +18,11 @@
                   OnStartAdd="CommencerAjout"
                   OnCancelAdd="AnnulerAjout"
                   OnAdd="AjouterEtape"
-                  OnNouvelleEtapeChanged="v => nouvelleEtape = v" />
+                  NouvelleEtapeChanged="v => nouvelleEtape = v" />
 </div>
 @code {
+    [Parameter] public bool CanEdit { get; set; } = false;
+
     private List<AideMemoireModel>? etapes;
     private AideMemoireModel? etapeEnEdition;
     private string nouvelleEtape = string.Empty;

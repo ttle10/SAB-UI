@@ -2,12 +2,10 @@
 
 <div class="memo-toolbar">
     <div class="memo-toolbar-left">
-        <button class="btn-reset-memo"
-                type="button"
-                disabled="@(CanEdit == false)" 
-                @onclick="ResetMemo">
-            Réinitialiser étapes
-        </button>
+        <ButtonAction DisplayText="Réinitialiser étapes"
+                      TooltipText="Réinitialiser les étapes à leur état par défaut"   
+                      CanEdit="CanEdit"
+                      OnClick="ResetMemo" />
         @* Future buttons go here *@
     </div>
 </div>

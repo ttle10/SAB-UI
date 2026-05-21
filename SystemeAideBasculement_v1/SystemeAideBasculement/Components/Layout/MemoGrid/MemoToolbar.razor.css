@@ -14,7 +14,7 @@
     align-items: center;
     gap: 0.5rem;
 }
-
+/* 
 .btn-reset-memo {
     border: none;
     background: var(--stm-blue, #0095d9);
@@ -36,3 +36,4 @@
 .btn-reset-memo:active {
     background: var(--stm-blue, #0095d9);
 }
+     */

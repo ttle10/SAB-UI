@@ -1,0 +1,38 @@
+﻿/* Disabled look: gray, no pointer, slightly faded */
+.btn-action:disabled {
+    border: none;
+    background-color: var(--stm-gray-200, #e5e7eb);
+    color: var(--stm-gray-500, #6b7280);
+    /*border-color: var(--stm-gray-300, #d1d5db);*/
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Hover only when NOT disabled */
+.btn-action:not(:disabled) {
+    border: none;
+    background: var(--stm-blue, #0095d9);
+    color: #ffffff;
+    /* background-color: var(--stm-blue-light, #e0f2fe); example */
+    /* border-color: var(--stm-blue, #3b82f6); */
+    padding: 7px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms ease, background 150ms ease;
+}
+
+.btn-action:not(:disabled):hover {
+    background: var(--stm-blue-dark, #0077b6);
+}
+
+/* Active only when NOT disabled
+::deep .btn-action:not(:disabled):active {
+    background-color: var(--stm-blue, #3b82f6);
+    color: #ffffff;
+}
+     */
