@@ -1,9 +1,9 @@
-﻿namespace SystemeAideBasculement.Services
-{
-    using Microsoft.AspNetCore.Components;
-    using Microsoft.AspNetCore.SignalR.Client;
-    using SystemeAideBasculement.Models;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
+using SystemeAideBasculement.Models;
 
+namespace SystemeAideBasculement.Services
+{
     public class NotificationService : IAsyncDisposable
     {
         private HubConnection? _connection;
