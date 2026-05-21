@@ -2,7 +2,7 @@
 @using SystemeAideBasculement.Components.Layout
 @using SystemeAideBasculement.Components.Layout.Header
 @using SystemeAideBasculement.Components.Layout.ProfileGrid
-@using SystemeAideBasculement.Components.Layout.MemoGrid
+@using SystemeAideBasculement.Components.Layout.ReminderGrid
 @using SystemeAideBasculement.Services
 @using SystemeAideBasculement.Shared
 
@@ -17,8 +17,8 @@
         <div class="profiles-column">
             <ProfilesPanel ViewMode="@ViewMode" />
         </div>
-        <div class="memo-column">
-            <MemoPanel CanEdit="@CanEdit()" />
+        <div class="reminder-column">
+            <ReminderPanel CanEdit="@CanEdit()" />
         </div>
     </div>
     <div class="dashboard-bottom">

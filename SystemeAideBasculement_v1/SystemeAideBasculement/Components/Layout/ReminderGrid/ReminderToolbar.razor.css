@@ -1,5 +1,5 @@
 ﻿/* Toolbar sits flush below the grid */
-.memo-toolbar {
+.reminder-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -8,14 +8,14 @@
     margin-top: 0.25rem;
 }
 
-/* Left group — ResetMemo and any future left-side buttons */
-.memo-toolbar-left {
+/* Left group — any future left-side buttons */
+.reminder-toolbar-left {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 /* 
-.btn-reset-memo {
+.btn-reset-reminder {
     border: none;
     background: var(--stm-blue, #0095d9);
     color: #ffffff;
@@ -30,10 +30,10 @@
     transition: background 150ms ease, background 150ms ease;
 }
 
-.btn-reset-memo:hover {
+.btn-reset-reminder:hover {
     background: var(--stm-blue-dark, #0077b6);
 }
-.btn-reset-memo:active {
+.btn-reset-reminder:active {
     background: var(--stm-blue, #0095d9);
 }
      */

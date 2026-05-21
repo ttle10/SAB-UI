@@ -1,12 +1,12 @@
 ﻿@using SystemeAideBasculement.Shared
 @using SystemeAideBasculement.Components.Layout.Common
 
-<div class="memo-toolbar">
-    <div class="memo-toolbar-left">
+<div class="reminder-toolbar">
+    <div class="reminder-toolbar-left">
         <ButtonAction DisplayText="Réinitialiser étapes"
                       TooltipText="Réinitialiser les étapes à leur état par défaut"   
                       CanEdit="CanEdit"
-                      OnClick="OnResetMemoSteps" />
+                      OnClick="OnResetReminderSteps" />
         @* Future buttons go here *@
     </div>
 </div>
@@ -14,5 +14,5 @@
 @code {
 	[Parameter] public bool CanEdit { get; set; } = false;
 
-    [Parameter] public EventCallback OnResetMemoSteps { get; set; }
+    [Parameter] public EventCallback OnResetReminderSteps { get; set; }
 }

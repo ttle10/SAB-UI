@@ -1,11 +1,11 @@
-﻿@using SystemeAideBasculement.Components.Layout.MemoGrid
+﻿@using SystemeAideBasculement.Components.Layout.ReminderGrid
 @using SystemeAideBasculement.Shared
 
 <section class="panel">
     <AideMemoire CanEdit="CanEdit" />
     <div />
-    <MemoToolbar CanEdit="CanEdit"
-                 OnResetMemoSteps="ResetSteps" />
+    <ReminderToolbar CanEdit="CanEdit"
+                 OnResetReminderSteps="ResetSteps" />
 </section>
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
