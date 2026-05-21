@@ -1,11 +1,15 @@
 ﻿@using SystemeAideBasculement.Components.Layout
+@using SystemeAideBasculement.Shared
 
 <header class="app-header" role="banner">
     <AppHero Title="Système d'aide au basculement" />
-    <AppToolbar ViewMode="@ViewMode" OnViewModeChanged="@OnViewModeChanged" />
+    <AppToolbar ViewMode="@ViewMode"
+                OnViewModeChanged="@OnViewModeChanged" 
+                OnCurrentUserChanged="@OnCurrentUserChanged" />
 </header>
 
 @code {
     [Parameter] public DashboardViewMode ViewMode { get; set; }
     [Parameter] public EventCallback<DashboardViewMode> OnViewModeChanged { get; set; }
+    [Parameter] public EventCallback<UserInfo?> OnCurrentUserChanged { get; set; }
 }

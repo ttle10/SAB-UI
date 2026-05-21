@@ -4,18 +4,21 @@
 @using SystemeAideBasculement.Components.Layout.ProfileGrid
 @using SystemeAideBasculement.Components.Layout.MemoGrid
 @using SystemeAideBasculement.Services
+@using SystemeAideBasculement.Shared
 
 @inject NavigationManager Navigation
 @inject NotificationService Notifications
 
 <div class="dashboard-shell">
-    <AppHeader ViewMode="@ViewMode" OnViewModeChanged="@SetViewMode" />
+    <AppHeader ViewMode="@ViewMode"
+               OnViewModeChanged="@SetViewMode"
+               OnCurrentUserChanged="@HandleUserChanged" />
     <div class="content-row">
         <div class="profiles-column">
             <ProfilesPanel ViewMode="@ViewMode" />
         </div>
         <div class="memo-column">
-            <MemoPanel />
+            <MemoPanel UserInfo="@CurrentUserInfo" />
         </div>
     </div>
     <div class="dashboard-bottom">
@@ -34,8 +37,9 @@
            //      Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0.0";
            Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0.0.0";
 
+    private UserInfo? CurrentUserInfo { get; set; } = null;
 
-    void SetViewMode(DashboardViewMode mode)
+    private void SetViewMode(DashboardViewMode mode)
         => ViewMode = mode;
 
     string OptionNoteText => ViewMode switch
@@ -48,6 +52,11 @@
 
         _ => string.Empty
     };
+
+    private void HandleUserChanged(UserInfo? userInfo)
+    {
+        CurrentUserInfo = userInfo;
+    }
 
 	// Start the notification service to listen to state updates    
     protected override async Task OnInitializedAsync()

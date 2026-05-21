@@ -2,7 +2,10 @@
 
 <div class="memo-toolbar">
     <div class="memo-toolbar-left">
-        <button class="btn-reset-memo" type="button" @onclick="ResetMemo">
+        <button class="btn-reset-memo"
+                type="button"
+                disabled="@(CanEdit == false)" 
+                @onclick="ResetMemo">
             Réinitialiser étapes
         </button>
         @* Future buttons go here *@
@@ -10,20 +13,7 @@
 </div>
 
 @code {
-    [Parameter] public UserInfo UserInfo { get; set; } = default!;
-
-    private bool CanEdit { get; set; } = false;
-
-    protected override void OnParametersSet()
-    {
-        if (UserInfo == null)
-        {
-            CanEdit = false;
-            return;
-        }
-        var ccsabGroup = new SABUnit();
-        CanEdit = ccsabGroup.IsValidRole(UserInfo.Role);
-	}
+	[Parameter] public bool CanEdit { get; set; } = false;
 
     private void ResetMemo()
     {

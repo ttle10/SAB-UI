@@ -4,8 +4,17 @@
 <section class="panel">
 	<AideMemoire />
     <div />
-    <MemoToolbar />
+    <MemoToolbar CanEdit="@CanEdit()" />
 </section>
 @code {
-    [Parameter] public UserInfo UserInfo { get; set; } = default!;
+    [Parameter] public UserInfo? UserInfo { get; set; } = null;
+
+    private bool CanEdit()
+    {
+        if (UserInfo == null)
+            return false;
+
+        var sab = new SABUnit();
+        return sab.IsValidRole(UserInfo.Role);
+    }
 }
