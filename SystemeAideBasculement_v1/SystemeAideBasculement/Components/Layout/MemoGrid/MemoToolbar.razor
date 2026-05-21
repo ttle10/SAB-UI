@@ -1,0 +1,32 @@
+﻿@using SystemeAideBasculement.Shared
+
+<div class="memo-toolbar">
+    <div class="memo-toolbar-left">
+        <button class="btn-reset-memo" type="button" @onclick="ResetMemo">
+            Réinitialiser étapes
+        </button>
+        @* Future buttons go here *@
+    </div>
+</div>
+
+@code {
+    [Parameter] public UserInfo UserInfo { get; set; } = default!;
+
+    private bool CanEdit { get; set; } = false;
+
+    protected override void OnParametersSet()
+    {
+        if (UserInfo == null)
+        {
+            CanEdit = false;
+            return;
+        }
+        var ccsabGroup = new SABUnit();
+        CanEdit = ccsabGroup.IsValidRole(UserInfo.Role);
+	}
+
+    private void ResetMemo()
+    {
+        // TODO: implement reset logic
+    }
+}

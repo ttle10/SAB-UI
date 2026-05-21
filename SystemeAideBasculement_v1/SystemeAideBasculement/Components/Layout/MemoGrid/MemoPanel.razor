@@ -1,22 +1,11 @@
 ﻿@using SystemeAideBasculement.Components.Layout.MemoGrid
+@using SystemeAideBasculement.Shared
 
 <section class="panel">
 	<AideMemoire />
-    <div/>
     <div />
-    <div class="memo-toolbar">
-        <div class="memo-toolbar-left">
-            <button class="memo-btn" type="button" @onclick="ResetMemo">
-                ResetMemo
-            </button>
-            @* Future buttons go here *@
-        </div>
-    </div>
+    <MemoToolbar />
 </section>
-
 @code {
-    private void ResetMemo()
-    {
-        // TODO: implement reset logic
-    }
+    [Parameter] public UserInfo UserInfo { get; set; } = default!;
 }
