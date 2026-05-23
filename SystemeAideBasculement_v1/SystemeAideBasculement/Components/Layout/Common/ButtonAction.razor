@@ -1,10 +1,11 @@
-﻿<button class="btn-action"
-        type="button"
-        disabled="@(CanEdit == false)"
-        title="@DisplayTitle()"
-        @onclick="OnClick">
-    @DisplayText
-</button>
+﻿<span title="@DisplayTitle()">
+    <button class="btn-action"
+            type="button"
+            disabled="@(CanEdit == false)"
+            @onclick="OnClick">
+        @DisplayText
+    </button>
+</span>
 
 @code {
     [Parameter] public string DisplayText { get; set; } = string.Empty;
