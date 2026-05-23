@@ -8,12 +8,19 @@ namespace SystemeAideBasculement.Models
         public int Id { get; set; }
 
         public string? Step { get; set; } = string.Empty;
-
+        
         public string? Initials { get; set; } = string.Empty;
 
         public bool IsCompleted { get; set; } = false;
 
         public bool IsDeleted { get; set; } = false;
+
+        public static int StepMaxLength
+        {
+            get {
+                return 500;
+            }
+        }
     }
 
 }

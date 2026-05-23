@@ -4,22 +4,22 @@
 @using Microsoft.EntityFrameworkCore
 
 <div class="aide-memoire-layout">
-<AideMemoireHeader IsLoading="_etapes == null" />
+<AideMemoireHeader IsLoading="@(_etapes == null)" />
 
-<AideMemoireTable Etapes="_etapes ?? new List<AideMemoireModel>()"
-                  IsLoading="_etapes == null"
-                  EtapeEnEdition="etapeEnEdition"
-                  AjoutEnCours="ajoutEnCours"
-                  NouvelleEtape="nouvelleEtape"
-				  CanEdit="CanEdit"
-                  OnEdit="ModifierEtape"
-                  OnCancelEdit="AnnulerEdition"
-                  OnSave="SauvegarderEtape"
-                  OnDelete="ConfirmerSuppression"
-                  OnStartAdd="CommencerAjout"
-                  OnCancelAdd="AnnulerAjout"
-                  OnAdd="AjouterEtape"
-                  NouvelleEtapeChanged="v => nouvelleEtape = v" />
+<AideMemoireTable Etapes="@(_etapes ?? new List<AideMemoireModel>())"
+                  IsLoading="@(_etapes == null)"
+                  EtapeEnEdition="@etapeEnEdition"
+                  AjoutEnCours="@ajoutEnCours"
+                  NouvelleEtape="@nouvelleEtape"
+				  CanEdit="@CanEdit"
+                  OnEdit="@ModifierEtape"
+                  OnCancelEdit="@AnnulerEdition"
+                  OnSave="@SauvegarderEtape"
+                  OnDelete="@ConfirmerSuppression"
+                  OnStartAdd="@CommencerAjout"
+                  OnCancelAdd="@AnnulerAjout"
+                  OnAdd="@AjouterEtape"
+                  NouvelleEtapeChanged="@(v => nouvelleEtape = v)" />
 </div>
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
@@ -87,33 +87,39 @@
         }
     }
 
-   //  private async Task ResetSteps()
-   //  {
-   //      if (await JS.InvokeAsync<bool>("confirm",
-   //          $"Voulez-vous réinitialiser le suivi des étapes?"))
-   //      {
-   //          foreach (var etape in _etapes)
-   //          {
-   //              etape.IsDeleted = true;
-			// }
-   //          etapes = await Db.AideMemoires
-   //              .Where(e => !e.IsDeleted)
-   //              .OrderBy(e => e.Id)
-   //              .ToListAsync();
+    //  private async Task ResetSteps()
+    //  {
+    //      if (await JS.InvokeAsync<bool>("confirm",
+    //          $"Voulez-vous réinitialiser le suivi des étapes?"))
+    //      {
+    //          foreach (var etape in _etapes)
+    //          {
+    //              etape.IsDeleted = true;
+    // }
+    //          etapes = await Db.AideMemoires
+    //              .Where(e => !e.IsDeleted)
+    //              .OrderBy(e => e.Id)
+    //              .ToListAsync();
 
-   //          var original = await Db.AideMemoires .FindAsync(etape.Id);
-   //          if (original != null)
-   //          {
-   //              original.IsDeleted = true;
-   //              await Db.SaveChangesAsync();
-   //              await RechargerEtapes();
-   //          }
-   //      }
-   //  }
+    //          var original = await Db.AideMemoires .FindAsync(etape.Id);
+    //          if (original != null)
+    //          {
+    //              original.IsDeleted = true;
+    //              await Db.SaveChangesAsync();
+    //              await RechargerEtapes();
+    //          }
+    //      }
+    //  }
 
 
     private void CommencerAjout() => ajoutEnCours = true;
-    private void AnnulerAjout() => ajoutEnCours = false;
+
+    private void AnnulerAjout()
+    {
+        ajoutEnCours = false;
+		nouvelleEtape = string.Empty;
+    }
+    
 
     private async Task AjouterEtape()
     {

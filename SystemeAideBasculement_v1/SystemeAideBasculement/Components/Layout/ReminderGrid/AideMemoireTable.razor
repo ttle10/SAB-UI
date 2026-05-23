@@ -10,13 +10,13 @@
             @* Render real rows when data exists *@
             @foreach (var etape in Etapes)
             {
-                <AideMemoireRow Etape="etape"
-                                EtapeEnEdition="EtapeEnEdition"
-								CanEdit="CanEdit"
-                                OnEdit="() => OnEdit.InvokeAsync(etape)"
-                                OnSave="OnSave"
-                                OnCancel="OnCancelEdit"
-                                OnDelete="() => OnDelete.InvokeAsync(etape)" />
+                <AideMemoireRow Etape="@etape"
+                                EtapeEnEdition="@EtapeEnEdition"
+								CanEdit="@CanEdit"
+                                OnEdit="@OnEdit"
+                                OnSave="@OnSave"
+                                OnCancel="@OnCancelEdit"
+                                OnDelete="@HandleOnDelete" />
             }
 
             @* Empty-state row (only when NOT loading) *@
@@ -33,13 +33,13 @@
             }
 
             @* Add row only when authenticated *@
-            <AideMemoireAddRow AjoutEnCours="AjoutEnCours"
-                                NouvelleEtape="NouvelleEtape"
-							    CanEdit="CanEdit"
-                                OnStartAdd="OnStartAdd"
-                                OnCancelAdd="OnCancelAdd"
-                                OnAdd="OnAdd"
-                                NouvelleEtapeChanged="NouvelleEtapeChanged" />
+            <AideMemoireAddRow AjoutEnCours="@AjoutEnCours"
+                                NouvelleEtape="@NouvelleEtape"
+							    CanEdit="@CanEdit"
+                                OnStartAdd="@OnStartAdd"
+                                OnCancelAdd="@OnCancelAdd"
+                                OnAdd="@OnAdd"
+                                NouvelleEtapeChanged="@HandleNouvelleEtapeChanged" />
         </tbody>
     </table>
 </div>
@@ -61,4 +61,16 @@
     [Parameter] public EventCallback OnCancelAdd { get; set; }
     [Parameter] public EventCallback OnAdd { get; set; }
     [Parameter] public EventCallback<string> NouvelleEtapeChanged { get; set; }
+
+    private async Task HandleOnDelete(AideMemoireModel etape)
+    {
+        // Confirmation handled at parent level to keep this component dumb
+        await OnDelete.InvokeAsync(etape);
+    }
+
+    private async Task HandleNouvelleEtapeChanged(string value)
+    {
+        NouvelleEtape = value;
+        await NouvelleEtapeChanged.InvokeAsync(value);
+	}
 }

@@ -1,0 +1,30 @@
+﻿.textarea-step {
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 11px;
+    line-height: 1.3;
+    white-space: pre-wrap;
+    min-height: 32px;
+    transition: border 0.15s ease, background-color 0.15s ease;
+}
+
+.textarea-step:focus {
+    outline: none;
+    border: 1px solid #0d6efd;
+    border-radius: 4px;
+}
+
+.textarea-step:hover {
+    background-color: #f8f9fa;
+}
+
+::deep .char-counter {
+    font-size: 10px;
+    text-align: right;
+    color: #6b7280;
+}

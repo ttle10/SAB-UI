@@ -23,11 +23,15 @@
     [Parameter] public string Placeholder { get; set; } = "";
     [Parameter] public bool ShowCounter { get; set; } = false;
 
+    [Parameter] public bool OnEditMode { get; set; }
+
     [Parameter] public EventCallback OnCtrlEnter { get; set; }
 
     private ElementReference textareaRef;
 
     private string? _previousValue;
+
+    private bool _previousOnEditMode;
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
@@ -38,6 +42,18 @@
         {
             _previousValue = Value;
             await JS.InvokeVoidAsync("autoResizeTextarea", textareaRef);
+        }
+
+
+        if (OnEditMode && !_previousOnEditMode)
+        {
+            _previousOnEditMode = true;
+            await textareaRef.FocusAsync();
+        }
+
+        if (!OnEditMode)
+        {
+            _previousOnEditMode = false;
         }
     }
 

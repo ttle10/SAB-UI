@@ -99,7 +99,7 @@
     white-space: normal;
 }
 
-
+/*
 ::deep .textarea-step {
     width: 100%;
     box-sizing: border-box;
@@ -116,7 +116,7 @@
     text-align: right;
     color: #6b7280;
 }
-
+/*
 /*
 ::deep .btn-icon {
     background: white;

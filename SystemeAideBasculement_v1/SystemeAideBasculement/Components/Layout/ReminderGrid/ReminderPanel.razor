@@ -2,9 +2,9 @@
 @using SystemeAideBasculement.Shared
 
 <section class="panel">
-    <AideMemoire CanEdit="CanEdit" />
+    <AideMemoire CanEdit="@CanEdit" />
     <div />
-    <ReminderToolbar CanEdit="CanEdit"
+    <ReminderToolbar CanEdit="@CanEdit"
                  OnResetReminderSteps="ResetSteps" />
 </section>
 @code {
