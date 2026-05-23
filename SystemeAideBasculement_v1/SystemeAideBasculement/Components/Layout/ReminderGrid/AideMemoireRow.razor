@@ -45,7 +45,7 @@
             <ButtonIconAction DisplayText="💾"
                             TooltipText="Sauvegarder les modifications"
                             CanEdit="@CanEdit"
-                              OnClick="@HandleOnSaveEditEtape" />
+                            OnClick="@HandleOnSaveEditEtape" />
             <ButtonIconAction DisplayText="✖"
                               TooltipText="Annuler les modifications"
                               CanEdit="@CanEdit"
@@ -76,14 +76,14 @@
 </tr>
 
 @code {
-    [Parameter] public AideMemoireModel Etape { get; set; } = default!;
-    [Parameter] public AideMemoireModel? EtapeEnEdition { get; set; }
+    [Parameter] public AideMemoireVm Etape { get; set; } = default!;
+    [Parameter] public AideMemoireVm? EtapeEnEdition { get; set; }
     [Parameter] public bool CanEdit { get; set; } = false;
 
-    [Parameter] public EventCallback<AideMemoireModel> OnEdit { get; set; }
+    [Parameter] public EventCallback<AideMemoireVm> OnEdit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
-    [Parameter] public EventCallback<AideMemoireModel?> OnSave { get; set; }
-    [Parameter] public EventCallback<AideMemoireModel> OnDelete { get; set; }
+    [Parameter] public EventCallback<AideMemoireVm?> OnSave { get; set; }
+    [Parameter] public EventCallback<AideMemoireVm> OnDelete { get; set; }
 
     private ElementReference _initialesInput;
     private ElementReference _completedCheck;
