@@ -9,14 +9,14 @@
 
 @code {
     [Parameter] public string DisplayText { get; set; } = string.Empty;
-    [Parameter] public string TooltipText { get; set; } = string.Empty;
+    [Parameter] public string? TooltipText { get; set; } = null;
     [Parameter] public bool CanEdit { get; set; } = false;
     [Parameter] public EventCallback OnClick { get; set; }
 
     private string? DisplayTitle()
     {
         if (CanEdit)
-            return null;
+            return TooltipText;
 
         string tooltipTex = "Connectez-vous pour " + (!string.IsNullOrEmpty(TooltipText) ? TooltipText : "effectuer cette action") + ".";
         return tooltipTex;

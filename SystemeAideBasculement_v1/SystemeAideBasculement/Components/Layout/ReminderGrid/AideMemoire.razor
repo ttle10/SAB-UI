@@ -8,9 +8,9 @@
 
 <AideMemoireTable Etapes="@(_etapes ?? new List<AideMemoireModel>())"
                   IsLoading="@(_etapes == null)"
-                  EtapeEnEdition="@etapeEnEdition"
-                  AjoutEnCours="@ajoutEnCours"
-                  NouvelleEtape="@nouvelleEtape"
+                  EtapeEnEdition="@_etapeEnEdition"
+                  AjoutEnCours="@_ajoutEnCours"
+                  NouvelleEtape="@_nouvelleEtape"
 				  CanEdit="@CanEdit"
                   OnEdit="@ModifierEtape"
                   OnCancelEdit="@AnnulerEdition"
@@ -19,15 +19,15 @@
                   OnStartAdd="@CommencerAjout"
                   OnCancelAdd="@AnnulerAjout"
                   OnAdd="@AjouterEtape"
-                  NouvelleEtapeChanged="@(v => nouvelleEtape = v)" />
+                  NouvelleEtapeChanged="@(v => _nouvelleEtape = v)" />
 </div>
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
 
     private List<AideMemoireModel>? _etapes;
-    private AideMemoireModel? etapeEnEdition;
-    private string nouvelleEtape = string.Empty;
-    private bool ajoutEnCours;
+    private AideMemoireModel? _etapeEnEdition;
+    private string _nouvelleEtape = string.Empty;
+    private bool _ajoutEnCours;
 
     protected override async Task OnInitializedAsync()
     {
@@ -43,11 +43,11 @@
             .OrderBy(e => e.Id)
             .ToListAsync();
 
-        etapeEnEdition = null;
+        _etapeEnEdition = null;
     }
 
     private void ModifierEtape(AideMemoireModel etape) =>
-        etapeEnEdition = new AideMemoireModel
+        _etapeEnEdition = new AideMemoireModel
         {
             Id = etape.Id,
             Step = etape.Step,
@@ -56,7 +56,7 @@
             IsDeleted = etape.IsDeleted
         };
 
-    private void AnnulerEdition() => etapeEnEdition = null;
+    private void AnnulerEdition() => _etapeEnEdition = null;
 
     private async Task SauvegarderEtape(AideMemoireModel? etape)
     {
@@ -112,23 +112,23 @@
     //  }
 
 
-    private void CommencerAjout() => ajoutEnCours = true;
+    private void CommencerAjout() => _ajoutEnCours = true;
 
     private void AnnulerAjout()
     {
-        ajoutEnCours = false;
-		nouvelleEtape = string.Empty;
+        _ajoutEnCours = false;
+		_nouvelleEtape = string.Empty;
     }
     
 
     private async Task AjouterEtape()
     {
-        if (!string.IsNullOrWhiteSpace(nouvelleEtape))
+        if (!string.IsNullOrWhiteSpace(_nouvelleEtape))
         {
-            Db.AideMemoires.Add(new() { Step = nouvelleEtape });
+            Db.AideMemoires.Add(new() { Step = _nouvelleEtape });
             await Db.SaveChangesAsync();
-            nouvelleEtape = string.Empty;
-            ajoutEnCours = false;
+            _nouvelleEtape = string.Empty;
+            _ajoutEnCours = false;
             await RechargerEtapes();
         }
     }
