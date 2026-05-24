@@ -87,13 +87,6 @@
     box-sizing: border-box;
 }
 
-::deep .input-initials {
-    width: 100%;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 11px;
-}
-
 /* Cells */
 ::deep .aide-memoire-cell {
     white-space: normal;

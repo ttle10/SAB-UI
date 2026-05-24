@@ -18,7 +18,6 @@
             @Etape.Step
         }
     </td>
-
     <!-- Complété (TOUJOURS éditable) -->
     <td class="col-completed">
         <input type="checkbox"
@@ -27,17 +26,16 @@
                 @ref="_completedCheck"
                 @onchange="OnCompletedChanged" />
     </td>
-
     <!-- Initials (TOUJOURS éditable) -->
     <td class="col-initials">
-        <input class="input-initials"
-               disabled="@(IsEtapeInEdtion() || !CanEdit)"
-               value="@Etape.Initials"
-               maxlength="7"
-               @ref="_initialesInput"
-               @onchange="OnInitialesChanged" />
+        <InputTextValue Value="@Etape.Initials"
+                        MaxLength="7"
+                        CanEdit="@(!IsEtapeInEdtion() && CanEdit)"
+                        @ref="_initialesInput"
+                        ValueChanged="@(v => Etape.Initials = v)"
+                        OnLostFocus="HandleOnLostFocus"
+                        OnEnterKey="HandleOnEnterKey" />
     </td>
-
     <!-- Actions -->
     <td class="col-actions">
         @if (Etape.Id == EtapeEnEdition?.Id)
@@ -50,10 +48,6 @@
                               TooltipText="Annuler les modifications"
                               CanEdit="@CanEdit"
                               OnClick="@HandleOnCancelEditEtape" />
-            <!--  <button class="btn-icon"
-                    @onclick="() => OnSave.InvokeAsync(EtapeEnEdition)">💾</button>  -->
-            <!--  <button class="btn-icon"
-                    @onclick="() => OnCancel.InvokeAsync()">✖</button>  -->
         }
         else
         {
@@ -65,12 +59,6 @@
                               TooltipText="Supprimer l'étape"
                               CanEdit="@CanEdit"
                               OnClick="@HandleOnDeleteEtape" />
-
-            <!-- <button class="btn-icon"
-                    @onclick="() => OnEdit.InvokeAsync(Etape)">✎</button>  -->
-            <!-- <button class="btn-icon"
-                    @onclick="() => OnDelete.InvokeAsync(Etape)">🗑</button> -->
-
         }
     </td>
 </tr>
@@ -85,7 +73,7 @@
     [Parameter] public EventCallback<AideMemoireVm?> OnSave { get; set; }
     [Parameter] public EventCallback<AideMemoireVm> OnDelete { get; set; }
 
-    private ElementReference _initialesInput;
+    private InputTextValue? _initialesInput;
     private ElementReference _completedCheck;
 
     private async Task OnCompletedChanged(ChangeEventArgs e)
@@ -106,23 +94,31 @@
         if (isChecked && string.IsNullOrWhiteSpace(Etape.Initials))
         {
             // Move cursor to initials field
-            await _initialesInput.FocusAsync();
+            if (_initialesInput != null)
+                await _initialesInput.SetFocus();
         }
     }
 
-    private async Task OnInitialesChanged(ChangeEventArgs e)
+    private async Task HandleOnLostFocus(string value)
     {
-        var text = e.Value?.ToString() ?? string.Empty;
+        Etape.Initials = value;
+        await Save();
+    }
 
-        // Update the row model
-        Etape.Initials = text;
-        // If Initales is not empty, mark as Completed
-        if (!string.IsNullOrWhiteSpace(text))
+    private async Task HandleOnEnterKey()
+    {
+        // User Hit Enter key, save Etape
+        await Save();
+    }
+
+    private async Task Save()
+    {
+        // User left the field — now validate and save
+        if (!string.IsNullOrWhiteSpace(Etape.Initials))
         {
             Etape.IsCompleted = true;
         }
 
-        // Persist change via parent save callback
         await OnSave.InvokeAsync(Etape);
     }
 

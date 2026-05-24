@@ -1,0 +1,60 @@
+﻿<input class="input-text @(_isDirty ? "is-dirty" : "")"
+       type="text"
+       disabled="@(!CanEdit)"
+       value="@Value"
+       maxlength="@MaxLength"
+       @ref="_inputCtrl"
+       @oninput="HandleOnInput"
+       @onchange="HandleOnChanged"        
+	   @onblur="OnInitialesBlur"
+       @onkeydown="HandleKeyDown" />
+
+@code {
+    [Parameter] public string? Value { get; set; }
+
+    [Parameter] public int MaxLength { get; set; } = 7;
+
+    [Parameter] public bool CanEdit { get; set; } = true;
+
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public EventCallback<string?> OnLostFocus { get; set; }
+    [Parameter] public EventCallback OnEnterKey { get; set; }
+
+    public ElementReference _inputCtrl { get; private set; }
+
+    public async Task SetFocus() => await _inputCtrl.FocusAsync();
+
+    private bool _isDirty = false;
+
+    private async Task HandleOnInput(ChangeEventArgs e)
+    {
+        // Fires on every keystroke — just set the dirty flag
+		if (!_isDirty)
+            _isDirty = true;
+        var value = e.Value?.ToString();
+        await ValueChanged.InvokeAsync(value);
+    }
+
+    private void HandleOnChanged(ChangeEventArgs e)
+    {
+        // Update the row model
+        Value = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private async Task OnInitialesBlur(FocusEventArgs e)
+    {
+        // Remove highlight
+        _isDirty = false;
+        // User left the field
+        await OnLostFocus.InvokeAsync(Value);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        _isDirty = false;
+        if (e.Key == "Enter")
+        {
+            await OnEnterKey.InvokeAsync();
+        }
+    }
+}
