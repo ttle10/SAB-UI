@@ -12,29 +12,24 @@
             <div class="modal-header">
                 <h2>Connexion</h2>
             </div>
-
             <EditForm Model="Model" OnValidSubmit="HandleLogin">
                 <div class="modal-body">
-
                     <div class="field">
                         <span>Nom d'utilisateur</span>
                         <InputText @ref="UsernameInput"
                                    @bind-Value="Model.Username"
                                    class="form-input" />
                     </div>
-
                     <div class="field">
                         <span>Mot de passe</span>
                         <InputText @bind-Value="Model.Password"
                                    type="password"
                                    class="form-input" />
                     </div>
-
                     @if (!string.IsNullOrEmpty(ErrorMessage))
                     {
                         <div class="error">@ErrorMessage</div>
                     }
-
                     <div class="modal-actions">
                         <button type="submit" class="btn-primary" disabled="@IsLoading">
                             @(IsLoading ? "Connexion..." : "Se connecter")
@@ -45,10 +40,8 @@
                             Annuler
                         </button>
                     </div>
-
                 </div>
             </EditForm>
-
         </div>
     </div>
 }

@@ -1,26 +1,29 @@
-﻿@inject IJSRuntime JS
-@inject SystemeAideBasculement.Context.AideMemoireDbContext Db
-@using SystemeAideBasculement.Models
+﻿@using SystemeAideBasculement.Models
+@using SystemeAideBasculement.Components.Layout.Common
 @using Microsoft.EntityFrameworkCore
 
-<div class="aide-memoire-layout">
-<AideMemoireHeader IsLoading="@(_etapes == null)" />
+@inject SystemeAideBasculement.Context.AideMemoireDbContext Db
 
-<AideMemoireTable Etapes="@(_etapes ?? new List<AideMemoireVm>())"
-                  IsLoading="@(_etapes == null)"
-                  EtapeEnEdition="@_etapeEnEdition"
-                  AjoutEnCours="@_ajoutEnCours"
-                  NouvelleEtape="@_nouvelleEtape"
-				  CanEdit="@CanEdit"
-                  OnEdit="@HandleModifierEtape"
-                  OnCancelEdit="@AnnulerEdition"
-                  OnSave="@SauvegarderEtape"
-                  OnDelete="@ConfirmerSuppression"
-                  OnStartAdd="@CommencerAjout"
-                  OnCancelAdd="@AnnulerAjout"
-                  OnAdd="@AjouterEtape"
-                  NouvelleEtapeChanged="@(v => _nouvelleEtape = v)" />
+<div class="aide-memoire-layout">
+    <AideMemoireHeader IsLoading="@(_etapes == null)" />
+    <AideMemoireTable Etapes="@(_etapes ?? new List<AideMemoireVm>())"
+                      IsLoading="@(_etapes == null)"
+                      EtapeEnEdition="@_etapeEnEdition"
+                      AjoutEnCours="@_ajoutEnCours"
+                      NouvelleEtape="@_nouvelleEtape"
+				      CanEdit="@CanEdit"
+                      OnEdit="@HandleModifierEtape"
+                      OnCancelEdit="@AnnulerEdition"
+                      OnSave="@SauvegarderEtape"
+                      OnDelete="@ConfirmerSuppression"
+                      OnStartAdd="@CommencerAjout"
+                      OnCancelAdd="@AnnulerAjout"
+                      OnAdd="@AjouterEtape"
+                      NouvelleEtapeChanged="@(v => _nouvelleEtape = v)" />
+    <ConfirmDialog @ref="_confirmDialog" />
 </div>
+
+
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
 
@@ -28,6 +31,8 @@
     private AideMemoireVm? _etapeEnEdition;
     private string _nouvelleEtape = string.Empty;
     private bool _ajoutEnCours;
+    private ConfirmDialog? _confirmDialog;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,8 +73,12 @@
 
     private async Task ConfirmerSuppression(AideMemoireVm etape)
     {
-        if (await JS.InvokeAsync<bool>("confirm",
-            $"Voulez-vous vraiment supprimer l'étape '{etape.Step}' ?"))
+        var confirm = await _confirmDialog!.ShowAsync(
+            "Confirmation",
+            $"Supprimer l'étape '{etape.Step}' ?"
+        );
+
+        if (confirm)
         {
             var original = await Db.AideMemoires.FindAsync(etape.Id);
             if (original != null)

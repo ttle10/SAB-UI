@@ -1,0 +1,76 @@
+﻿@using SystemeAideBasculement.Services
+
+
+@if (_visible)
+{
+    <div class="modal-backdrop">
+        <div class="modal" tabindex="0" @onkeydown="HandleKeyDown">
+            <div class="modal-header">
+                <h2>@_title</h2>
+            </div>
+            <div class="modal-body">
+                <p>@_message</p>
+                <div></div>
+                <div class="modal-actions">
+                    <button @onclick="HandleOnConfirm">OK</button>
+                    <button @onclick="HandleOnCancel"
+                            @ref="_cancelButtonRef">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _visible;
+    private string _title = "";
+    private string _message = "";
+    private TaskCompletionSource<bool>? _tcs;
+    private ElementReference _cancelButtonRef;
+    private bool _shouldFocusCancel;
+
+    public Task<bool> ShowAsync(string title, string message)
+    {
+        _title = title;
+        _message = message;
+        _visible = true;
+
+        _tcs = new TaskCompletionSource<bool>();
+        _shouldFocusCancel = true;
+        _ = InvokeAsync(StateHasChanged);
+
+        return _tcs.Task;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldFocusCancel)
+        {
+            _shouldFocusCancel = false;
+            await _cancelButtonRef.FocusAsync();
+        }
+    }
+
+    private async void HandleOnConfirm()
+    {
+
+        _visible = false;
+        await InvokeAsync(StateHasChanged);
+        _tcs?.SetResult(true);
+    }
+
+    private async void HandleOnCancel()
+    {
+        _visible = false;
+        await InvokeAsync(StateHasChanged);
+        _tcs?.SetResult(false);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            HandleOnCancel();
+        }
+    }
+}
