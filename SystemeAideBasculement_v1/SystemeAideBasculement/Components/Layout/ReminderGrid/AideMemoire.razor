@@ -45,6 +45,35 @@
         await RechargerEtapes();
     }
 
+    public async Task ResetSteps()
+    {
+        var confirm = await _confirmDialog!.ShowAsync(
+            "Confirmation",
+            $"Voulez-vous réinitialiser le suivi des étapes ?"
+        );
+
+        if (!confirm) return;
+
+
+        _errorMessage = null;
+
+        try
+        {
+            await Service.ResetAllAsync();
+            
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Erreur lors de la réinitialisation des étapes.";
+            Logger.LogError(ex, "[SabUI:AideMemoire:ResetSteps]: {_errorMessage}");
+        }
+        finally
+        {
+            await RechargerEtapes();
+		}
+    }
+
+
     private async Task RechargerEtapes()
     {
         _isLoading = true;

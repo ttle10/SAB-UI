@@ -59,7 +59,7 @@
         _tcs?.SetResult(true);
     }
 
-    private async void HandleOnCancel()
+    private async Task HandleOnCancel()
     {
         _visible = false;
         await InvokeAsync(StateHasChanged);
@@ -70,7 +70,7 @@
     {
         if (e.Key == "Escape")
         {
-            HandleOnCancel();
+            await HandleOnCancel();
         }
     }
 }

@@ -2,7 +2,8 @@
 @using SystemeAideBasculement.Shared
 
 <section class="panel">
-    <AideMemoire CanEdit="@CanEdit" />
+    <AideMemoire CanEdit="@CanEdit"
+                 @ref="_aidememoireCtrl" />
     <div />
     <ReminderToolbar CanEdit="@CanEdit"
                  OnResetReminderSteps="ResetSteps" />
@@ -10,7 +11,13 @@
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
 
+    private AideMemoire? _aidememoireCtrl;
+
     private async Task ResetSteps()
     {
-	}
+        if (_aidememoireCtrl != null)
+        {
+            await _aidememoireCtrl.ResetSteps();
+        }
+    }
 }
