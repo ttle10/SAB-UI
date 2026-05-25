@@ -27,7 +27,7 @@
     [Parameter] public bool CanEdit { get; set; } = false;
 
     [Inject] private ILogger<AideMemoire> Logger { get; set; } = default!;
-    [Inject] private DataAccessService Service { get; set; } = default!;
+    [Inject] private IAideMemoireRepository Service { get; set; } = default!;
 
     private List<AideMemoireVm>? _etapes;
     private AideMemoireVm? _etapeEnEdition;
@@ -60,7 +60,7 @@
         try
         {
             await Service.ResetAllAsync();
-            
+
         }
         catch (Exception ex)
         {
@@ -70,7 +70,8 @@
         finally
         {
             await RechargerEtapes();
-		}
+            StateHasChanged();
+        }
     }
 
 

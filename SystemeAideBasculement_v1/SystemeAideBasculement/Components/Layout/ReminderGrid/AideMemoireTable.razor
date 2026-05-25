@@ -12,6 +12,7 @@
             {
                 <AideMemoireRow Etape="@etape"
                                 EtapeEnEdition="@EtapeEnEdition"
+                                @key="@($"{etape.Id}-{etape.IsCompleted}-{etape.Initials}")"
 								CanEdit="@CanEdit"
                                 OnEdit="@OnEdit"
                                 OnSave="@OnSave"

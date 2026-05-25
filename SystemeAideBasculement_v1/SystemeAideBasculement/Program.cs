@@ -129,7 +129,7 @@ try
     builder.Services.AddDbContext<AideMemoireDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("AideMemoireDb")));
 
-    builder.Services.AddScoped<DataAccessService>();
+    builder.Services.AddScoped<IAideMemoireRepository, DataAccessService>();
 
     var app = builder.Build();
 

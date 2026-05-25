@@ -4,7 +4,7 @@ using SystemeAideBasculement.Models;
 
 namespace SystemeAideBasculement.Services
 {
-    public class DataAccessService
+    public class DataAccessService : IAideMemoireRepository
     {
         private readonly AideMemoireDbContext _db;
 
@@ -17,6 +17,7 @@ namespace SystemeAideBasculement.Services
         {
 
             return await _db.AideMemoires
+                    .AsNoTracking()  //
                     .Where(e => !e.IsDeleted)
                     .OrderBy(e => e.Id)
                     .Select(e => e.ToVm())
