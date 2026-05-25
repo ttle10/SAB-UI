@@ -1,7 +1,10 @@
 ﻿/* Table */
-::deep .table-container {
-    max-height: 40vh;
+.table-container {
+    scroll-behavior: smooth;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    max-height: 920px;
     border: 1px solid var(--stm-gray-300, #d1d5d8);
 }
 
@@ -16,7 +19,7 @@
 ::deep .aide-memoire-table thead th {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 10;
     background-color: var(--stm-gray-250, #dde1e5);
 }
 

@@ -1,8 +1,10 @@
 ﻿/* Header */
 .panel-header {
-    padding: 6px 8px;
-    background-color: var(--stm-gray-250, #dde1e5);
-    border-bottom: 1px solid var(--stm-gray-300, #d1d5d8);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--stm-blue-dark, #0077b6);
+    margin-bottom: 10px;
+    text-align: left;
 }
 
 .panel-title {

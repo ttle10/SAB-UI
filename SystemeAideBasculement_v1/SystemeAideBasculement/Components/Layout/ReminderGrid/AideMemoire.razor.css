@@ -1,15 +1,4 @@
 ﻿.aide-memoire-layout {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-}
-
-/* Table container */
-.memo-grid {
-    border: 1px solid var(--stm-gray-300, #d1d5d8);
-    border-radius: 4px;
-    overflow: hidden;
-    background: white;
-    min-height: 607px;
-    width: 100%;
 }

@@ -1,1 +1,4 @@
-﻿
+﻿::deep .panel-reminder {
+    display: flex;
+    flex-direction: column;
+}
