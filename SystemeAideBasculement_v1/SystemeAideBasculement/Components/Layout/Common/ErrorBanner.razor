@@ -1,0 +1,45 @@
+﻿@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert @CssClass d-flex justify-content-between align-items-center" role="alert">
+        <div>
+            @Message
+        </div>
+
+        @if (ShowRetry)
+        {
+            <button class="btn btn-sm btn-light ms-3" @onclick="OnRetryClicked">
+                Réessayer
+            </button>
+        }
+
+        @if (Closable)
+        {
+            <button class="btn-close ms-3" @onclick="Close">Fermer</button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string? Message { get; set; }
+
+    [Parameter] public string CssClass { get; set; } = "alert-danger";
+
+    [Parameter] public bool Closable { get; set; } = true;
+
+    [Parameter] public bool ShowRetry { get; set; } = false;
+
+    [Parameter] public EventCallback OnRetry { get; set; }
+
+    private async Task OnRetryClicked()
+    {
+        if (OnRetry.HasDelegate)
+        {
+            await OnRetry.InvokeAsync();
+        }
+    }
+
+    private void Close()
+    {
+        Message = null;
+    }
+}

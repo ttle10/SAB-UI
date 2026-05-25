@@ -129,6 +129,8 @@ try
     builder.Services.AddDbContext<AideMemoireDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("AideMemoireDb")));
 
+    builder.Services.AddScoped<DataAccessService>();
+
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -195,6 +197,16 @@ try
         var cache = scope.ServiceProvider.GetRequiredService<SabStateCache>();
         await cache.LoadInitialStateAsync();
     }
+
+
+    // Activer WAL Pour BD SQLite (améliore les performances et la concurrence, important pour SignalR)
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AideMemoireDbContext>();
+
+        db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+    }
+
 
     app.Run();
 }

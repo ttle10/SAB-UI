@@ -1,13 +1,12 @@
 ﻿@using SystemeAideBasculement.Models
 @using SystemeAideBasculement.Components.Layout.Common
-@using Microsoft.EntityFrameworkCore
-
-@inject SystemeAideBasculement.Context.AideMemoireDbContext Db
+@using SystemeAideBasculement.Services
 
 <div class="aide-memoire-layout">
-    <AideMemoireHeader IsLoading="@(_etapes == null)" />
+    <ErrorBanner Message="@_errorMessage"/>
+    <AideMemoireHeader IsLoading="@_isLoading" />
     <AideMemoireTable Etapes="@(_etapes ?? new List<AideMemoireVm>())"
-                      IsLoading="@(_etapes == null)"
+                      IsLoading="@_isLoading"
                       EtapeEnEdition="@_etapeEnEdition"
                       AjoutEnCours="@_ajoutEnCours"
                       NouvelleEtape="@_nouvelleEtape"
@@ -27,10 +26,17 @@
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
 
+    [Inject] private ILogger<AideMemoire> Logger { get; set; } = default!;
+    [Inject] private DataAccessService Service { get; set; } = default!;
+
     private List<AideMemoireVm>? _etapes;
     private AideMemoireVm? _etapeEnEdition;
     private string _nouvelleEtape = string.Empty;
     private bool _ajoutEnCours;
+    private bool _isLoading;
+
+    private string? _errorMessage;
+
     private ConfirmDialog? _confirmDialog;
 
 
@@ -41,13 +47,22 @@
 
     private async Task RechargerEtapes()
     {
+        _isLoading = true;
         _etapes = null; // explicit loading state
 
-        _etapes = await Db.AideMemoires
-                    .Where(e => !e.IsDeleted)
-                    .OrderBy(e => e.Id)
-                    .Select(e => e.ToVm())
-                    .ToListAsync();
+        try
+        {
+            _etapes = await Service.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Erreur lors du chargement.";
+            Logger.LogError(ex, $"[SabUI:AideMemoire:RechargerEtapes]: {_errorMessage}.");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
 
         _etapeEnEdition = null;
     }
@@ -60,13 +75,19 @@
     private async Task SauvegarderEtape(AideMemoireVm? etape)
     {
         if (etape == null) return;
-        var original = await Db.AideMemoires.FindAsync(etape.Id);
-        if (original != null)
+
+        try
         {
-            original.Step = etape.Step;
-            original.Initials = etape.Initials;
-            original.IsCompleted = etape.IsCompleted;
-            await Db.SaveChangesAsync();
+            await Service.UpdateAsync(etape);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Erreur lors de la sauvegarde de l'étape.";
+            Logger.LogError(ex, $"[SabUI:AideMemoire:SauvegarderEtape]: {_errorMessage}.");
+        }
+        finally
+        {
+            _etapeEnEdition = null;
             await RechargerEtapes();
         }
     }
@@ -78,42 +99,25 @@
             $"Supprimer l'étape '{etape.Step}' ?"
         );
 
-        if (confirm)
+        if (!confirm)
         {
-            var original = await Db.AideMemoires.FindAsync(etape.Id);
-            if (original != null)
-            {
-                original.IsDeleted = true;
-                await Db.SaveChangesAsync();
-                await RechargerEtapes();
-            }
+			return;
         }
+
+        try
+        {
+            await Service.SoftDeleteAsync(etape.Id);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Erreur lors de la suppression de l'étape.";
+            Logger.LogError(ex, $"[SabUI:AideMemoire:ConfirmerSuppression]: {_errorMessage}.");
+        }
+        finally
+        {
+            await RechargerEtapes();
+		}
     }
-
-    //  private async Task ResetSteps()
-    //  {
-    //      if (await JS.InvokeAsync<bool>("confirm",
-    //          $"Voulez-vous réinitialiser le suivi des étapes?"))
-    //      {
-    //          foreach (var etape in _etapes)
-    //          {
-    //              etape.IsDeleted = true;
-    // }
-    //          etapes = await Db.AideMemoires
-    //              .Where(e => !e.IsDeleted)
-    //              .OrderBy(e => e.Id)
-    //              .ToListAsync();
-
-    //          var original = await Db.AideMemoires .FindAsync(etape.Id);
-    //          if (original != null)
-    //          {
-    //              original.IsDeleted = true;
-    //              await Db.SaveChangesAsync();
-    //              await RechargerEtapes();
-    //          }
-    //      }
-    //  }
-
 
     private void CommencerAjout() => _ajoutEnCours = true;
 
@@ -126,10 +130,22 @@
 
     private async Task AjouterEtape()
     {
-        if (!string.IsNullOrWhiteSpace(_nouvelleEtape))
+        if (string.IsNullOrWhiteSpace(_nouvelleEtape))
         {
-            Db.AideMemoires.Add(new() { Step = _nouvelleEtape });
-            await Db.SaveChangesAsync();
+            return;
+        }
+
+        try
+        {
+            await Service.AddAsync(_nouvelleEtape);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Erreur lors de l'ajout de l'étape.";
+            Logger.LogError(ex, $"[SabUI:AideMemoire:AjouterEtape]: {_errorMessage}.");
+        }
+        finally
+        {
             _nouvelleEtape = string.Empty;
             _ajoutEnCours = false;
             await RechargerEtapes();
