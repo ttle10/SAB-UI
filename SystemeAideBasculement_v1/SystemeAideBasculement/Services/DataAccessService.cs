@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using SystemeAideBasculement.Context;
+using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Models;
 
 namespace SystemeAideBasculement.Services
@@ -8,9 +10,13 @@ namespace SystemeAideBasculement.Services
     {
         private readonly AideMemoireDbContext _db;
 
-        public DataAccessService(AideMemoireDbContext db)
+        private readonly IHubContext<NotificationHub> _hubContext;
+
+        public DataAccessService(AideMemoireDbContext db,
+                                IHubContext<NotificationHub> hubContext)
         {
             _db = db;
+            _hubContext = hubContext;
         }
 
         public async Task<List<AideMemoireVm>> GetAllAsync()
@@ -34,6 +40,9 @@ namespace SystemeAideBasculement.Services
             entity.IsCompleted = vmodel.IsCompleted;
 
             await _db.SaveChangesAsync();
+
+            // Notify all OTHER clients to refresh
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
         }
 
         public async Task SoftDeleteAsync(int id)
@@ -43,6 +52,9 @@ namespace SystemeAideBasculement.Services
 
             entity.IsDeleted = true;
             await _db.SaveChangesAsync();
+
+            // Notify all OTHER clients to refresh
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
         }
 
         public async Task AddAsync(string step)
@@ -58,6 +70,9 @@ namespace SystemeAideBasculement.Services
             });
 
             await _db.SaveChangesAsync();
+
+            // Notify all OTHER clients to refresh
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
         }
 
         public async Task ResetAllAsync()
@@ -68,6 +83,9 @@ namespace SystemeAideBasculement.Services
                     .SetProperty(e => e.Initials, string.Empty)
                     .SetProperty(e => e.IsCompleted, false)
                 );
+
+            // Notify all OTHER clients to refresh
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
         }
     }
 

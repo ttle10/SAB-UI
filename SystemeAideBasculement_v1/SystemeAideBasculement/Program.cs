@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
 using System.Text.Json.Serialization;
-using SystemeAideBasculement.Shared;
 using SystemeAideBasculement.Components;
 using SystemeAideBasculement.Context;
 using SystemeAideBasculement.Hubs;
 using SystemeAideBasculement.Models;
 using SystemeAideBasculement.Services;
 using SystemeAideBasculement.Services.Security;
+using SystemeAideBasculement.Shared;
 
 var logger = LogManager
     .Setup()
@@ -154,6 +155,7 @@ try
 
     app.MapControllers(); // This enables routing for your API controllers
     app.MapHub<NotificationHub>("/notifications");
+
     // Endpoints Razor Pages (Login/Logout)
     app.MapRazorPages();
     app.MapRazorComponents<App>()

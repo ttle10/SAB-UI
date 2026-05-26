@@ -10,6 +10,10 @@ namespace SystemeAideBasculement.Services
 
         public event Action? OnStateUpdated;
 
+        public event Action? OnReminderChanged;
+
+        static public string ReminderChangedMethod => "ReminderChanged";
+
         public async Task StartAsync(NavigationManager nav)
         {
             if (_connection is not null)
@@ -26,6 +30,11 @@ namespace SystemeAideBasculement.Services
                 {
                     OnStateUpdated?.Invoke();
                 });
+
+            _connection.On(ReminderChangedMethod, () =>
+            {
+                OnReminderChanged?.Invoke();
+            });
 
             await _connection.StartAsync();
         }

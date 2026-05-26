@@ -1,6 +1,9 @@
 ﻿@using SystemeAideBasculement.Models
 @using SystemeAideBasculement.Components.Layout.Common
 @using SystemeAideBasculement.Services
+
+@implements IAsyncDisposable
+
 <AideMemoireTable Etapes="@(_etapes ?? new List<AideMemoireVm>())"
                     IsLoading="@_isLoading"
                     EtapeEnEdition="@_etapeEnEdition"
@@ -25,6 +28,9 @@
     [Inject] private ILogger<AideMemoire> Logger { get; set; } = default!;
     [Inject] private IAideMemoireRepository Service { get; set; } = default!;
 
+    [Inject] private NotificationService Notifications { get; set; } = default!;
+
+
     private List<AideMemoireVm>? _etapes;
     private AideMemoireVm? _etapeEnEdition;
     private string _nouvelleEtape = string.Empty;
@@ -38,7 +44,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Notifications.OnReminderChanged += HandleReminderChanged;
         await RechargerEtapes();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Notifications.OnReminderChanged -= HandleReminderChanged;
+        return ValueTask.CompletedTask;
     }
 
     public async Task ResetSteps()
@@ -62,7 +75,7 @@
         {
             _errorMessage = "Erreur lors de la réinitialisation des étapes.";
             Logger.LogError(ex, "[SabUI:AideMemoire:ResetSteps]: {_errorMessage}");
-			await OnRaiseError.InvokeAsync(_errorMessage);
+            await OnRaiseError.InvokeAsync(_errorMessage);
         }
         finally
         {
@@ -71,11 +84,23 @@
         }
     }
 
+    private void HandleReminderChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            await RechargerEtapes();
+            StateHasChanged();
+        });
+	}
 
     private async Task RechargerEtapes()
     {
+        // Security in case of loading not done
+        if (_isLoading)
+            return;
+
         _isLoading = true;
-		await OnLoading.InvokeAsync(true);
+        await OnLoading.InvokeAsync(true);
         _etapes = null; // explicit loading state
 
         try
