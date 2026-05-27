@@ -1,34 +1,52 @@
-﻿@if (!string.IsNullOrEmpty(Message))
+﻿@using SystemeAideBasculement.Models
+
+@if (DisplayException != null)
 {
-    <div class="alert @CssClass d-flex justify-content-between align-items-center" role="alert">
-        <div>
-            @Message
+    @if (DisplayException is InfoException)
+    {
+        <div class="alert">
+            <span class="closebtn"
+                  @onclick="Close">&times;</span>
+            <strong>Attention!</strong>: @DisplayException.DisplayMessage
         </div>
-
-        @if (ShowRetry)
-        {
-            <button class="btn btn-sm btn-light ms-3" @onclick="OnRetryClicked">
-                Réessayer
-            </button>
-        }
-
-        @if (Closable)
-        {
-            <button class="btn-close ms-3" @onclick="Close">Fermer</button>
-        }
-    </div>
+    }
+	else if (DisplayException is WarningException)
+    {
+        <span class="btn-close"
+              title="@DisplayException.DisplayMessage"
+              @onclick="Close">1
+        </span>
+    }
+    else
+    {
+        <span>: @DisplayException.DisplayMessage</span>
+    }
 }
 
 @code {
-    [Parameter] public string? Message { get; set; }
-
-    [Parameter] public string CssClass { get; set; } = "alert-danger";
+    [Parameter] public ICustomMessage? DisplayException { get; set; }
 
     [Parameter] public bool Closable { get; set; } = true;
 
     [Parameter] public bool ShowRetry { get; set; } = false;
 
+    [Parameter] public bool ShowBtnRetry { get; set; } = false;
+
     [Parameter] public EventCallback OnRetry { get; set; }
+
+    public void SetMessage(ICustomMessage? ex)
+    {
+        if (ex != null)
+        {
+            DisplayException = ex.ToObject();
+        }
+        else
+        {
+            DisplayException = null;
+        }
+        StateHasChanged();
+    }
+
 
     private async Task OnRetryClicked()
     {
@@ -36,10 +54,12 @@
         {
             await OnRetry.InvokeAsync();
         }
+        
     }
 
     private void Close()
     {
-        Message = null;
+        DisplayException = null;
+        StateHasChanged();
     }
 }

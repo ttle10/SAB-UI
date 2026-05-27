@@ -23,7 +23,7 @@
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
     [Parameter] public EventCallback<bool> OnLoading { get; set; }
-    [Parameter] public EventCallback<string> OnRaiseError { get; set; }
+    [Parameter] public EventCallback<ICustomMessage> OnRaiseError { get; set; }
 
     [Inject] private ILogger<AideMemoire> Logger { get; set; } = default!;
     [Inject] private IAideMemoireRepository Service { get; set; } = default!;
@@ -37,7 +37,7 @@
     private bool _ajoutEnCours;
     private bool _isLoading;
 
-    private string? _errorMessage = null;
+	private Guid _initiator = Guid.NewGuid(); // Unique identifier for Initiator data access command
 
     private ConfirmDialog? _confirmDialog;
 
@@ -64,18 +64,16 @@
         if (!confirm) return;
 
 
-        _errorMessage = null;
-
         try
         {
-            await Service.ResetAllAsync();
+            await Service.ResetAllAsync(_initiator);
 
         }
         catch (Exception ex)
         {
-            _errorMessage = "Erreur lors de la réinitialisation des étapes.";
-            Logger.LogError(ex, "[SabUI:AideMemoire:ResetSteps]: {_errorMessage}");
-            await OnRaiseError.InvokeAsync(_errorMessage);
+            var error = new ErrorException("Erreur lors de la réinitialisation des étapes.");
+            Logger.LogError(ex, "[SabUI:AideMemoire:ResetSteps]: {error.DisplayMessage}");
+            await OnRaiseError.InvokeAsync(error);
         }
         finally
         {
@@ -84,12 +82,23 @@
         }
     }
 
-    private void HandleReminderChanged()
+    private void HandleReminderChanged(Guid initiator)
     {
         InvokeAsync(async () =>
         {
+            if (initiator == _initiator)
+            {
+                // Ignore changes initiated by this component
+                return;
+            }
+            if (_isLoading)
+            {
+                // If we're currently loading, we can skip this notification to avoid redundant reloads
+                return;
+            }
             await RechargerEtapes();
-            StateHasChanged();
+            await OnRaiseError.InvokeAsync(new WarningException("Un utilisateur a mis à jour les données. Veuillez réviser les étapes."));
+            //StateHasChanged();
         });
 	}
 
@@ -100,7 +109,7 @@
             return;
 
         _isLoading = true;
-        await OnLoading.InvokeAsync(true);
+        //await OnLoading.InvokeAsync(true);
         _etapes = null; // explicit loading state
 
         try
@@ -109,15 +118,15 @@
         }
         catch (Exception ex)
         {
-            _errorMessage = "Erreur lors du chargement.";
-            Logger.LogError(ex, $"[SabUI:AideMemoire:RechargerEtapes]: {_errorMessage}.");
-            await OnRaiseError.InvokeAsync(_errorMessage);
+            var error = new ErrorException("Erreur lors du chargement.");
+            Logger.LogError(ex, $"[SabUI:AideMemoire:RechargerEtapes]: {error.DisplayMessage}.");
+            await OnRaiseError.InvokeAsync(error);
         }
         finally
         {
             _isLoading = false;
         }
-        await OnLoading.InvokeAsync(false);
+       // await OnLoading.InvokeAsync(false);
         _etapeEnEdition = null;
     }
 
@@ -132,13 +141,13 @@
 
         try
         {
-            await Service.UpdateAsync(etape);
+            await Service.UpdateAsync(etape, _initiator);
         }
         catch (Exception ex)
         {
-            _errorMessage = "Erreur lors de la sauvegarde de l'étape.";
-            Logger.LogError(ex, $"[SabUI:AideMemoire:SauvegarderEtape]: {_errorMessage}.");
-            await OnRaiseError.InvokeAsync(_errorMessage);
+            var error = new ErrorException("Erreur lors de la sauvegarde de l'étape.");
+            Logger.LogError(ex, $"[SabUI:AideMemoire:SauvegarderEtape]: {error.DisplayMessage}.");
+            await OnRaiseError.InvokeAsync(error);
         }
         finally
         {
@@ -161,13 +170,13 @@
 
         try
         {
-            await Service.SoftDeleteAsync(etape.Id);
+            await Service.SoftDeleteAsync(etape.Id, _initiator);
         }
         catch (Exception ex)
         {
-            _errorMessage = "Erreur lors de la suppression de l'étape.";
-            Logger.LogError(ex, $"[SabUI:AideMemoire:ConfirmerSuppression]: {_errorMessage}.");
-            await OnRaiseError.InvokeAsync(_errorMessage);
+            var error = new ErrorException("Erreur lors de la suppression de l'étape.");
+            Logger.LogError(ex, $"[SabUI:AideMemoire:ConfirmerSuppression]: {error.DisplayMessage}.");
+            await OnRaiseError.InvokeAsync(error);
         }
         finally
         {
@@ -193,13 +202,13 @@
 
         try
         {
-            await Service.AddAsync(_nouvelleEtape);
+            await Service.AddAsync(_nouvelleEtape, _initiator);
         }
         catch (Exception ex)
         {
-            _errorMessage = "Erreur lors de l'ajout de l'étape.";
-            Logger.LogError(ex, $"[SabUI:AideMemoire:AjouterEtape]: {_errorMessage}.");
-            await OnRaiseError.InvokeAsync(_errorMessage);
+            var error = new ErrorException("Erreur lors de l'ajout de l'étape.");
+            Logger.LogError(ex, $"[SabUI:AideMemoire:AjouterEtape]: {error.DisplayMessage}.");
+            await OnRaiseError.InvokeAsync(error);
         }
         finally
         {

@@ -12,10 +12,16 @@
             Step = vm.Step;
             Initials = vm.Initials;
             IsCompleted = vm.IsCompleted;
+            DisplayOrder = vm.DisplayOrder;
         }
         public int Id { get; set; }
+
         public string? Step { get; set; } = string.Empty;
+
         public string? Initials { get; set; }
+
+        public int DisplayOrder { get; set; } = 0;
+
         public bool IsCompleted { get; set; }
     }
 
@@ -26,7 +32,8 @@
             Id = e.Id,
             Step = e.Step,
             Initials = e.Initials,
-            IsCompleted = e.IsCompleted
+            IsCompleted = e.IsCompleted,
+            DisplayOrder = e.DisplayOrder
         };
     }
 }

@@ -10,7 +10,7 @@ namespace SystemeAideBasculement.Services
 
         public event Action? OnStateUpdated;
 
-        public event Action? OnReminderChanged;
+        public event Action<Guid>? OnReminderChanged;
 
         static public string ReminderChangedMethod => "ReminderChanged";
 
@@ -31,9 +31,9 @@ namespace SystemeAideBasculement.Services
                     OnStateUpdated?.Invoke();
                 });
 
-            _connection.On(ReminderChangedMethod, () =>
+            _connection.On<Guid>(ReminderChangedMethod, (initiator) =>
             {
-                OnReminderChanged?.Invoke();
+                OnReminderChanged?.Invoke(initiator);
             });
 
             await _connection.StartAsync();

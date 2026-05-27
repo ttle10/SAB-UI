@@ -13,6 +13,8 @@ namespace SystemeAideBasculement.Models
 
         public bool IsCompleted { get; set; } = false;
 
+        public int DisplayOrder { get; set; } = 0;
+
         public bool IsDeleted { get; set; } = false;
 
         public static int StepMaxLength

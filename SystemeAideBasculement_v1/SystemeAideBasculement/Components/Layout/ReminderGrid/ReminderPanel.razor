@@ -1,24 +1,23 @@
 ﻿@using SystemeAideBasculement.Components.Layout.ReminderGrid
-@using SystemeAideBasculement.Components.Layout.Common
 @using SystemeAideBasculement.Shared
+@using SystemeAideBasculement.Models
 
 <section class="panel-reminder">
-    <ErrorBanner Message="@_errorMessage" />
-    <AideMemoireHeader IsLoading="@false" />
+
+    <AideMemoireHeader @ref="_headerCtrl" />
     <AideMemoire CanEdit="@CanEdit"
-                 OnLoading="@((isLoading) => _isLoading = isLoading)"
-                 OnRaiseError="@((errorMessage) => _errorMessage = errorMessage)"
+                 OnLoading="@(HandleIsLoading)"
+                 OnRaiseError="@HandleRaiseError"
                  @ref="_aidememoireCtrl" />
     <div />
     <ReminderToolbar CanEdit="@CanEdit"
-                 OnResetReminderSteps="ResetSteps" />
+                 OnResetReminderSteps="@ResetSteps" />
 </section>
 @code {
     [Parameter] public bool CanEdit { get; set; } = false;
 
     private AideMemoire? _aidememoireCtrl;
-    private bool _isLoading;
-	private string? _errorMessage;
+    private AideMemoireHeader? _headerCtrl;
 
     private async Task ResetSteps()
     {
@@ -26,5 +25,28 @@
         {
             await _aidememoireCtrl.ResetSteps();
         }
+    }
+
+    private void HandleIsLoading(bool isLoading)
+    {
+        if (_headerCtrl != null)
+        {
+            ICustomMessage? message = null;
+            if (isLoading)
+            {
+                message = new InfoException("En chargement…");
+            }
+            _headerCtrl.SetMessage(message);
+        }        
+        //StateHasChanged();
+	}
+
+    private void HandleRaiseError(ICustomMessage? ex)
+    {
+        if (_headerCtrl != null)
+        {
+            _headerCtrl.SetMessage(ex);
+        }
+        //StateHasChanged();
     }
 }

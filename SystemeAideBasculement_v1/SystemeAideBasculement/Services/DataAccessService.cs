@@ -25,12 +25,12 @@ namespace SystemeAideBasculement.Services
             return await _db.AideMemoires
                     .AsNoTracking()  //
                     .Where(e => !e.IsDeleted)
-                    .OrderBy(e => e.Id)
+                    .OrderBy(e => e.DisplayOrder)
                     .Select(e => e.ToVm())
                     .ToListAsync();
         }
 
-        public async Task UpdateAsync(AideMemoireVm vmodel)
+        public async Task UpdateAsync(AideMemoireVm vmodel, Guid initiator)
         {
             var entity = await _db.AideMemoires.FindAsync(vmodel.Id);
             if (entity == null) return;
@@ -42,10 +42,10 @@ namespace SystemeAideBasculement.Services
             await _db.SaveChangesAsync();
 
             // Notify all OTHER clients to refresh
-            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod, initiator);
         }
 
-        public async Task SoftDeleteAsync(int id)
+        public async Task SoftDeleteAsync(int id, Guid initiator)
         {
             var entity = await _db.AideMemoires.FindAsync(id);
             if (entity == null) return;
@@ -54,28 +54,33 @@ namespace SystemeAideBasculement.Services
             await _db.SaveChangesAsync();
 
             // Notify all OTHER clients to refresh
-            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod, initiator);
         }
 
-        public async Task AddAsync(string step)
+        public async Task AddAsync(string step, Guid initiator)
         {
             var clean = step?.Trim();
 
-            if (string.IsNullOrWhiteSpace(clean) || clean.Length > 500)
+            if (string.IsNullOrWhiteSpace(clean) || clean.Length > AideMemoireModel.StepMaxLength)
                 throw new ArgumentException("Étape invalide");
+
+            var maxOrder = await _db.AideMemoires
+                .Where(e => !e.IsDeleted)
+                .MaxAsync(e => (int?)e.DisplayOrder) ?? 0;
 
             _db.AideMemoires.Add(new AideMemoireModel
             {
-                Step = clean
+                Step = step,
+                DisplayOrder = maxOrder + 1
             });
 
             await _db.SaveChangesAsync();
 
             // Notify all OTHER clients to refresh
-            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod, initiator);
         }
 
-        public async Task ResetAllAsync()
+        public async Task ResetAllAsync(Guid initiator)
         {
             await _db.AideMemoires
                 .Where(e => !e.IsDeleted)
@@ -85,7 +90,26 @@ namespace SystemeAideBasculement.Services
                 );
 
             // Notify all OTHER clients to refresh
-            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod);
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod, initiator);
+        }
+
+
+        public async Task UpdateOrderAsync(List<AideMemoireVm> list, Guid initiator)
+        {
+            foreach (var item in list)
+            {
+                var entity = await _db.AideMemoires.FindAsync(item.Id);
+
+                if (entity != null)
+                {
+                    entity.DisplayOrder = item.DisplayOrder;
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            // Notify all OTHER clients to refresh
+            await _hubContext.Clients.All.SendAsync(NotificationService.ReminderChangedMethod, initiator);
         }
     }
 
