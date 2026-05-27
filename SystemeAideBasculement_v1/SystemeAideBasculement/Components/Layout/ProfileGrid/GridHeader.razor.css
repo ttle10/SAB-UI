@@ -4,8 +4,8 @@
 .grid-header-row {
     display: grid;
     grid-template-columns: 180px /* Profils / PEX */
-    160px 48px 48px 48px 48px /* CCP: Poste, CRA, REU, SGCZ, STI */
-    160px 48px 48px 48px 48px; /* CCR: Poste, CRA, REU, SGCZ, STI */
+    300px 48px 48px 48px 48px /* CCP: Poste, CRA, REU, SGCZ, STI */
+    300px 48px 48px 48px 48px; /* CCR: Poste, CRA, REU, SGCZ, STI */
 }
 
 .grid-title-row,

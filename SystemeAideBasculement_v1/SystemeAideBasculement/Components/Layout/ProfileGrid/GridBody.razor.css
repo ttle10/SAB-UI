@@ -8,7 +8,7 @@
 
 ::deep .grid-row {
     display: grid;
-    grid-template-columns: 180px 160px 48px 48px 48px 48px 160px 48px 48px 48px 48px;
+    grid-template-columns: 180px 300px 48px 48px 48px 48px 300px 48px 48px 48px 48px;
     border-top: 1px solid var(--stm-gray-200, #e6e8ea);
 }
 
