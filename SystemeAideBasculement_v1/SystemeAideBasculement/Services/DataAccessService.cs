@@ -94,7 +94,7 @@ namespace SystemeAideBasculement.Services
         }
 
 
-        public async Task UpdateOrderAsync(List<AideMemoireVm> list, Guid initiator)
+        public async Task UpdateDisplayOrderAsync(List<AideMemoireVm> list, Guid initiator)
         {
             foreach (var item in list)
             {

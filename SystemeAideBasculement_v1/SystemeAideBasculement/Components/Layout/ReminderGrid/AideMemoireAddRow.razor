@@ -4,6 +4,7 @@
 <tr>
     @if (AjoutEnCours)
     {
+        <td class="drag-handle"/>
         <!-- Étape -->
         <td class="col-step">
             <AutoResizeTextarea Value="@NouvelleEtape"
@@ -12,15 +13,12 @@
                                 Placeholder="Nouvelle étape..."
                                 ShowCounter="@false"
                                 OnEditMode="@true"
-                                OnCtrlEnter="@OnAdd" />
+                                OnCtrlEnter="@AddIfValid" />
         </td>
-
         <!-- Complété -->
-        <td class="col-completed"></td>
-
+        <td class="col-completed"/>
         <!-- Initiales -->
-        <td class="col-initials">
-        </td>
+        <td class="col-initials"/>
         <!-- Actions -->
         <td class="col-actions">
             <ButtonIconAction DisplayText="💾"
@@ -31,21 +29,11 @@
                               TooltipText="Annuler l'ajout"
                               CanEdit="@true"
                               OnClick="@OnCancelAdd" />
-
-            <!--<button class="btn-icon"
-                    disabled="@string.IsNullOrWhiteSpace(NouvelleEtape)"
-                    @onclick="AddIfValid">
-                   💾
-            </button> -->
-            <!-- <button class="btn-icon"
-                    @onclick="OnCancelAdd">
-                ✖
-            </button>  -->
         </td>
     }
     else
     {
-        <td colspan="4">
+        <td colspan="5">
             <ButtonAction DisplayText="Ajouter une nouvelle étape…"
                           TooltipText="Ajouter une nouvelle étape à l'aide-mémoire"
                           CanEdit="@CanEdit"

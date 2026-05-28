@@ -13,6 +13,6 @@ namespace SystemeAideBasculement.Services
 
         Task ResetAllAsync(Guid initiator);
 
-        Task UpdateOrderAsync(List<AideMemoireVm> list, Guid initiator);
+        Task UpdateDisplayOrderAsync(List<AideMemoireVm> list, Guid initiator);
     }
 }

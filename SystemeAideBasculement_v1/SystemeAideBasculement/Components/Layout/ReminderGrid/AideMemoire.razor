@@ -17,7 +17,8 @@
                     OnStartAdd="@CommencerAjout"
                     OnCancelAdd="@AnnulerAjout"
                     OnAdd="@AjouterEtape"
-                    NouvelleEtapeChanged="@(v => _nouvelleEtape = v)" />
+                    NouvelleEtapeChanged="@(v => _nouvelleEtape = v)"
+                    OnUpdateDisplayOrderEtape="@HandleReorderDisplayEtape" />
 <ConfirmDialog @ref="_confirmDialog" />
 
 @code {
@@ -192,7 +193,6 @@
 		_nouvelleEtape = string.Empty;
     }
     
-
     private async Task AjouterEtape()
     {
         if (string.IsNullOrWhiteSpace(_nouvelleEtape))
@@ -217,4 +217,22 @@
             await RechargerEtapes();
         }
     }
+
+    private async Task HandleReorderDisplayEtape(List<AideMemoireVm> reorderedEtapes)
+    {
+        try
+        {
+            await Service.UpdateDisplayOrderAsync(reorderedEtapes, _initiator);
+        }
+        catch (Exception ex)
+        {
+            var error = new ErrorException("Erreur lors de la mise à jour de l'ordre d'affichage.");
+            Logger.LogError(ex, $"[SabUI:AideMemoire:HandleReorderDisplayEtape]: {error.DisplayMessage}.");
+            await OnRaiseError.InvokeAsync(error);
+        }
+        finally
+        {
+            await RechargerEtapes();
+        }
+	}
 }

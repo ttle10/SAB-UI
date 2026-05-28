@@ -1,0 +1,14 @@
+﻿/* Dra/Drop Handle */
+.dragging {
+    opacity: 0.4;
+}
+
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+
+.draggable-row:hover {
+    background-color: #f0f4f8;
+}

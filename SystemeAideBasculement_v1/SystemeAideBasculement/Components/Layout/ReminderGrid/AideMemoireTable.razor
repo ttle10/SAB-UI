@@ -1,7 +1,9 @@
 ﻿@using SystemeAideBasculement.Models
 @using Microsoft.AspNetCore.Components.Authorization
 
-<div class="table-container">
+<div class="table-container"
+     @onmouseup="HandleMouseUp"
+     @onmouseleave="HandleMouseUp">
     <table class="aide-memoire-table">
         <AideMemoireHeaderRow />
 
@@ -12,12 +14,16 @@
             {
                 <AideMemoireRow Etape="@etape"
                                 EtapeEnEdition="@EtapeEnEdition"
-                                @key="@($"{etape.Id}-{etape.IsCompleted}-{etape.Initials}")"
+                                @key="@(etape.Id)"
 								CanEdit="@CanEdit"
-                                OnEdit="@OnEdit"
-                                OnSave="@OnSave"
-                                OnCancel="@OnCancelEdit"
-                                OnDelete="@HandleOnDelete" />
+                                CanEditEtape="@_canEditRow"
+                                OnEdit="@HandleOnEdit"
+                                OnSave="@HandleOnSave"
+                                OnCancel="@HandleOnCancelEdit"
+                                OnDelete="@HandleOnDelete"
+                                _draggingItem="_draggingItem"
+                                OnStartDrag="HandleStartDrag"
+                                OnRowHover="HandleRowHover" />
             }
 
             @* Empty-state row (only when NOT loading) *@
@@ -37,9 +43,9 @@
             <AideMemoireAddRow AjoutEnCours="@AjoutEnCours"
                                 NouvelleEtape="@NouvelleEtape"
 							    CanEdit="@CanEdit"
-                                OnStartAdd="@OnStartAdd"
-                                OnCancelAdd="@OnCancelAdd"
-                                OnAdd="@OnAdd"
+                                OnStartAdd="@HandleOnStartAdd"
+                                OnCancelAdd="@HandleOnCancelAdd"
+                                OnAdd="@HandleOnAdd"
                                 NouvelleEtapeChanged="@HandleNouvelleEtapeChanged" />
         </tbody>
     </table>
@@ -57,21 +63,100 @@
     [Parameter] public EventCallback<AideMemoireVm?> OnSave { get; set; }
     [Parameter] public EventCallback OnCancelEdit { get; set; }
     [Parameter] public EventCallback<AideMemoireVm> OnDelete { get; set; }
+    [Parameter] public EventCallback<List<AideMemoireVm>> OnUpdateDisplayOrderEtape { get; set; }
 
+    // Events triggerd by AddRow
     [Parameter] public EventCallback OnStartAdd { get; set; }
     [Parameter] public EventCallback OnCancelAdd { get; set; }
     [Parameter] public EventCallback OnAdd { get; set; }
     [Parameter] public EventCallback<string> NouvelleEtapeChanged { get; set; }
 
+    private bool _canEditRow = true;
+    private AideMemoireVm? _draggingItem;
+
     private async Task HandleOnDelete(AideMemoireVm etape)
     {
-        // Confirmation handled at parent level to keep this component dumb
+        // Confirmation handled at parent level to keep this component
         await OnDelete.InvokeAsync(etape);
+    }
+
+    private async Task HandleOnEdit(AideMemoireVm etape)
+    {
+        _canEditRow = false; // Disable buttons on steps
+        await OnEdit.InvokeAsync(etape);
+    }
+
+    private async Task HandleOnSave(AideMemoireVm etape)
+    {
+        _canEditRow = true; // Disable buttons on steps
+        await OnSave.InvokeAsync(etape);
+    }
+
+    private async Task HandleOnCancelEdit()
+    {
+        _canEditRow = true; // Disable buttons on steps
+        await OnCancelEdit.InvokeAsync();
     }
 
     private async Task HandleNouvelleEtapeChanged(string value)
     {
         NouvelleEtape = value;
         await NouvelleEtapeChanged.InvokeAsync(value);
-	}
+    }
+
+    private async Task HandleOnStartAdd()
+    {
+        _canEditRow = false; // Disable buttons on steps
+        await OnStartAdd.InvokeAsync();
+    }
+
+    private async Task HandleOnCancelAdd()
+    {
+        _canEditRow = true; // Disable buttons on steps
+        await OnCancelAdd.InvokeAsync();
+    }
+
+    private async Task HandleOnAdd()
+    {
+        _canEditRow = true; // Enable buttons on steps
+        await OnAdd.InvokeAsync();
+    }
+
+    private void HandleStartDrag(AideMemoireVm etape)
+    {
+        _draggingItem = etape;
+    }
+
+    private async Task HandleRowHover(AideMemoireVm target)
+    {
+        if (_draggingItem == null || target == _draggingItem)
+            return;
+
+        var from = Etapes.IndexOf(_draggingItem);
+        var to = Etapes.IndexOf(target);
+
+        if (from == -1 || to == -1)
+            return;
+
+        Etapes.RemoveAt(from);
+        Etapes.Insert(to, _draggingItem);
+
+        // recalcul ordre
+        for (int i = 0; i < Etapes.Count; i++)
+            Etapes[i].DisplayOrder = i;
+
+        StateHasChanged();
+
+        await OnUpdateDisplayOrderEtape.InvokeAsync(Etapes);
+    }
+
+    private void HandleMouseUp()
+    {
+        if (_draggingItem == null)
+            return;
+
+        _draggingItem = null;
+
+        StateHasChanged(); // refresh UI
+    }
 }
