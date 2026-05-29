@@ -37,6 +37,11 @@
     font-weight: 700;
 }
 
+
+::deep .aide-memoire-table tbody tr {
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
 /* Zebra rows */
 ::deep .aide-memoire-table tbody tr:nth-child(odd) td {
     background-color: #ffffff;
@@ -74,6 +79,15 @@
     text-align: center;
 }
 
+::deep .drag-handle:active {
+    cursor: grabbing;
+}
+
+::deep .drag-handle.disabled {
+    cursor: default;
+    opacity: 0.5; /* feedback visuel */
+    pointer-events: none; /* bloque interaction */
+}
 
 ::deep .col-completed,
 ::deep td.col-completed {

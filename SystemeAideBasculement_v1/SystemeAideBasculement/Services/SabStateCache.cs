@@ -183,50 +183,6 @@ namespace SystemeAideBasculement.Services
             return retDataNotif;
         }
 
-
-        //public SabDataNotification Update(List<ProfileConnectionNotificationModel> notifications)
-        //{
-        //    if (notifications.Count == 0)
-        //    {
-        //        _logger.LogInformation(
-        //            "[SabUI:SabStateCache:Update]: Receiving 0 notification to Update cache.");
-        //        return SabDataNotification.Empty;
-        //    }
-
-        //    var updatedProfiles = new List<SabProfileRow>();
-        //    var updatedPexs = new List<SabPexRow>();
-
-        //    // Apply profile updates
-        //    foreach (var notif in notifications)
-        //    {
-        //        var profileUpdateData = UpdateProfileCache(notif);
-        //        if (profileUpdateData != null)
-        //        {
-        //            updatedProfiles.Add(profileUpdateData.UpdatedProfile);
-        //            var updatePexs = UpdatePexCache(profileUpdateData, notif.Site);
-        //            if (updatePexs != null)
-        //                updatedPexs.AddRange(updatePexs);
-        //        }
-        //    }
-
-        //    var retDataNotif = new SabDataNotification();
-
-        //    if (updatedProfiles.Count > 0 ||
-        //        updatedPexs.Count > 0)
-        //    {
-        //        //  Build notification
-        //        retDataNotif.Profiles = updatedProfiles;
-        //        retDataNotif.Pexs = updatedPexs;
-        //        _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed with state changes: Profiles [{Profiles}], Pexs [{Pexs}].", updatedProfiles.Count, updatedPexs.Count);
-        //    }
-        //    else
-        //    {
-        //        _logger.LogTrace("[SabUI:SabStateCache:Update]: Update cache processed but no state changes detected.");
-        //    }
-
-        //    return retDataNotif;
-        //}
-
         internal SabProfileUpdatedData? UpdateProfileCache(ProfileConnectionNotificationModel notif)
         {
             var oldProfiles = _profiles;
@@ -236,7 +192,7 @@ namespace SystemeAideBasculement.Services
 
             if (index < 0)
             {
-                _logger.LogWarning($"[SabUI:SabStateCache:UpdateProfileCache]: Not supported Profile '{notif.ProfileName}'");
+                _logger.LogTrace($"[SabUI:SabStateCache:UpdateProfileCache]: Not supported Profile '{notif.ProfileName}'");
                 return null;
             }
 

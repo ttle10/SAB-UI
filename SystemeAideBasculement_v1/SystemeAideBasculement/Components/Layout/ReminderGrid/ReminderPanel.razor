@@ -5,19 +5,19 @@
 <section class="panel-reminder">
 
     <AideMemoireHeader @ref="_headerCtrl" />
-    <AideMemoire CanEdit="@CanEdit"
+    <AideMemoire CurrentUserInfo="@CurrentUserInfo"
                  OnLoading="@(HandleIsLoading)"
                  OnRaiseError="@HandleRaiseError"
                  @ref="_aidememoireCtrl" />
     <div />
-    <ReminderToolbar CanEdit="@CanEdit"
-                 OnResetReminderSteps="@ResetSteps" />
+	<ReminderToolbar CurrentUserInfo="@CurrentUserInfo"
+                    OnResetReminderSteps="@ResetSteps"/>
 </section>
 @code {
-    [Parameter] public bool CanEdit { get; set; } = false;
+    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
 
-    private AideMemoire? _aidememoireCtrl;
     private AideMemoireHeader? _headerCtrl;
+    private AideMemoire? _aidememoireCtrl;
 
     private async Task ResetSteps()
     {

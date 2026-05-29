@@ -18,7 +18,7 @@
             <ProfilesPanel ViewMode="@ViewMode" />
         </div>
         <div class="reminder-column">
-            <ReminderPanel CanEdit="@CanEdit()" />
+			<ReminderPanel CurrentUserInfo="@CurrentUserInfo"/>
         </div>
     </div>
     <div class="dashboard-bottom">
@@ -37,7 +37,7 @@
            //      Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0.0";
            Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0.0.0";
 
-    private UserInfo? CurrentUserInfo { get; set; } = null;
+    private UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
 
     private void SetViewMode(DashboardViewMode mode)
         => ViewMode = mode;
@@ -55,14 +55,25 @@
 
     private void HandleUserChanged(UserInfo? userInfo)
     {
-        CurrentUserInfo = userInfo;
+        if (userInfo == null)
+        {
+            if (CurrentUserInfo.IsEmpty())
+            {
+                return;
+            }
+            CurrentUserInfo = UserInfoExtensions.Empty;
+        }
+        else
+        {
+            if (!CurrentUserInfo.IsEqual(userInfo))
+            {
+                CurrentUserInfo = userInfo;
+            }
+        }
     }
 
     private bool CanEdit()
     {
-        if (CurrentUserInfo == null)
-            return false;
-
         var sab = new SABUnit();
         return sab.IsValidRole(CurrentUserInfo.Role);
     }

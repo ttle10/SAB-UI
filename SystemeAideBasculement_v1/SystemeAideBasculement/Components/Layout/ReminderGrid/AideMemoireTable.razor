@@ -1,9 +1,12 @@
-﻿@using SystemeAideBasculement.Models
+﻿@using SystemeAideBasculement.Shared
+@using SystemeAideBasculement.Models
 @using Microsoft.AspNetCore.Components.Authorization
 
 <div class="table-container"
-     @onmouseup="HandleMouseUp"
-     @onmouseleave="HandleMouseUp">
+     tabindex="0"
+     @onkeydown="HandleKeyDown"
+     @onkeydown:stopPropagation="true"
+     @onmouseup="HandleEndDrag">
     <table class="aide-memoire-table">
         <AideMemoireHeaderRow />
 
@@ -12,10 +15,10 @@
             @* Render real rows when data exists *@
             @foreach (var etape in Etapes)
             {
-                <AideMemoireRow Etape="@etape"
+                <AideMemoireRow CurrentUserInfo="@CurrentUserInfo"
+                                Etape="@etape"
                                 EtapeEnEdition="@EtapeEnEdition"
                                 @key="@(etape.Id)"
-								CanEdit="@CanEdit"
                                 CanEditEtape="@_canEditRow"
                                 OnEdit="@HandleOnEdit"
                                 OnSave="@HandleOnSave"
@@ -23,7 +26,8 @@
                                 OnDelete="@HandleOnDelete"
                                 _draggingItem="_draggingItem"
                                 OnStartDrag="HandleStartDrag"
-                                OnRowHover="HandleRowHover" />
+                                OnRowHover="HandleRowHover"
+                                OnEndDrag="HandleEndDrag" />
             }
 
             @* Empty-state row (only when NOT loading) *@
@@ -40,25 +44,26 @@
             }
 
             @* Add row only when authenticated *@
-            <AideMemoireAddRow AjoutEnCours="@AjoutEnCours"
-                                NouvelleEtape="@NouvelleEtape"
-							    CanEdit="@CanEdit"
+			<AideMemoireAddRow CurrentUserInfo="@CurrentUserInfo"
+                                AjoutEnCours="@AjoutEnCours"
+                                CanEditEtape="@_canEditRow"
                                 OnStartAdd="@HandleOnStartAdd"
                                 OnCancelAdd="@HandleOnCancelAdd"
                                 OnAdd="@HandleOnAdd"
-                                NouvelleEtapeChanged="@HandleNouvelleEtapeChanged" />
+                                NouvelleEtapeChanged="@HandleNouvelleEtapeChanged"/>
         </tbody>
     </table>
 </div>
 
 @code {
+    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
     [Parameter] public List<AideMemoireVm> Etapes { get; set; } = [];
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public AideMemoireVm? EtapeEnEdition { get; set; }
     [Parameter] public bool AjoutEnCours { get; set; }
     [Parameter] public string NouvelleEtape { get; set; } = "";
-    [Parameter] public bool CanEdit { get; set; } = false;
 
+    // Events triggered by Edit AideMemoireRow
     [Parameter] public EventCallback<AideMemoireVm> OnEdit { get; set; }
     [Parameter] public EventCallback<AideMemoireVm?> OnSave { get; set; }
     [Parameter] public EventCallback OnCancelEdit { get; set; }
@@ -71,8 +76,19 @@
     [Parameter] public EventCallback OnAdd { get; set; }
     [Parameter] public EventCallback<string> NouvelleEtapeChanged { get; set; }
 
+    // Events triggerd by Drag & Drop (AideMemoireRow)
+    [Parameter] public EventCallback OnStartDrag { get; set; }
+    [Parameter] public EventCallback OnEndDrag { get; set; }
+    [Parameter] public EventCallback OnCancelDrag { get; set; }
+
     private bool _canEditRow = true;
+
+    //  Drag & Drop process variables
+    //private ElementReference _containerRef;
     private AideMemoireVm? _draggingItem;
+    private int _draggedIndex = -1;
+    private bool _isDragging = false;
+    private bool _hasMoved = false;
 
     private async Task HandleOnDelete(AideMemoireVm etape)
     {
@@ -122,35 +138,68 @@
         await OnAdd.InvokeAsync();
     }
 
-    private void HandleStartDrag(AideMemoireVm etape)
+    private async Task HandleStartDrag(AideMemoireVm etape)
     {
         _draggingItem = etape;
+
+        _draggedIndex = Etapes.IndexOf(etape);
+        _isDragging = true;
+        _hasMoved = false;
+
+        await OnStartDrag.InvokeAsync();
+        //await _containerRef.FocusAsync(); // pour capturer les événements clavier (ex: Escape pour annuler) pendant le drag
     }
 
-    private async Task HandleRowHover(AideMemoireVm target)
+    private void HandleRowHover(AideMemoireVm target)
     {
-        if (_draggingItem == null || target == _draggingItem)
+
+        if (!_isDragging || _draggingItem == null || target == _draggingItem)
             return;
 
-        var from = Etapes.IndexOf(_draggingItem);
-        var to = Etapes.IndexOf(target);
 
-        if (from == -1 || to == -1)
+        var list = Etapes;
+        var targetIndex = list.IndexOf(target);
+
+        if (targetIndex == _draggedIndex)
             return;
 
-        Etapes.RemoveAt(from);
-        Etapes.Insert(to, _draggingItem);
+        // reorder visuel
+        list.RemoveAt(_draggedIndex);
+        list.Insert(targetIndex, _draggingItem);
 
-        // recalcul ordre
-        for (int i = 0; i < Etapes.Count; i++)
-            Etapes[i].DisplayOrder = i;
+        _draggedIndex = targetIndex;
+        _hasMoved = true;   // indique qu’il y a eu un déplacement
 
         StateHasChanged();
-
-        await OnUpdateDisplayOrderEtape.InvokeAsync(Etapes);
     }
 
-    private void HandleMouseUp()
+    private async Task HandleEndDrag()
+    {
+        if (!_isDragging)
+            return;
+
+        _isDragging = false;
+
+        // ne sauver QUE si mouvement réel
+        if (!_hasMoved)
+        {
+            _draggingItem = null;
+            return;
+        }
+
+        // Recalcul ordre
+        for (int i = 0; i < Etapes.Count; i++)
+        {
+            Etapes[i].DisplayOrder = i;
+        }
+
+        _draggingItem = null;
+
+		await OnEndDrag.InvokeAsync();
+		await OnUpdateDisplayOrderEtape.InvokeAsync(Etapes); // Mettre à jour ordre dans BDD
+    }
+
+    private void HandleMouseleave()
     {
         if (_draggingItem == null)
             return;
@@ -158,5 +207,20 @@
         _draggingItem = null;
 
         StateHasChanged(); // refresh UI
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            await CancelDrag();
+        }
+    }
+
+    private async Task CancelDrag()
+    {
+        _isDragging = false;
+        _draggingItem = null;
+		await OnCancelDrag.InvokeAsync();
     }
 }

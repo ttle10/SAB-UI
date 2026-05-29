@@ -1,23 +1,26 @@
 ﻿@using SystemeAideBasculement.Models
+@using SystemeAideBasculement.Shared
 @using SystemeAideBasculement.Components.Layout.Common
 
 
 <tr class="draggable-row @(IsDragging ? "dragging" : "")"
-    @onmouseenter="() => OnRowEnter(Etape)">
+    @onmouseenter="() => HandleRowEnter(Etape)"
+    @onmouseup="HandleEndDrag">
     <!--  @ondragstart="(e) => OnDragStart(Etape, e)" -->
-    <td class="drag-handle">
-        @if (CanEdit && CanEditEtape)
+    <td class="drag-handle @(CanDrag ? "" : "disabled")">
+        @if (CanDrag)
         {
             <span style="cursor: grab;"
                   title="Réordonner l'étape"
-                  @onmousedown="() => StartDrag(Etape)">
+                  @onmousedown="() => StartDrag(Etape)"
+                  @onmouseup="() => StartDrag(Etape)">
                   ☰≡⋮⋮
             </span>
         }
     </td>
     <!-- Étape -->
     <td class="col-step aide-memoire-cell">
-        @if (IsEtapeInEdition())
+        @if (CanEdit && IsEtapeInEdition())
         {
             <AutoResizeTextarea Value="@EtapeEnEdition!.Step"
                                 ValueChanged="@(v => EtapeEnEdition!.Step = v)"
@@ -28,13 +31,20 @@
         }
         else
         {
+            if (IsEtapeInEdition())
+            {
+                _ = InvokeAsync(async () =>
+                {
+                    await HandleOnCancelEditEtape();
+                });
+            }
             @Etape.Step
         }
     </td>
     <!-- Complété (TOUJOURS éditable) -->
     <td class="col-completed">
         <input type="checkbox"
-               disabled="@(IsEtapeInEdition() || !CanEdit)"
+               disabled="@(!CanEditEtape || !CanEdit)"
                 checked="@Etape.IsCompleted"
                 @ref="_completedCheck"
                 @onchange="OnCompletedChanged" />
@@ -43,7 +53,7 @@
     <td class="col-initials">
         <InputTextValue Value="@Etape.Initials"
                         MaxLength="7"
-                        CanEdit="@(!IsEtapeInEdition() && CanEdit)"
+                        CanEdit="@(CanEditEtape && CanEdit)"
                         @ref="_initialesInput"
                         ValueChanged="@(v => Etape.Initials = v)"
                         OnLostFocus="HandleOnLostFocus"
@@ -77,10 +87,11 @@
 </tr>
 
 @code {
+    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
+
     [Parameter] public AideMemoireVm Etape { get; set; } = default!;
     [Parameter] public AideMemoireVm? EtapeEnEdition { get; set; }
-    [Parameter] public bool CanEdit { get; set; } = false;
-
+    
     [Parameter] public EventCallback<AideMemoireVm> OnEdit { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback<AideMemoireVm?> OnSave { get; set; }
@@ -92,9 +103,15 @@
     [Parameter] public AideMemoireVm? _draggingItem { get; set; }
     [Parameter] public EventCallback<AideMemoireVm> OnStartDrag { get; set; }
     [Parameter] public EventCallback<AideMemoireVm> OnRowHover { get; set; }
+    [Parameter] public EventCallback<AideMemoireVm> OnEndDrag { get; set; }
+
+	private bool CanEdit => CurrentUserInfo.IsValidRole();
+
 
     private InputTextValue? _initialesInput;
     private ElementReference _completedCheck;
+
+	private bool CanDrag => CanEdit && CanEditEtape;
 
 
     private async Task OnCompletedChanged(ChangeEventArgs e)
@@ -143,12 +160,20 @@
         return  OnStartDrag.InvokeAsync(etape);
     }
 
-    private Task OnRowEnter(AideMemoireVm etape)
+    private Task HandleRowEnter(AideMemoireVm etape)
     {
         if (!(CanEdit && CanEditEtape))
             return Task.CompletedTask;
 
         return OnRowHover.InvokeAsync(etape);
+    }
+
+    private Task HandleEndDrag()
+    {
+        if (!(CanEdit && CanEditEtape))
+            return Task.CompletedTask;
+
+        return OnEndDrag.InvokeAsync();
     }
 
     private async Task Save()

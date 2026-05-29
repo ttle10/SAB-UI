@@ -109,8 +109,10 @@
             _userInfo = null;
         }
 
-        // Fire and forget the callback
-        _ = OnCurrentUserChanged.InvokeAsync(_userInfo);
+        _ = InvokeAsync(async () =>
+         {
+             await OnCurrentUserChanged.InvokeAsync(_userInfo);
+         });
     }
 
 

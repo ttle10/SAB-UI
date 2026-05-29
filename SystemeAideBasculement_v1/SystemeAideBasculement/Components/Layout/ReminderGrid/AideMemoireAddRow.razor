@@ -1,8 +1,9 @@
 ﻿@using SystemeAideBasculement.Components.Layout.Common
+@using SystemeAideBasculement.Shared
 @using SystemeAideBasculement.Models
 
 <tr>
-    @if (AjoutEnCours)
+    @if (CanEdit() && AjoutEnCours)
     {
         <td class="drag-handle"/>
         <!-- Étape -->
@@ -33,29 +34,50 @@
     }
     else
     {
+        if (AjoutEnCours)
+        {
+            CancelAdd();
+        }
         <td colspan="5">
             <ButtonAction DisplayText="Ajouter une nouvelle étape…"
                           TooltipText="Ajouter une nouvelle étape à l'aide-mémoire"
-                          CanEdit="@CanEdit"
+                          CanEdit="@(CanEdit() && CanEditEtape)"
                           OnClick="@OnStartAdd" />
         </td>
     }
 </tr>
 
 @code {
+    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
+
     [Parameter] public bool AjoutEnCours { get; set; }
     [Parameter] public string NouvelleEtape { get; set; } = "";
-    [Parameter] public bool CanEdit { get; set; }
+    [Parameter] public bool CanEditEtape { get; set; } = false;
 
     [Parameter] public EventCallback OnStartAdd { get; set; }
     [Parameter] public EventCallback OnCancelAdd { get; set; }
     [Parameter] public EventCallback OnAdd { get; set; }
     [Parameter] public EventCallback<string?> NouvelleEtapeChanged { get; set; }
 
+    private UserInfo _currentUserInfo = UserInfoExtensions.Empty;
+
+    private bool CanEdit()
+    {
+        return CurrentUserInfo.IsValidRole();
+    }
+
+    private void CancelAdd()
+    {
+        NouvelleEtape = string.Empty;
+        _ = InvokeAsync(async () =>
+         {
+             await OnCancelAdd.InvokeAsync();
+         });
+    }
 
     private async Task AddIfValid()
     {
-        if (!CanEdit)
+        if (!CanEdit())
             return;
 
         if (string.IsNullOrWhiteSpace(NouvelleEtape))

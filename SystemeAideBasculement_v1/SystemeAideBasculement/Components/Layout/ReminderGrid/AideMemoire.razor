@@ -1,28 +1,32 @@
-﻿@using SystemeAideBasculement.Models
+﻿@using SystemeAideBasculement.Shared
+@using SystemeAideBasculement.Models
 @using SystemeAideBasculement.Components.Layout.Common
 @using SystemeAideBasculement.Services
 
+
 @implements IAsyncDisposable
 
-<AideMemoireTable Etapes="@(_etapes ?? new List<AideMemoireVm>())"
-                    IsLoading="@_isLoading"
-                    EtapeEnEdition="@_etapeEnEdition"
-                    AjoutEnCours="@_ajoutEnCours"
-                    NouvelleEtape="@_nouvelleEtape"
-				    CanEdit="@CanEdit"
-                    OnEdit="@HandleModifierEtape"
-                    OnCancelEdit="@AnnulerEdition"
-                    OnSave="@SauvegarderEtape"
-                    OnDelete="@ConfirmerSuppression"
-                    OnStartAdd="@CommencerAjout"
-                    OnCancelAdd="@AnnulerAjout"
-                    OnAdd="@AjouterEtape"
-                    NouvelleEtapeChanged="@(v => _nouvelleEtape = v)"
-                    OnUpdateDisplayOrderEtape="@HandleReorderDisplayEtape" />
+<AideMemoireTable CurrentUserInfo="@CurrentUserInfo"
+                  Etapes="@(_etapes ?? new List<AideMemoireVm>())"
+                  IsLoading="@_isLoading"
+                  EtapeEnEdition="@_etapeEnEdition"
+                  AjoutEnCours="@_ajoutEnCours"
+                  NouvelleEtape="@_nouvelleEtape"
+                  OnEdit="@HandleModifierEtape"
+                  OnCancelEdit="@AnnulerEdition"
+                  OnSave="@SauvegarderEtape"
+                  OnDelete="@ConfirmerSuppression"
+                  OnStartAdd="@CommencerAjout"
+                  OnCancelAdd="@AnnulerAjout"
+                  OnAdd="@AjouterEtape"
+                  NouvelleEtapeChanged="@(v => _nouvelleEtape = v)"
+                  OnUpdateDisplayOrderEtape="@HandleReorderDisplayEtape"
+                  OnStartDrag="@HandleStartDrag"
+                  OnCancelDrag="@HandleCancelDrag"/>
 <ConfirmDialog @ref="_confirmDialog" />
 
 @code {
-    [Parameter] public bool CanEdit { get; set; } = false;
+    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
     [Parameter] public EventCallback<bool> OnLoading { get; set; }
     [Parameter] public EventCallback<ICustomMessage> OnRaiseError { get; set; }
 
@@ -31,6 +35,7 @@
 
     [Inject] private NotificationService Notifications { get; set; } = default!;
 
+    private ConfirmDialog? _confirmDialog;
 
     private List<AideMemoireVm>? _etapes;
     private AideMemoireVm? _etapeEnEdition;
@@ -38,10 +43,11 @@
     private bool _ajoutEnCours;
     private bool _isLoading;
 
-	private Guid _initiator = Guid.NewGuid(); // Unique identifier for Initiator data access command
+    private Guid _initiator = Guid.NewGuid(); // Unique identifier for Initiator data access command
 
-    private ConfirmDialog? _confirmDialog;
 
+    // Drag & Drop process variable
+    private List<AideMemoireVm>? _etapesBeforeDrag;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,7 +107,7 @@
             await OnRaiseError.InvokeAsync(new WarningException("Un utilisateur a mis à jour les données. Veuillez réviser les étapes."));
             //StateHasChanged();
         });
-	}
+    }
 
     private async Task RechargerEtapes()
     {
@@ -127,7 +133,7 @@
         {
             _isLoading = false;
         }
-       // await OnLoading.InvokeAsync(false);
+        // await OnLoading.InvokeAsync(false);
         _etapeEnEdition = null;
     }
 
@@ -166,7 +172,7 @@
 
         if (!confirm)
         {
-			return;
+            return;
         }
 
         try
@@ -182,7 +188,7 @@
         finally
         {
             await RechargerEtapes();
-		}
+        }
     }
 
     private void CommencerAjout() => _ajoutEnCours = true;
@@ -190,9 +196,9 @@
     private void AnnulerAjout()
     {
         _ajoutEnCours = false;
-		_nouvelleEtape = string.Empty;
+        _nouvelleEtape = string.Empty;
     }
-    
+
     private async Task AjouterEtape()
     {
         if (string.IsNullOrWhiteSpace(_nouvelleEtape))
@@ -232,7 +238,32 @@
         }
         finally
         {
+            if (_etapesBeforeDrag != null)
+                _etapesBeforeDrag = null;
             await RechargerEtapes();
         }
+    }
+
+    private void HandleStartDrag()
+    {
+        _etapesBeforeDrag = _etapes != null ? new List<AideMemoireVm>(_etapes) : null; // Sauvegarde de l'état avant drag
+    }
+
+    private void HandleCancelDrag()
+    {
+        if (_etapesBeforeDrag != null)
+        {
+            _etapes = _etapesBeforeDrag; // Restaure l'état avant drag
+            _etapesBeforeDrag = null;
+            StateHasChanged();
+        }
 	}
+
+    private void HandleEndDrag()
+    {
+        if (_etapesBeforeDrag != null)
+        {
+            _etapesBeforeDrag = null;
+        }
+    }
 }

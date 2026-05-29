@@ -5,14 +5,14 @@
     <div class="reminder-toolbar-left">
         <ButtonAction DisplayText="Réinitialiser étapes"
                       TooltipText="Réinitialiser les étapes à leur état par défaut"   
-                      CanEdit="@CanEdit"
+                      CanEdit="@CurrentUserInfo.IsValidRole()"
                       OnClick="@OnResetReminderSteps" />
         @* Future buttons go here *@
     </div>
 </div>
 
 @code {
-	[Parameter] public bool CanEdit { get; set; } = false;
+    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
 
     [Parameter] public EventCallback OnResetReminderSteps { get; set; }
 }
