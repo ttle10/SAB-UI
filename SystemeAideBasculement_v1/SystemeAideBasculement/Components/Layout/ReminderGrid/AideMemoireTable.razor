@@ -15,7 +15,7 @@
             @* Render real rows when data exists *@
             @foreach (var etape in Etapes)
             {
-                <AideMemoireRow CurrentUserInfo="@CurrentUserInfo"
+                <AideMemoireRow CanEdit="@CanEdit"
                                 Etape="@etape"
                                 EtapeEnEdition="@EtapeEnEdition"
                                 @key="@(etape.Id)"
@@ -44,19 +44,19 @@
             }
 
             @* Add row only when authenticated *@
-			<AideMemoireAddRow CurrentUserInfo="@CurrentUserInfo"
-                                AjoutEnCours="@AjoutEnCours"
-                                CanEditEtape="@_canEditRow"
-                                OnStartAdd="@HandleOnStartAdd"
-                                OnCancelAdd="@HandleOnCancelAdd"
-                                OnAdd="@HandleOnAdd"
-                                NouvelleEtapeChanged="@HandleNouvelleEtapeChanged"/>
+            <AideMemoireAddRow CanEdit="@CanEdit"
+                               AjoutEnCours="@AjoutEnCours"
+                               CanEditEtape="@_canEditRow"
+                               OnStartAdd="@HandleOnStartAdd"
+                               OnCancelAdd="@HandleOnCancelAdd"
+                               OnAdd="@HandleOnAdd"
+                               NouvelleEtapeChanged="@HandleNouvelleEtapeChanged"/>
         </tbody>
     </table>
 </div>
 
 @code {
-    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
+    [Parameter] public bool CanEdit { get; set; } = false;
     [Parameter] public List<AideMemoireVm> Etapes { get; set; } = [];
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public AideMemoireVm? EtapeEnEdition { get; set; }

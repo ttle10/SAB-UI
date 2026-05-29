@@ -6,7 +6,7 @@
 
 @implements IAsyncDisposable
 
-<AideMemoireTable CurrentUserInfo="@CurrentUserInfo"
+<AideMemoireTable CanEdit="@CanEdit"
                   Etapes="@(_etapes ?? new List<AideMemoireVm>())"
                   IsLoading="@_isLoading"
                   EtapeEnEdition="@_etapeEnEdition"
@@ -48,6 +48,9 @@
 
     // Drag & Drop process variable
     private List<AideMemoireVm>? _etapesBeforeDrag;
+
+	private bool CanEdit => CurrentUserInfo.IsValidRole();
+
 
     protected override async Task OnInitializedAsync()
     {

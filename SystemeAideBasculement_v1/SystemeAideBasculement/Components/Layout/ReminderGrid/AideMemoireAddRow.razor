@@ -3,7 +3,7 @@
 @using SystemeAideBasculement.Models
 
 <tr>
-    @if (CanEdit() && AjoutEnCours)
+    @if (CanEdit && AjoutEnCours)
     {
         <td class="drag-handle"/>
         <!-- Étape -->
@@ -41,14 +41,14 @@
         <td colspan="5">
             <ButtonAction DisplayText="Ajouter une nouvelle étape…"
                           TooltipText="Ajouter une nouvelle étape à l'aide-mémoire"
-                          CanEdit="@(CanEdit() && CanEditEtape)"
+                          CanEdit="@(CanEdit && CanEditEtape)"
                           OnClick="@OnStartAdd" />
         </td>
     }
 </tr>
 
 @code {
-    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
+    [Parameter] public bool CanEdit { get; set; } = false;
 
     [Parameter] public bool AjoutEnCours { get; set; }
     [Parameter] public string NouvelleEtape { get; set; } = "";
@@ -61,11 +61,6 @@
 
     private UserInfo _currentUserInfo = UserInfoExtensions.Empty;
 
-    private bool CanEdit()
-    {
-        return CurrentUserInfo.IsValidRole();
-    }
-
     private void CancelAdd()
     {
         NouvelleEtape = string.Empty;
@@ -77,7 +72,7 @@
 
     private async Task AddIfValid()
     {
-        if (!CanEdit())
+        if (!CanEdit)
             return;
 
         if (string.IsNullOrWhiteSpace(NouvelleEtape))

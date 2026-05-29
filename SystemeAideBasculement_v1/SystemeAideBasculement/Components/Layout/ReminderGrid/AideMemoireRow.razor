@@ -87,7 +87,7 @@
 </tr>
 
 @code {
-    [Parameter] public UserInfo CurrentUserInfo { get; set; } = UserInfoExtensions.Empty;
+    [Parameter] public bool CanEdit { get; set; } = false;
 
     [Parameter] public AideMemoireVm Etape { get; set; } = default!;
     [Parameter] public AideMemoireVm? EtapeEnEdition { get; set; }
@@ -104,8 +104,6 @@
     [Parameter] public EventCallback<AideMemoireVm> OnStartDrag { get; set; }
     [Parameter] public EventCallback<AideMemoireVm> OnRowHover { get; set; }
     [Parameter] public EventCallback<AideMemoireVm> OnEndDrag { get; set; }
-
-	private bool CanEdit => CurrentUserInfo.IsValidRole();
 
 
     private InputTextValue? _initialesInput;
