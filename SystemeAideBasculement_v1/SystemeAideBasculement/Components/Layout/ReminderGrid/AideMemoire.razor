@@ -11,7 +11,6 @@
                   IsLoading="@_isLoading"
                   EtapeEnEdition="@_etapeEnEdition"
                   AjoutEnCours="@_ajoutEnCours"
-                  NouvelleEtape="@_nouvelleEtape"
                   OnEdit="@HandleModifierEtape"
                   OnCancelEdit="@AnnulerEdition"
                   OnSave="@SauvegarderEtape"
@@ -19,7 +18,6 @@
                   OnStartAdd="@CommencerAjout"
                   OnCancelAdd="@AnnulerAjout"
                   OnAdd="@AjouterEtape"
-                  NouvelleEtapeChanged="@(v => _nouvelleEtape = v)"
                   OnUpdateDisplayOrderEtape="@HandleReorderDisplayEtape"
                   OnStartDrag="@HandleStartDrag"
                   OnCancelDrag="@HandleCancelDrag"/>
@@ -39,7 +37,6 @@
 
     private List<AideMemoireVm>? _etapes;
     private AideMemoireVm? _etapeEnEdition;
-    private string _nouvelleEtape = string.Empty;
     private bool _ajoutEnCours;
     private bool _isLoading;
 
@@ -199,19 +196,18 @@
     private void AnnulerAjout()
     {
         _ajoutEnCours = false;
-        _nouvelleEtape = string.Empty;
     }
 
-    private async Task AjouterEtape()
+    private async Task AjouterEtape(string nouvelleEtape)
     {
-        if (string.IsNullOrWhiteSpace(_nouvelleEtape))
+        if (string.IsNullOrWhiteSpace(nouvelleEtape))
         {
             return;
         }
 
         try
         {
-            await Service.AddAsync(_nouvelleEtape, _initiator);
+            await Service.AddAsync(nouvelleEtape, _initiator);
         }
         catch (Exception ex)
         {
@@ -221,7 +217,6 @@
         }
         finally
         {
-            _nouvelleEtape = string.Empty;
             _ajoutEnCours = false;
             await RechargerEtapes();
         }

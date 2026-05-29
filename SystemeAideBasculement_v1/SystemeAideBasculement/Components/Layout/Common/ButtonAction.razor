@@ -1,4 +1,4 @@
-﻿<span title="@DisplayTitle()">
+﻿<span title="@TooltipText">
     <button class="btn-action"
             type="button"
             disabled="@(CanEdit == false)"
@@ -12,13 +12,4 @@
     [Parameter] public string? TooltipText { get; set; } = null;
     [Parameter] public bool CanEdit { get; set; } = false;
     [Parameter] public EventCallback OnClick { get; set; }
-
-    private string? DisplayTitle()
-    {
-        if (CanEdit)
-            return TooltipText;
-
-        string tooltipTex = "Connectez-vous pour " + (!string.IsNullOrEmpty(TooltipText) ? TooltipText : "effectuer cette action") + ".";
-        return tooltipTex;
-    }
 }

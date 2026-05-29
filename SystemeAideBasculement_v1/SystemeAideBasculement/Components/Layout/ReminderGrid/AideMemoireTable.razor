@@ -2,11 +2,7 @@
 @using SystemeAideBasculement.Models
 @using Microsoft.AspNetCore.Components.Authorization
 
-<div class="table-container"
-     tabindex="0"
-     @onkeydown="HandleKeyDown"
-     @onkeydown:stopPropagation="true"
-     @onmouseup="HandleEndDrag">
+<div class="table-container">
     <table class="aide-memoire-table">
         <AideMemoireHeaderRow />
 
@@ -49,8 +45,7 @@
                                CanEditEtape="@_canEditRow"
                                OnStartAdd="@HandleOnStartAdd"
                                OnCancelAdd="@HandleOnCancelAdd"
-                               OnAdd="@HandleOnAdd"
-                               NouvelleEtapeChanged="@HandleNouvelleEtapeChanged"/>
+                               OnAdd="@HandleOnAdd"/>
         </tbody>
     </table>
 </div>
@@ -61,7 +56,6 @@
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public AideMemoireVm? EtapeEnEdition { get; set; }
     [Parameter] public bool AjoutEnCours { get; set; }
-    [Parameter] public string NouvelleEtape { get; set; } = "";
 
     // Events triggered by Edit AideMemoireRow
     [Parameter] public EventCallback<AideMemoireVm> OnEdit { get; set; }
@@ -73,8 +67,7 @@
     // Events triggerd by AddRow
     [Parameter] public EventCallback OnStartAdd { get; set; }
     [Parameter] public EventCallback OnCancelAdd { get; set; }
-    [Parameter] public EventCallback OnAdd { get; set; }
-    [Parameter] public EventCallback<string> NouvelleEtapeChanged { get; set; }
+    [Parameter] public EventCallback<string> OnAdd { get; set; }
 
     // Events triggerd by Drag & Drop (AideMemoireRow)
     [Parameter] public EventCallback OnStartDrag { get; set; }
@@ -114,12 +107,6 @@
         await OnCancelEdit.InvokeAsync();
     }
 
-    private async Task HandleNouvelleEtapeChanged(string value)
-    {
-        NouvelleEtape = value;
-        await NouvelleEtapeChanged.InvokeAsync(value);
-    }
-
     private async Task HandleOnStartAdd()
     {
         _canEditRow = false; // Disable buttons on steps
@@ -132,17 +119,21 @@
         await OnCancelAdd.InvokeAsync();
     }
 
-    private async Task HandleOnAdd()
+    private async Task HandleOnAdd(string nouvelleEtape)
     {
         _canEditRow = true; // Enable buttons on steps
-        await OnAdd.InvokeAsync();
+        await OnAdd.InvokeAsync(nouvelleEtape);
     }
 
     private async Task HandleStartDrag(AideMemoireVm etape)
     {
+        if (_isDragging || _draggingItem != null)
+            return;
+
         _draggingItem = etape;
 
         _draggedIndex = Etapes.IndexOf(etape);
+        Console.WriteLine($"Start Drag Etape (IndexList({_draggedIndex}), {_draggingItem.Step}), DisplayOrder ({_draggingItem.DisplayOrder})...");
         _isDragging = true;
         _hasMoved = false;
 
@@ -175,6 +166,7 @@
 
     private async Task HandleEndDrag()
     {
+        Console.WriteLine("Drag ended...");
         if (!_isDragging)
             return;
 
@@ -183,14 +175,18 @@
         // ne sauver QUE si mouvement réel
         if (!_hasMoved)
         {
+            Console.WriteLine("Has Move is false not real Drag...");
             _draggingItem = null;
             return;
         }
-
+        Console.WriteLine("Drag ended, updating display order...");
         // Recalcul ordre
+        var tempList = new List<AideMemoireVm>(); 
         for (int i = 0; i < Etapes.Count; i++)
         {
+            var displayOrderBf = Etapes[i].DisplayOrder;
             Etapes[i].DisplayOrder = i;
+            Console.WriteLine($"Step {Etapes[i].Step}, DisplayOrder Bf:{displayOrderBf}, Aft:{Etapes[i].DisplayOrder}");
         }
 
         _draggingItem = null;

@@ -9,12 +9,12 @@
         <!-- Étape -->
         <td class="col-step">
             <AutoResizeTextarea Value="@NouvelleEtape"
-                                ValueChanged="@NouvelleEtapeChanged"
+                                ValueChanged="@(v => NouvelleEtape = v)"
                                 MaxLength="@AideMemoireModel.StepMaxLength"
                                 Placeholder="Nouvelle étape..."
                                 ShowCounter="@false"
                                 OnEditMode="@true"
-                                OnCtrlEnter="@AddIfValid" />
+                                OnCtrlEnter="@HandleAdd" />
         </td>
         <!-- Complété -->
         <td class="col-completed"/>
@@ -25,7 +25,7 @@
             <ButtonIconAction DisplayText="💾"
                               TooltipText="Sauvegarder l'ajout"
                               CanEdit="@(!string.IsNullOrWhiteSpace(NouvelleEtape))"
-                              OnClick="@AddIfValid" />
+                              OnClick="@HandleAdd" />
             <ButtonIconAction DisplayText="✖"
                               TooltipText="Annuler l'ajout"
                               CanEdit="@true"
@@ -56,10 +56,18 @@
 
     [Parameter] public EventCallback OnStartAdd { get; set; }
     [Parameter] public EventCallback OnCancelAdd { get; set; }
-    [Parameter] public EventCallback OnAdd { get; set; }
-    [Parameter] public EventCallback<string?> NouvelleEtapeChanged { get; set; }
+    [Parameter] public EventCallback<string> OnAdd { get; set; }
 
     private UserInfo _currentUserInfo = UserInfoExtensions.Empty;
+
+    private async Task HandleStartAdd()
+    {
+        if (!CanEdit)
+            return;
+
+        NouvelleEtape = string.Empty;
+        await OnStartAdd.InvokeAsync();
+    }
 
     private void CancelAdd()
     {
@@ -70,7 +78,7 @@
          });
     }
 
-    private async Task AddIfValid()
+    private async Task HandleAdd()
     {
         if (!CanEdit)
             return;
@@ -78,6 +86,7 @@
         if (string.IsNullOrWhiteSpace(NouvelleEtape))
             return;
 
-        await OnAdd.InvokeAsync();
+        await OnAdd.InvokeAsync(NouvelleEtape);
+        NouvelleEtape = string.Empty;
     }
 }

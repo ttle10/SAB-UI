@@ -2,7 +2,7 @@
 
 .content-row {
     display: grid;
-    grid-template-columns: 1.2fr 1.2fr; /* left wider, right narrower */
+    grid-template-columns: 1.2fr 1.6fr; /* left narrower, right wider */
     gap: 16px;
     /*     align-items: flex-start;
            margin-top: 8px;
