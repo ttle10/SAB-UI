@@ -195,7 +195,6 @@
 
         _draggingItem = null;
 
-		await OnEndDrag.InvokeAsync();
 		await OnUpdateDisplayOrderEtape.InvokeAsync(Etapes); // Mettre à jour ordre dans BDD
     }
 
