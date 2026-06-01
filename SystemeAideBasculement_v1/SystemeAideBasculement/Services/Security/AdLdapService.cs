@@ -17,12 +17,25 @@ namespace SystemeAideBasculement.Services.Security
             _logger = logger;
         }
 
+        public AuthResult Authenticate(string username, string password)
+        {
+            foreach (var host in _options.Hosts)
+            {
+               var result = TryAuthenticate(host, username, password);
+               if (result.IsAuthenticated)
+               {
+                   return result;
+               }
+            }
+            return new AuthResult { IsAuthenticated = false };
+        }
+
         /// <summary>
         /// Valide username/password via LDAPS bind et retourne si l'utilisateur est membre direct de CCSAB.
         /// </summary>
-        public AuthResult Authenticate(string username, string password)
+        public AuthResult TryAuthenticate(string host, string username, string password)
         {
-            using var conn = CreateLdapsConnection(username, password);
+            using var conn = CreateLdapsConnection(host, username, password);
             bool isAuthenticated = false;
 
             _logger.LogInformation("[SabUI:AdLdapService]: Attempting to authenticate user {Username}", username);
@@ -159,9 +172,9 @@ namespace SystemeAideBasculement.Services.Security
             }
         }
 
-        private LdapConnection CreateLdapsConnection(string username, string password)
+        private LdapConnection CreateLdapsConnection(string host, string username, string password)
         {
-            var id = new LdapDirectoryIdentifier(_options.Host, _options.Port, fullyQualifiedDnsHostName: false, connectionless: false);
+            var id = new LdapDirectoryIdentifier(host, _options.Port, fullyQualifiedDnsHostName: false, connectionless: false);
 
             // DOMAIN\username
             //var cred = new NetworkCredential($"{_domainNetbios}\\{username}", password);
